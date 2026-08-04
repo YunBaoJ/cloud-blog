@@ -1,0 +1,293 @@
+@import "tailwindcss";
+
+:root {
+  /* Light mode tokens */
+  --background: #FAF7F2;
+  --foreground: #2D2B2C;
+  --border-line-color: rgba(45, 43, 44, 0.08);
+  --surface: #FFFFFF;
+  --surface-2: #F4F1EA;
+  --muted: #7A736A;
+  --accent-green: #36513B;
+  --accent-clay: #8C4A31;
+  --nav-bg: rgba(250, 247, 242, 0.55);
+  --nav-border: rgba(255, 255, 255, 0.5);
+}
+
+.dark {
+  /* Dark mode tokens — Rich Deep Forest Pine Night Palette */
+  --background: #142219;
+  --foreground: #F0F5F1;
+  --surface: #1B2D22;
+  --surface-2: #23382C;
+  --muted: #9EB3A4;
+  --accent-green: #7CD090;
+  --accent-clay: #E5987D;
+  --border-line-color: rgba(255, 255, 255, 0.09);
+  --nav-bg: rgba(20, 34, 25, 0.82);
+  --nav-border: rgba(255, 255, 255, 0.12);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-custom-sans), var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-custom-sans), system-ui, -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  /* Smooth dark/light transition */
+  transition: background-color 0.3s ease, color 0.3s ease;
+  /* 1. 强制全站等高齐平数字 */
+  font-variant-numeric: lining-nums tabular-nums;
+  font-feature-settings: "lnum" 1, "tnum" 1;
+  
+  /* 2. 极致抗锯齿与清晰度优化 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ==========================================================================
+   DARK MODE COMPREHENSIVE DESIGN SYSTEM OVERRIDES (DEEP FOREST PINE NIGHT)
+   ========================================================================== */
+
+.dark body,
+.dark main {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+/* 1. Page Backgrounds & Section Colors */
+.dark .bg-\[\#FAF7F2\],
+.dark .bg-\[\#F5F0E6\],
+.dark .bg-\[\#F2EDE2\],
+.dark [class*="bg-[#FAF7F2]"],
+.dark [class*="bg-[#F5F0E6]"],
+.dark [class*="bg-[#F2EDE2]"] {
+  background-color: var(--background) !important;
+}
+
+/* 2. Fix Header & Section Gradients in Dark Mode */
+.dark .bg-gradient-to-b,
+.dark .bg-gradient-to-r,
+.dark .bg-gradient-to-tr,
+.dark [class*="bg-gradient-"] {
+  background-image: linear-gradient(to bottom, rgba(35, 56, 44, 0.45), var(--background)) !important;
+}
+
+.dark [class*="from-[#FAF7F2]"],
+.dark [class*="from-[#E2EBE4]"],
+.dark [class*="from-[#FAF0EA]"],
+.dark [class*="from-[#FDEEE9]"] {
+  --tw-gradient-from: rgba(35, 56, 44, 0.45) !important;
+}
+
+.dark [class*="via-[#F2EDE2]"],
+.dark [class*="via-[#FAF7F2]"],
+.dark [class*="via-[#E2EBE4]"] {
+  --tw-gradient-via: var(--background) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--background), var(--tw-gradient-to, var(--background)) !important;
+}
+
+.dark [class*="to-[#FAF7F2]"],
+.dark [class*="to-[#F2EDE2]"] {
+  --tw-gradient-to: var(--background) !important;
+}
+
+/* 3. Cards & Surface Elements */
+.dark .bg-white,
+.dark .bg-white\/95,
+.dark .bg-white\/90,
+.dark .bg-white\/80,
+.dark .bg-white\/70,
+.dark .bg-white\/60,
+.dark .bg-white\/50,
+.dark .bg-white\/45,
+.dark .bg-white\/30,
+.dark .bg-white\/20,
+.dark [class*="bg-white/"] {
+  background-color: var(--surface) !important;
+  color: var(--foreground) !important;
+}
+
+.dark .bg-white\/16,
+.dark .bg-white\/15,
+.dark .bg-white\/10,
+.dark .bg-white\/8,
+.dark .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: var(--foreground) !important;
+}
+
+/* 4. Secondary Surfaces & Badges */
+.dark .bg-\[\#F4F1EA\],
+.dark .bg-\[\#E8F0F8\],
+.dark [class*="bg-[#F4F1EA]"],
+.dark [class*="bg-[#E8F0F8]"] {
+  background-color: var(--surface-2) !important;
+  color: var(--foreground) !important;
+}
+
+.dark .bg-\[\#E2EBE4\],
+.dark [class*="bg-[#E2EBE4]"] {
+  background-color: rgba(124, 208, 144, 0.18) !important;
+  color: var(--accent-green) !important;
+}
+
+.dark .bg-\[\#FAF0EA\],
+.dark [class*="bg-[#FAF0EA]"],
+.dark .bg-\[\#FDEEE9\],
+.dark [class*="bg-[#FDEEE9]"] {
+  background-color: rgba(229, 152, 125, 0.18) !important;
+  color: var(--accent-clay) !important;
+}
+
+.dark .bg-\[\#F5E8D3\]\/85 {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* 5. Text Colors */
+.dark .text-\[\#2D2B2C\],
+.dark [class*="text-[#2D2B2C]"] {
+  color: var(--foreground) !important;
+}
+
+.dark .text-\[\#5A5551\],
+.dark .text-\[\#7A736A\],
+.dark .text-\[\#3A3839\],
+.dark .text-\[\#544F49\],
+.dark .text-\[\#706962\],
+.dark .text-\[\#B0A99F\],
+.dark .text-\[\#A39B91\] {
+  color: var(--muted) !important;
+}
+
+.dark .text-\[\#36513B\],
+.dark .text-\[\#4E7A56\] {
+  color: var(--accent-green) !important;
+}
+
+.dark .text-\[\#8C4A31\],
+.dark .text-\[\#C46A4A\] {
+  color: var(--accent-clay) !important;
+}
+
+.dark .text-\[\#2B4C6F\] {
+  color: #8EBAE3 !important;
+}
+
+/* 6. Borders & Dividers */
+.dark [class*="border-[#2D2B2C]"],
+.dark [class*="border-[#36513B]"],
+.dark [class*="border-[#8C4A31]"],
+.dark [class*="border-[#2B4C6F]"],
+.dark [class*="border-[#D2DFD5]"],
+.dark [class*="border-[#E8D7BE]"],
+.dark [class*="border-white"],
+.dark [class*="border-white/"] {
+  border-color: var(--border-line-color) !important;
+}
+
+/* 7. Forms, Inputs & Buttons */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: var(--surface-2) !important;
+  color: var(--foreground) !important;
+  border-color: var(--border-line-color) !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: var(--muted) !important;
+}
+
+/* 8. Hero Wave Dividers */
+.dark .wave-layer-4 {
+  fill: var(--background) !important;
+}
+.dark .wave-layer-3 {
+  fill: rgba(27, 45, 34, 0.75) !important;
+}
+.dark .wave-layer-2 {
+  fill: rgba(27, 45, 34, 0.50) !important;
+}
+.dark .wave-layer-1 {
+  fill: rgba(27, 45, 34, 0.25) !important;
+}
+
+/* 9. Lightbox & Modal Controls */
+.dark .bg-\[\#141715\] {
+  background-color: #0E1812 !important;
+}
+
+/* Apple Acrylic Liquid Glass Utility */
+.apple-acrylic {
+  background: rgba(250, 247, 242, 0.55);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 
+    0 10px 32px -4px rgba(0, 0, 0, 0.08),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.dark .apple-acrylic {
+  background: rgba(20, 34, 25, 0.82) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 10px 32px -4px rgba(0, 0, 0, 0.45) !important;
+}
+
+.warm-glass {
+  background: rgba(250, 247, 242, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 12px 36px -6px rgba(61, 59, 60, 0.07), 0 4px 12px -2px rgba(61, 59, 60, 0.04);
+}
+
+.dark .warm-glass {
+  background: rgba(27, 45, 34, 0.88) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+}
+
+/* SpringBlog Style Section Dividers */
+.divider-h {
+  width: 100%;
+  height: 1px;
+  background-color: var(--border-line-color);
+}
+
+/* SpringBlog Parallax Wave Divider Styles */
+.home-hero-wave {
+  height: clamp(4.5rem, 9vw, 7rem);
+  transform: translateY(1px);
+}
+
+.waves {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin-bottom: -1px;
+}
+
+.wave-parallax > use {
+  animation: atlas-wave-drift 22s cubic-bezier(0.55, 0.5, 0.45, 0.5) infinite;
+  will-change: transform;
+}
+
+@keyframes atlas-wave-drift {
+  0% {
+    transform: translate3d(-90px, 0, 0);
+  }
+  100% {
+    transform: translate3d(85px, 0, 0);
+  }
+}
