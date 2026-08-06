@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Coffee, Feather, Sparkles, BookOpen, User, Camera, Archive } from "lucide-react";
+import { Coffee, Feather, Sparkles, BookOpen, User, Camera, Archive, MessageSquare } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
+import AmbientPlayer from "./AmbientPlayer";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -42,7 +43,7 @@ export default function Navbar() {
             <span className="tracking-tight font-bold">小屋主页</span>
           </Link>
 
-          {/* 2. 随笔笔记 (笔记第一) */}
+          {/* 2. 随笔笔记 */}
           <Link
             href="/notes"
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
@@ -56,7 +57,7 @@ export default function Navbar() {
             <span className="sm:hidden">笔记</span>
           </Link>
 
-          {/* 3. 摄影画廊 (画廊) */}
+          {/* 3. 摄影画廊 */}
           <Link
             href="/gallery"
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
@@ -69,7 +70,7 @@ export default function Navbar() {
             <span className="hidden md:inline">摄影画廊</span>
           </Link>
 
-          {/* 4. 灵感游乐场 (游乐场) */}
+          {/* 4. 灵感游乐场 */}
           <Link
             href="/playground"
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
@@ -79,11 +80,23 @@ export default function Navbar() {
             }`}
           >
             <Sparkles className="w-3.5 h-3.5 text-[#C46A4A]" />
-            <span className="hidden sm:inline">灵感游乐场</span>
-            <span className="sm:hidden">游乐场</span>
+            <span className="hidden sm:inline">游乐场</span>
           </Link>
 
-          {/* 5. 文章归档 (归档) */}
+          {/* 5. 留言板 (新增) */}
+          <Link
+            href="/guestbook"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+              isActive("/guestbook")
+                ? "bg-white text-[#2D2B2C] shadow-2xs font-semibold"
+                : "text-[#5A5551] hover:text-[#2D2B2C] hover:bg-white/70"
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5 text-[#8C4A31]" />
+            <span className="hidden md:inline">留言板</span>
+          </Link>
+
+          {/* 6. 文章归档 */}
           <Link
             href="/archive"
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
@@ -93,10 +106,10 @@ export default function Navbar() {
             }`}
           >
             <Archive className="w-3.5 h-3.5 text-[#2B4C6F]" />
-            <span className="hidden lg:inline">文章归档</span>
+            <span className="hidden lg:inline">归档</span>
           </Link>
 
-          {/* 6. 关于小屋 (关于小屋) */}
+          {/* 7. 关于小屋 */}
           <Link
             href="/about"
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
@@ -106,23 +119,17 @@ export default function Navbar() {
             }`}
           >
             <User className="w-3.5 h-3.5 text-[#544F49]" />
-            <span className="hidden md:inline">关于小屋</span>
+            <span className="hidden md:inline">关于</span>
           </Link>
 
           {/* 软分隔线 */}
           <div className="h-4 w-px bg-[#2D2B2C]/10 dark:bg-[#EDE9E4]/10 mx-0.5" />
 
+          {/* Ambient Player (白噪音播放器) */}
+          <AmbientPlayer />
+
           {/* Theme toggle */}
           <ThemeToggle />
-
-          {/* 7. 咖啡馆 CTA */}
-          <Link
-            href="/notes"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#E2EBE4] hover:bg-[#D4E3D7] text-[#36513B] text-xs font-semibold transition-all border border-[#D2DFD5] hover:scale-[1.02] shadow-2xs dark:bg-[#1E3222] dark:hover:bg-[#243D29] dark:text-[#6FAF79] dark:border-[#2A4530]"
-          >
-            <Coffee className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">咖啡馆</span>
-          </Link>
 
         </div>
 

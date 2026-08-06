@@ -52,8 +52,8 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
 
   return (
     <>
-      {/* Desktop Floating Outer Right Panel — Completely Outside Article Box so text width is never squeezed */}
-      <aside className="fixed right-6 lg:right-10 xl:right-16 top-32 z-40 w-64 hidden xl:block animate-in fade-in duration-300">
+      {/* Desktop Floating Outer Left Panel — Positioned further left for generous breathing room from the main article card */}
+      <aside className="fixed left-2 sm:left-4 md:left-6 xl:left-6 2xl:left-12 3xl:left-20 top-80 z-40 w-52 hidden xl:block animate-in fade-in duration-300">
         <nav className="space-y-3 bg-white/85 dark:bg-[#1C1A17]/85 backdrop-blur-xl p-5 rounded-3xl border border-[#2D2B2C]/8 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
           <div className="flex items-center justify-between border-b border-[#2D2B2C]/8 dark:border-white/10 pb-3">
             <div className="flex items-center gap-2 text-xs font-bold text-[#36513B] dark:text-[#7CD090] uppercase tracking-wider font-mono">

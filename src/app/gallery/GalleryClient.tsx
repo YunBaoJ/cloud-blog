@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Footer from "@/components/Footer";
 import { GALLERY_PHOTOS, GalleryPhoto } from "@/data/mockData";
 import Image from "next/image";
@@ -17,6 +18,9 @@ const CATEGORIES = [
 export default function GalleryClient() {
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [selectedPhoto, setSelectedPhoto] = useState<GalleryPhoto | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   // Filter photos
   const filteredPhotos = GALLERY_PHOTOS.filter(
@@ -100,7 +104,8 @@ export default function GalleryClient() {
   const rotations = ["-rotate-2", "rotate-2", "-rotate-1", "rotate-3", "-rotate-3", "rotate-1"];
 
   return (
-    <main className="min-h-screen bg-[#FAF7F2] text-[#2D2B2C]">
+    <>
+      <main className="min-h-screen bg-[#FAF7F2] text-[#2D2B2C]">
       {/* Header Section */}
       <section className="pt-32 pb-12 px-6 sm:px-12 lg:px-20 bg-gradient-to-b from-[#E2EBE4]/35 via-[#FAF7F2] to-[#FAF7F2] border-b border-[#2D2B2C]/8">
         <div className="max-w-6xl mx-auto space-y-6">
@@ -200,282 +205,156 @@ export default function GalleryClient() {
         </div>
       </section>
 
-      {/* Masterclass Lightbox Modal — Leica/Hasselblad Viewfinder HUD & Wheel Scroll Switch */}
-      {selectedPhoto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-[#2D2B2C]/45 backdrop-blur-2xl animate-in fade-in duration-200">
-          
-          {/* Close Button */}
-          <button
-            onClick={() => setSelectedPhoto(null)}
-            className="absolute top-5 right-5 z-50 p-3 rounded-full bg-white/80 hover:bg-white text-[#2D2B2C] transition-all shadow-lg border border-white/60 hover:scale-105"
-          >
-            <X className="w-5 h-5" />
-          </button>
-
-          {/* Previous / Next Arrow Controls */}
-          {currentIndex > 0 && (
-            <button
-              onClick={() => setSelectedPhoto(filteredPhotos[currentIndex - 1])}
-              className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-50 p-3 rounded-full bg-white/80 hover:bg-white text-[#2D2B2C] transition-all shadow-lg border border-white/60 hover:scale-105"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-          )}
-
-          {currentIndex < filteredPhotos.length - 1 && (
-            <button
-              onClick={() => setSelectedPhoto(filteredPhotos[currentIndex + 1])}
-              className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-50 p-3 rounded-full bg-white/80 hover:bg-white text-[#2D2B2C] transition-all shadow-lg border border-white/60 hover:scale-105"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
-          )}
-
-          {/* Modal Content Box */}
-          <div className="relative w-full max-w-6xl max-h-[90vh] bg-[#FAF7F2] text-[#2D2B2C] rounded-3xl overflow-hidden border border-white/90 shadow-[0_24px_64px_rgba(0,0,0,0.22)] grid grid-cols-1 lg:grid-cols-12">
-            
-            {/* Left Image Viewfinder HUD Area */}
-            <div className="lg:col-span-8 relative bg-[#141715] flex flex-col items-center justify-between p-4 sm:p-5 select-none overflow-hidden border-b lg:border-b-0 lg:border-r border-[#36513B]/20">
-              
-              {/* Top Camera Focal Scale Ruler Bar */}
-              <div className="w-full flex items-center justify-between text-xs font-mono text-[#E2EBE4]/90 z-20 pb-3 border-b border-[#36513B]/30 bg-[#1A1F1C]/90 backdrop-blur-md px-4 py-2.5 rounded-t-2xl">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34D399]" />
-                  <span className="font-bold text-white tracking-widest uppercase text-[11px]">REC ● AF-C SPOT</span>
-                </div>
-                
-                {/* Tactile Lens Ruler Ticks */}
-                <div className="hidden sm:flex items-center gap-3.5 text-[10px] font-mono text-[#98A79C]">
-                  <div className="flex items-end gap-1">
-                    <span className="text-white/40">18</span>
-                    <span className="h-2 w-px bg-white/25" />
-                    <span className="h-3 w-px bg-white/45" />
-                    <span className="h-2 w-px bg-white/25" />
-                  </div>
-                  <div className="flex items-end gap-1">
-                    <span className="text-white/40">24</span>
-                    <span className="h-2 w-px bg-white/25" />
-                    <span className="h-3 w-px bg-white/45" />
-                    <span className="h-2 w-px bg-white/25" />
-                  </div>
-
-                  {/* Highlighted Selected Focal Length Badge */}
-                  <div className="flex flex-col items-center px-2.5 py-0.5 rounded bg-[#36513B]/80 border border-emerald-400/50 text-emerald-300 font-bold shadow-2xs">
-                    <span className="text-[11px] leading-tight font-mono">{selectedPhoto.exif.focalLength}</span>
-                    <span className="h-1.5 w-0.5 bg-emerald-400 mt-0.5" />
-                  </div>
-
-                  <div className="flex items-end gap-1">
-                    <span className="h-2 w-px bg-white/25" />
-                    <span className="h-3 w-px bg-white/45" />
-                    <span className="h-2 w-px bg-white/25" />
-                    <span className="text-white/40">50</span>
-                  </div>
-                  <div className="flex items-end gap-1">
-                    <span className="h-2 w-px bg-white/25" />
-                    <span className="h-3 w-px bg-white/45" />
-                    <span className="h-2 w-px bg-white/25" />
-                    <span className="text-white/40">85</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 text-emerald-400 font-mono text-[11px] font-semibold">
-                  <span className="px-2.5 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/30">RAW 14-bit</span>
-                </div>
-              </div>
-
-              {/* Center Photo Area with Precision Viewfinder Focus Crop Reticle */}
-              <div className="relative w-full h-full min-h-[350px] lg:min-h-[520px] flex items-center justify-center py-3 my-auto">
-                
-                {/* 4 Viewfinder Focus Corners */}
-                <div className="absolute top-3 left-3 z-20 pointer-events-none flex flex-col gap-0.5">
-                  <div className="w-6 h-6 border-t-2 border-l-2 border-emerald-400/80" />
-                  <div className="flex gap-0.5">
-                    <div className="w-1 h-px bg-emerald-400/50" />
-                    <div className="w-1 h-px bg-emerald-400/50" />
-                    <div className="w-1 h-px bg-emerald-400/50" />
-                  </div>
-                </div>
-
-                <div className="absolute top-3 right-3 z-20 pointer-events-none flex flex-col items-end gap-0.5">
-                  <div className="w-6 h-6 border-t-2 border-r-2 border-emerald-400/80" />
-                  <div className="flex gap-0.5">
-                    <div className="w-1 h-px bg-emerald-400/50" />
-                    <div className="w-1 h-px bg-emerald-400/50" />
-                    <div className="w-1 h-px bg-emerald-400/50" />
-                  </div>
-                </div>
-
-                <div className="absolute bottom-3 left-3 z-20 pointer-events-none flex flex-col gap-0.5">
-                  <div className="flex gap-0.5">
-                    <div className="w-1 h-px bg-emerald-400/50" />
-                    <div className="w-1 h-px bg-emerald-400/50" />
-                    <div className="w-1 h-px bg-emerald-400/50" />
-                  </div>
-                  <div className="w-6 h-6 border-b-2 border-l-2 border-emerald-400/80" />
-                </div>
-
-                <div className="absolute bottom-3 right-3 z-20 pointer-events-none flex flex-col items-end gap-0.5">
-                  <div className="flex gap-0.5">
-                    <div className="w-1 h-px bg-emerald-400/50" />
-                    <div className="w-1 h-px bg-emerald-400/50" />
-                    <div className="w-1 h-px bg-emerald-400/50" />
-                  </div>
-                  <div className="w-6 h-6 border-b-2 border-r-2 border-emerald-400/80" />
-                </div>
-
-                {/* Center Target Focus Circle */}
-                <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none opacity-30">
-                  <div className="w-24 h-24 rounded-full border border-dashed border-emerald-300 flex items-center justify-center">
-                    <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                  </div>
-                </div>
-
-                <div className="relative w-full h-full min-h-[320px] lg:min-h-[500px]">
-                  <Image
-                    src={selectedPhoto.src}
-                    alt={selectedPhoto.title}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 66vw"
-                    className="object-contain rounded-lg"
-                    priority
-                  />
-                </div>
-              </div>
-
-              {/* Bottom Metering Scale Bar */}
-              <div className="w-full flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-[#E2EBE4] z-20 pt-3 border-t border-[#36513B]/30 bg-[#1A1F1C]/90 backdrop-blur-md px-4 py-2.5 rounded-b-2xl">
-                
-                {/* Metering Scale Ticks */}
-                <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#98A79C]">
-                  <span>-3</span>
-                  <span className="h-1.5 w-px bg-white/30" />
-                  <span>-2</span>
-                  <span className="h-1.5 w-px bg-white/30" />
-                  <span>-1</span>
-                  <span className="h-3 w-0.5 bg-emerald-400" />
-                  <span className="text-emerald-300 font-bold">▲ 0.0</span>
-                  <span className="h-3 w-0.5 bg-emerald-400" />
-                  <span>+1</span>
-                  <span className="h-1.5 w-px bg-white/30" />
-                  <span>+2</span>
-                  <span className="h-1.5 w-px bg-white/30" />
-                  <span>+3</span>
-                </div>
-
-                {/* Masterclass Live Exposure HUD Badges */}
-                <div className="flex items-center gap-2 text-xs font-mono">
-                  <span className="px-2.5 py-1 rounded bg-[#25382B] text-emerald-300 font-bold border border-emerald-500/30">
-                    ⚡ {selectedPhoto.exif.shutterSpeed}
-                  </span>
-                  <span className="px-2.5 py-1 rounded bg-[#3D251A] text-amber-300 font-bold border border-amber-500/30">
-                    ⭕ {selectedPhoto.exif.aperture}
-                  </span>
-                  <span className="px-2.5 py-1 rounded bg-[#1D2B3D] text-sky-300 font-bold border border-sky-500/30">
-                    🎛️ ISO {selectedPhoto.exif.iso}
-                  </span>
-                </div>
-
-                <div className="text-[11px] text-[#98A79C] font-mono flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-amber-400" />
-                  <span>{selectedPhoto.location}</span>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Right Side Info & Story Panel */}
-            <div className="lg:col-span-4 p-6 sm:p-8 bg-[#FAF7F2] overflow-y-auto space-y-6 flex flex-col justify-between">
-              <div className="space-y-6">
-                
-                {/* Category & Date */}
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="px-3 py-1 rounded-full bg-[#36513B] text-[#E2EBE4] font-semibold">
-                    {selectedPhoto.categoryLabel}
-                  </span>
-                  <span className="flex items-center gap-1 text-[#7A736A]">
-                    <Calendar className="w-3.5 h-3.5 text-[#36513B]" />
-                    {selectedPhoto.date}
-                  </span>
-                </div>
-
-                {/* Title & Story */}
-                <div className="space-y-2">
-                  <h2 className="text-xl sm:text-2xl font-bold text-[#2D2B2C] leading-tight">
-                    {selectedPhoto.title}
-                  </h2>
-                  <p className="text-xs sm:text-sm text-[#5A5551] leading-relaxed font-serif pt-1">
-                    {selectedPhoto.story}
-                  </p>
-                </div>
-
-                <hr className="border-[#2D2B2C]/10" />
-
-                {/* EXIF Technical Parameters Specification Panel */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-xs font-bold text-[#36513B] uppercase tracking-wider font-mono">
-                    <Sliders className="w-4 h-4 text-[#8C4A31]" />
-                    <span>相机参数规格 HUD</span>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="p-3.5 rounded-2xl bg-white border border-[#2D2B2C]/8 shadow-2xs space-y-1">
-                      <span className="text-[10px] font-mono text-[#7A736A] uppercase block">相机型号 (Camera)</span>
-                      <span className="text-sm font-bold text-[#2D2B2C] font-mono">{selectedPhoto.exif.camera}</span>
-                    </div>
-
-                    <div className="p-3.5 rounded-2xl bg-white border border-[#2D2B2C]/8 shadow-2xs space-y-1">
-                      <span className="text-[10px] font-mono text-[#7A736A] uppercase block">镜头规格 (Lens)</span>
-                      <span className="text-sm font-bold text-[#2D2B2C] font-mono">{selectedPhoto.exif.lens}</span>
-                    </div>
-
-                    {/* 4 Grid Exposure Matrix */}
-                    <div className="grid grid-cols-2 gap-2.5">
-                      <div className="p-3 rounded-2xl bg-white border border-[#2D2B2C]/8 shadow-2xs space-y-0.5">
-                        <span className="text-[10px] font-mono text-[#7A736A] uppercase block">焦段</span>
-                        <span className="text-xs font-bold text-[#36513B] font-mono">{selectedPhoto.exif.focalLength}</span>
-                      </div>
-                      <div className="p-3 rounded-2xl bg-white border border-[#2D2B2C]/8 shadow-2xs space-y-0.5">
-                        <span className="text-[10px] font-mono text-[#7A736A] uppercase block">光圈</span>
-                        <span className="text-xs font-bold text-[#8C4A31] font-mono">{selectedPhoto.exif.aperture}</span>
-                      </div>
-                      <div className="p-3 rounded-2xl bg-white border border-[#2D2B2C]/8 shadow-2xs space-y-0.5">
-                        <span className="text-[10px] font-mono text-[#7A736A] uppercase block">快门</span>
-                        <span className="text-xs font-bold text-[#36513B] font-mono">{selectedPhoto.exif.shutterSpeed}</span>
-                      </div>
-                      <div className="p-3 rounded-2xl bg-white border border-[#2D2B2C]/8 shadow-2xs space-y-0.5">
-                        <span className="text-[10px] font-mono text-[#7A736A] uppercase block">感光度</span>
-                        <span className="text-xs font-bold text-[#36513B] font-mono">ISO {selectedPhoto.exif.iso}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Location Badge */}
-                <div className="flex items-center gap-2 text-xs font-mono text-[#5A5551] p-3 rounded-2xl bg-white border border-[#2D2B2C]/8 shadow-2xs">
-                  <MapPin className="w-4 h-4 text-[#8C4A31]" />
-                  <span>拍摄地点：{selectedPhoto.location}</span>
-                </div>
-
-              </div>
-
-              {/* Navigation Tip */}
-              <div className="pt-4 text-center border-t border-[#2D2B2C]/10 space-y-1">
-                <p className="text-[11px] font-mono text-[#36513B] font-semibold">
-                  鼠标滚轮 / 键盘 ← → 控制照片切换
-                </p>
-                <p className="text-[10px] font-mono text-[#7A736A]">
-                  （背景页面滚动已锁定 · Esc 键退出弹窗）
-                </p>
-              </div>
-
-            </div>
-
-          </div>
-        </div>
-      )}
-
       <Footer />
     </main>
-  );
+
+    {/* Masterclass Lightbox Modal — Portal directly to document.body */}
+    {mounted && selectedPhoto && createPortal(
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-[#2D2B2C]/50 backdrop-blur-2xl animate-in fade-in duration-200"
+        onClick={(e) => { if (e.target === e.currentTarget) setSelectedPhoto(null); }}
+      >
+        {/* Close Button */}
+        <button
+          onClick={() => setSelectedPhoto(null)}
+          className="absolute top-5 right-5 z-50 p-3 rounded-full bg-white/80 hover:bg-white text-[#2D2B2C] transition-all shadow-lg border border-white/60 hover:scale-105"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Previous / Next Arrow Controls */}
+        {currentIndex > 0 && (
+          <button
+            onClick={() => setSelectedPhoto(filteredPhotos[currentIndex - 1])}
+            className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-50 p-3 rounded-full bg-white/80 hover:bg-white text-[#2D2B2C] transition-all shadow-lg border border-white/60 hover:scale-105"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+        )}
+
+        {currentIndex < filteredPhotos.length - 1 && (
+          <button
+            onClick={() => setSelectedPhoto(filteredPhotos[currentIndex + 1])}
+            className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-50 p-3 rounded-full bg-white/80 hover:bg-white text-[#2D2B2C] transition-all shadow-lg border border-white/60 hover:scale-105"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        )}
+
+        {/* Modal Content Box */}
+        <div className="relative w-full max-w-6xl max-h-[85vh] bg-[#FAF7F2] text-[#2D2B2C] rounded-3xl overflow-hidden border border-white/90 shadow-[0_24px_64px_rgba(0,0,0,0.22)] grid grid-cols-1 lg:grid-cols-12">
+          {/* Left Image Viewfinder HUD Area */}
+          <div className="lg:col-span-8 relative bg-[#141715] flex flex-col items-center justify-between p-4 sm:p-5 select-none overflow-hidden border-b lg:border-b-0 lg:border-r border-[#36513B]/20">
+            {/* Top Camera Focal Scale Ruler Bar */}
+            <div className="w-full flex items-center justify-between text-xs font-mono text-[#E2EBE4]/90 z-20 pb-3 border-b border-[#36513B]/30 bg-[#1A1F1C]/90 backdrop-blur-md px-4 py-2.5 rounded-t-2xl">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34D399]" />
+                <span className="font-bold text-white tracking-widest uppercase text-[11px]">REC ● AF-C SPOT</span>
+              </div>
+              <div className="hidden sm:flex items-center gap-3.5 text-[10px] font-mono text-[#98A79C]">
+                <div className="flex items-end gap-1">
+                  <span className="text-white/40">18</span>
+                  <span className="h-2 w-px bg-white/25" />
+                  <span className="h-3 w-px bg-white/45" />
+                  <span className="h-2 w-px bg-white/25" />
+                </div>
+                <div className="flex flex-col items-center px-2.5 py-0.5 rounded bg-[#36513B]/80 border border-emerald-400/50 text-emerald-300 font-bold shadow-2xs">
+                  <span className="text-[11px] leading-tight font-mono">{selectedPhoto.exif.focalLength}</span>
+                  <span className="h-1.5 w-0.5 bg-emerald-400 mt-0.5" />
+                </div>
+                <div className="flex items-end gap-1">
+                  <span className="h-2 w-px bg-white/25" />
+                  <span className="h-3 w-px bg-white/45" />
+                  <span className="h-2 w-px bg-white/25" />
+                  <span className="text-white/40">85</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-emerald-400 font-mono text-[11px] font-semibold">
+                <span className="px-2.5 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/30">RAW 14-bit</span>
+              </div>
+            </div>
+
+            {/* Center Photo Area */}
+            <div className="relative w-full h-full min-h-[300px] lg:min-h-[460px] flex items-center justify-center py-3 my-auto">
+              <Image
+                src={selectedPhoto.src}
+                alt={selectedPhoto.title}
+                fill
+                sizes="(max-width: 1024px) 100vw, 66vw"
+                className="object-contain rounded-lg"
+                priority
+              />
+            </div>
+
+            {/* Bottom Metering Scale Bar */}
+            <div className="w-full flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-[#E2EBE4] z-20 pt-3 border-t border-[#36513B]/30 bg-[#1A1F1C]/90 backdrop-blur-md px-4 py-2.5 rounded-b-2xl">
+              <div className="flex items-center gap-2 text-xs font-mono">
+                <span className="px-2.5 py-1 rounded bg-[#25382B] text-emerald-300 font-bold border border-emerald-500/30">
+                  ⚡ {selectedPhoto.exif.shutterSpeed}
+                </span>
+                <span className="px-2.5 py-1 rounded bg-[#3D251A] text-amber-300 font-bold border border-amber-500/30">
+                  ⭕ {selectedPhoto.exif.aperture}
+                </span>
+                <span className="px-2.5 py-1 rounded bg-[#1D2B3D] text-sky-300 font-bold border border-sky-500/30">
+                  🎛️ ISO {selectedPhoto.exif.iso}
+                </span>
+              </div>
+              <div className="text-[11px] text-[#98A79C] font-mono flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-amber-400" />
+                <span>{selectedPhoto.location}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side Info & Story Panel */}
+          <div className="lg:col-span-4 p-6 sm:p-8 bg-[#FAF7F2] overflow-y-auto space-y-6 flex flex-col justify-between max-h-[85vh]">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between text-xs font-mono">
+                <span className="px-3 py-1 rounded-full bg-[#36513B] text-[#E2EBE4] font-semibold">
+                  {selectedPhoto.categoryLabel}
+                </span>
+                <span className="flex items-center gap-1 text-[#7A736A]">
+                  <Calendar className="w-3.5 h-3.5 text-[#36513B]" />
+                  {selectedPhoto.date}
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#2D2B2C] leading-tight">
+                  {selectedPhoto.title}
+                </h2>
+                <p className="text-xs sm:text-sm text-[#5A5551] leading-relaxed font-serif pt-1">
+                  {selectedPhoto.story}
+                </p>
+              </div>
+
+              <hr className="border-[#2D2B2C]/10" />
+
+              <div className="space-y-3">
+                <div className="p-3.5 rounded-2xl bg-white border border-[#2D2B2C]/8 shadow-2xs space-y-1">
+                  <span className="text-[10px] font-mono text-[#7A736A] uppercase block">相机型号</span>
+                  <span className="text-sm font-bold text-[#2D2B2C] font-mono">{selectedPhoto.exif.camera}</span>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-white border border-[#2D2B2C]/8 shadow-2xs space-y-1">
+                  <span className="text-[10px] font-mono text-[#7A736A] uppercase block">镜头规格</span>
+                  <span className="text-sm font-bold text-[#2D2B2C] font-mono">{selectedPhoto.exif.lens}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 text-center border-t border-[#2D2B2C]/10 space-y-1">
+              <p className="text-[11px] font-mono text-[#36513B] font-semibold">
+                鼠标滚轮 / 键盘 ← → 控制照片切换
+              </p>
+              <p className="text-[10px] font-mono text-[#7A736A]">
+                （Esc 键退出弹窗）
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>,
+      document.body
+    )}
+  </>
+);
 }

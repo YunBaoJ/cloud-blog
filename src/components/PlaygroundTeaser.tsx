@@ -1,18 +1,22 @@
 "use client";
 
 import { PLAYGROUND_ITEMS, PlaygroundItem } from "@/data/mockData";
-import { Sparkles, Timer, Palette, Feather, ArrowRight } from "lucide-react";
+import { Sparkles, Gamepad2, Grid, Bot, ArrowRight, Dices } from "lucide-react";
 import Link from "next/link";
 
 export default function PlaygroundTeaser() {
   const getIcon = (iconName: string) => {
     switch (iconName) {
-      case "Timer":
-        return <Timer className="w-5 h-5 text-[#C46A4A]" />;
-      case "Palette":
-        return <Palette className="w-5 h-5 text-[#36513B]" />;
+      case "Snake":
+        return <Dices className="w-5 h-5 text-[#36513B]" />;
+      case "Grid":
+        return <Grid className="w-5 h-5 text-[#C46A4A]" />;
+      case "Gamepad":
+        return <Gamepad2 className="w-5 h-5 text-[#2B4C6F]" />;
+      case "Bot":
+        return <Bot className="w-5 h-5 text-[#8C4A31]" />;
       default:
-        return <Feather className="w-5 h-5 text-[#2B4C6F]" />;
+        return <Gamepad2 className="w-5 h-5 text-[#36513B]" />;
     }
   };
 
@@ -27,13 +31,13 @@ export default function PlaygroundTeaser() {
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FDEEE9] text-[#C46A4A] text-xs font-semibold tracking-wide shadow-2xs">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>数字实验室</span>
+              <span>迷你游戏中心</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-[#2D2B2C] tracking-tight">
               灵感游乐场 (Playground)
             </h2>
             <p className="text-sm sm:text-base text-[#5A5551] max-w-lg font-normal">
-              一些有趣的互动小工具、森林雨声白噪音与手帐生成器，探索数字生活的更多可能性。
+              贪吃蛇、2048、数字华容道与五子棋人机对弈，为创作之余寻找轻松灵感。
             </p>
           </div>
           <Link
@@ -46,7 +50,7 @@ export default function PlaygroundTeaser() {
         </div>
 
         {/* Labs Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {PLAYGROUND_ITEMS.map((item: PlaygroundItem) => (
             <Link
               key={item.id}

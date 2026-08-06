@@ -39,18 +39,24 @@ export default function CommandMenu() {
     }
   }, [isOpen]);
 
+  const q = query.toLowerCase().trim();
+
   const navResults = [
     { title: "随笔笔记", path: "/notes", category: "页面", icon: BookOpen },
     { title: "摄影画廊", path: "/gallery", category: "页面", icon: Camera },
     { title: "灵感游乐场", path: "/playground", category: "页面", icon: Sparkles },
+    { title: "时光留言板", path: "/guestbook", category: "页面", icon: BookOpen },
     { title: "文章归档", path: "/archive", category: "页面", icon: Archive },
     { title: "关于 Cloud", path: "/about", category: "页面", icon: User },
-  ].filter((item) => item.title.toLowerCase().includes(query.toLowerCase()));
+  ].filter((item) => !q || item.title.toLowerCase().includes(q));
 
   const noteResults = FEATURED_NOTES.filter(
     (n) =>
-      n.title.toLowerCase().includes(query.toLowerCase()) ||
-      n.summary.toLowerCase().includes(query.toLowerCase())
+      !q ||
+      n.title.toLowerCase().includes(q) ||
+      n.summary.toLowerCase().includes(q) ||
+      n.tags.some(t => t.toLowerCase().includes(q)) ||
+      n.content.toLowerCase().includes(q)
   ).map((n) => ({
     title: n.title,
     path: `/notes/${n.id}`,
@@ -60,8 +66,10 @@ export default function CommandMenu() {
 
   const photoResults = GALLERY_PHOTOS.filter(
     (p) =>
-      p.title.toLowerCase().includes(query.toLowerCase()) ||
-      p.location.toLowerCase().includes(query.toLowerCase())
+      !q ||
+      p.title.toLowerCase().includes(q) ||
+      p.location.toLowerCase().includes(q) ||
+      p.story.toLowerCase().includes(q)
   ).map((p) => ({
     title: p.title,
     path: "/gallery",
