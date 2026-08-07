@@ -310,11 +310,75 @@ export default function Gomoku() {
 
   const aiColor = playerColor === "black" ? "white" : "black";
 
+  // ── Realistic Web Audio Sound Effects ──────────────────────────────
+  // 1. Crisp Stone Drop Sound (模拟云子扣木棋盘声)
+  const playStoneSound = useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      const now = ctx.currentTime;
+
+      // Click snap (High frequency attack)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = "triangle";
+      osc1.frequency.setValueAtTime(2200, now);
+      osc1.frequency.exponentialRampToValueAtTime(300, now + 0.04);
+      gain1.gain.setValueAtTime(0.4, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+
+      // Wooden resonance body (Low frequency thump)
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(650, now);
+      osc2.frequency.exponentialRampToValueAtTime(120, now + 0.08);
+      gain2.gain.setValueAtTime(0.3, now);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+
+      osc1.start(now);
+      osc1.stop(now + 0.05);
+      osc2.start(now);
+      osc2.stop(now + 0.09);
+    } catch {
+      // Audio autoplay policy fallback
+    }
+  }, []);
+
+  // 2. Victory Arpeggio Chime (连五胜出欢快和弦)
+  const playVictorySound = useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      const now = ctx.currentTime;
+      const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, now + i * 0.1);
+        gain.gain.setValueAtTime(0, now + i * 0.1);
+        gain.gain.linearRampToValueAtTime(0.2, now + i * 0.1 + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.5);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + i * 0.1);
+        osc.stop(now + i * 0.1 + 0.55);
+      });
+    } catch {
+      // Audio fallback
+    }
+  }, []);
+
   const place = useCallback((idx: number, b: Stone[], t: "black" | "white"): Stone[] => {
     const next = [...b];
     next[idx] = t;
+    playStoneSound();
     return next;
-  }, []);
+  }, [playStoneSound]);
 
   // ─── AI Step Execution (触发 AI 替下一步) ──────────────────────────
   const executeAIMove = useCallback(() => {
@@ -334,6 +398,7 @@ export default function Gomoku() {
         if (won) {
           setWinLine(getWinLine(nextBoard, currentTurn, aiIdx));
           setWinner(currentTurn);
+          playVictorySound();
           setScores(s => ({ ...s, [currentTurn]: s[currentTurn] + 1 }));
           setIsAutoPlay(false);
         } else {
@@ -448,6 +513,7 @@ export default function Gomoku() {
       setBoard(boardWithMove);
       setWinLine(getWinLine(boardWithMove, currentTurn, idx));
       setWinner(currentTurn);
+      playVictorySound();
       setScores(s => ({ ...s, [currentTurn]: s[currentTurn] + 1 }));
       setAiThinking(false);
       setIsAutoPlay(false);
@@ -468,8 +534,10 @@ export default function Gomoku() {
           setHistory([...newHist, aiIdx]);
 
           if (aiWon) {
+            setBoard(boardWithAI);
             setWinLine(getWinLine(boardWithAI, aiColor, aiIdx));
             setWinner(aiColor);
+            playVictorySound();
             setScores(s => ({ ...s, [aiColor]: s[aiColor] + 1 }));
           } else {
             setTurn(playerColor);

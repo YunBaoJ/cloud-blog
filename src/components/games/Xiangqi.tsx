@@ -505,23 +505,124 @@ export default function Xiangqi() {
   const inCheck = isCheck(board, turn);
   const [showCheckAlert, setShowCheckAlert] = useState(false);
 
-  // Play synthetic Web Audio alert sound for "Check!"
+  // ── Xiangqi Sound Effects ─────────────────────────────────────────
+  // 1. Move Sound (沉稳木质落子声 "嗒")
+  const playMoveSound = useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      const now = ctx.currentTime;
+
+      // Wooden body knock
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(480, now);
+      osc.frequency.exponentialRampToValueAtTime(110, now + 0.06);
+      gain.gain.setValueAtTime(0.5, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      // Surface snap
+      const snap = ctx.createOscillator();
+      const snapGain = ctx.createGain();
+      snap.type = "triangle";
+      snap.frequency.setValueAtTime(1400, now);
+      snap.frequency.exponentialRampToValueAtTime(200, now + 0.03);
+      snapGain.gain.setValueAtTime(0.3, now);
+      snapGain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+      snap.connect(snapGain);
+      snapGain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.07);
+      snap.start(now);
+      snap.stop(now + 0.04);
+    } catch {
+      // Audio fallback
+    }
+  }, []);
+
+  // 2. Capture Sound (棋子相撞吃子重击声 "啪嗒！")
+  const playCaptureSound = useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      const now = ctx.currentTime;
+
+      // Impact 1: Hard wood slap
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = "sawtooth";
+      osc1.frequency.setValueAtTime(900, now);
+      osc1.frequency.exponentialRampToValueAtTime(180, now + 0.09);
+      gain1.gain.setValueAtTime(0.6, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+
+      // Impact 2: Deep thud
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(320, now);
+      osc2.frequency.exponentialRampToValueAtTime(80, now + 0.12);
+      gain2.gain.setValueAtTime(0.5, now);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+
+      osc1.start(now);
+      osc1.stop(now + 0.1);
+      osc2.start(now);
+      osc2.stop(now + 0.13);
+    } catch {
+      // Audio fallback
+    }
+  }, []);
+
+  // 3. Play Check Sound (将军警报)
   const playCheckSound = useCallback(() => {
     try {
       const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      const now = ctx.currentTime;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = "sawtooth";
-      osc.frequency.setValueAtTime(440, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.25);
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+      osc.frequency.setValueAtTime(580, now);
+      osc.frequency.exponentialRampToValueAtTime(220, now + 0.22);
+      gain.gain.setValueAtTime(0.45, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
       osc.connect(gain);
       gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.25);
+      osc.start(now);
+      osc.stop(now + 0.23);
     } catch {
-      // Audio context ignored if unallowed by browser autoplay policy
+      // Audio fallback
+    }
+  }, []);
+
+  // 4. Victory Fanfare (绝杀胜出三重音)
+  const playVictorySound = useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      const now = ctx.currentTime;
+      const notes = [392, 523.25, 659.25, 783.99]; // G4, C5, E5, G5
+
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(freq, now + i * 0.12);
+        gain.gain.setValueAtTime(0, now + i * 0.12);
+        gain.gain.linearRampToValueAtTime(0.25, now + i * 0.12 + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.6);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + i * 0.12);
+        osc.stop(now + i * 0.12 + 0.65);
+      });
+    } catch {
+      // Audio fallback
     }
   }, []);
 
@@ -575,7 +676,7 @@ export default function Xiangqi() {
     return "playing";
   };
 
-  // Perform Move
+  // Perform Move (With Move vs Capture Audio Logic)
   const executeMove = useCallback(
     (move: Move) => {
       setHistory((prev) => [...prev, { board, turn, lastMove }]);
@@ -585,17 +686,25 @@ export default function Xiangqi() {
       setSelectedPos(null);
       setValidMoves([]);
 
+      // Play Move or Capture sound according to logic
+      if (move.captured) {
+        playCaptureSound();
+      } else {
+        playMoveSound();
+      }
+
       const nextTurn: Side = turn === "red" ? "black" : "red";
       const nextStatus = checkWinner(nextBoard, nextTurn);
 
       if (nextStatus !== "playing") {
         setStatus(nextStatus);
+        playVictorySound();
         return;
       }
 
       setTurn(nextTurn);
     },
-    [board, turn, lastMove]
+    [board, turn, lastMove, playMoveSound, playCaptureSound, playVictorySound]
   );
 
   // Trigger AI Move
