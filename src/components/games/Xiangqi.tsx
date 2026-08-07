@@ -503,6 +503,39 @@ export default function Xiangqi() {
 
   // Check state
   const inCheck = isCheck(board, turn);
+  const [showCheckAlert, setShowCheckAlert] = useState(false);
+
+  // Play synthetic Web Audio alert sound for "Check!"
+  const playCheckSound = useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(440, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.25);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.25);
+    } catch {
+      // Audio context ignored if unallowed by browser autoplay policy
+    }
+  }, []);
+
+  // Trigger giant check banner & sound effect whenever check occurs
+  useEffect(() => {
+    if (inCheck && status === "playing") {
+      setShowCheckAlert(true);
+      playCheckSound();
+      const timer = setTimeout(() => setShowCheckAlert(false), 1600);
+      return () => clearTimeout(timer);
+    } else {
+      setShowCheckAlert(false);
+    }
+  }, [inCheck, status, turn, playCheckSound]);
 
   // Reset Game
   const resetGame = useCallback((chosenMode?: "pve" | "pvp" | "eve", side: Side = "red") => {
@@ -761,9 +794,9 @@ export default function Xiangqi() {
           </span>
 
           {inCheck && status === "playing" && (
-            <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-100 dark:bg-red-950/80 text-red-600 dark:text-red-300 font-bold animate-bounce text-[11px] border border-red-300">
-              <AlertTriangle className="w-3.5 h-3.5" />
-              <span>将军！</span>
+            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white font-black text-xs animate-bounce shadow-md border border-red-400">
+              <AlertTriangle className="w-4 h-4 text-yellow-300 animate-pulse" />
+              <span className="tracking-wider">⚠️ 將軍！</span>
             </span>
           )}
 
@@ -855,12 +888,20 @@ export default function Xiangqi() {
               const isLastMoveFrom = lastMove?.from[0] === x && lastMove?.from[1] === y;
               const isLastMoveTo = lastMove?.to[0] === x && lastMove?.to[1] === y;
 
+              // Check if THIS piece is the King currently in check!
+              const isKingInCheck = inCheck && piece?.type === "k" && piece?.side === turn;
+
               return (
                 <div
                   key={`${x}-${y}`}
                   onClick={() => handleCellClick(x, y)}
                   className="relative flex items-center justify-center cursor-pointer group"
                 >
+                  {/* Red King in Check Pulsing Halo Ring */}
+                  {isKingInCheck && (
+                    <div className="absolute inset-0 rounded-full border-4 border-red-600 animate-ping opacity-90 pointer-events-none" />
+                  )}
+
                   {/* Last Move Trajectory Highlight */}
                   {(isLastMoveFrom || isLastMoveTo) && (
                     <div className="absolute inset-0.5 rounded-full border-2 border-dashed border-[#8C4A31] animate-pulse pointer-events-none" />
@@ -875,13 +916,17 @@ export default function Xiangqi() {
                   {piece && (
                     <div
                       className={`z-10 w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-sm sm:text-base md:text-lg shadow-md transition-transform duration-150 ${
-                        isSelected
+                        isKingInCheck
+                          ? "scale-115 ring-4 ring-red-600 bg-red-700 text-white shadow-[0_0_20px_rgba(220,38,38,0.9)] animate-pulse"
+                          : isSelected
                           ? "scale-110 ring-4 ring-[#8C4A31]"
                           : "hover:scale-105"
                       } ${
-                        piece.side === "red"
+                        !isKingInCheck && piece.side === "red"
                           ? "bg-[#FDFBF7] text-[#C82A2A] border-2 border-[#C82A2A] shadow-[inset_0_2px_4px_rgba(200,42,42,0.2)]"
-                          : "bg-[#2D2B2C] text-[#F0F5F1] border-2 border-[#1A1819] shadow-[inset_0_2px_4px_rgba(255,255,255,0.1)]"
+                          : !isKingInCheck && piece.side === "black"
+                          ? "bg-[#2D2B2C] text-[#F0F5F1] border-2 border-[#1A1819] shadow-[inset_0_2px_4px_rgba(255,255,255,0.1)]"
+                          : ""
                       }`}
                     >
                       {PIECE_NAMES[piece.side][piece.type]}
@@ -892,6 +937,18 @@ export default function Xiangqi() {
             })
           )}
         </div>
+
+        {/* Center Giant Check Banner Overlay */}
+        {showCheckAlert && (
+          <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none animate-in zoom-in-75 fade-in duration-200">
+            <div className="bg-red-600/95 text-white px-8 py-3.5 rounded-3xl shadow-[0_10px_40px_rgba(220,38,38,0.6)] border-2 border-red-300 flex items-center gap-3 animate-bounce">
+              <AlertTriangle className="w-8 h-8 text-yellow-300 animate-pulse" />
+              <span className="text-2xl sm:text-3xl font-black tracking-widest drop-shadow-md">
+                {turn === "red" ? "帥 被 將 軍 ！" : "將 被 將 軍 ！"}
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* GameOver Overlay */}
         {status !== "playing" && (
