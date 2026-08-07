@@ -8,9 +8,10 @@ import SnakeGame from "@/components/games/SnakeGame";
 import Game2048 from "@/components/games/Game2048";
 import SlidePuzzle from "@/components/games/SlidePuzzle";
 import Gomoku from "@/components/games/Gomoku";
+import Xiangqi from "@/components/games/Xiangqi";
 import { X, Play } from "lucide-react";
 
-type GameId = "snake" | "2048" | "puzzle" | "gomoku";
+type GameId = "snake" | "2048" | "puzzle" | "gomoku" | "xiangqi";
 
 const GAMES: {
   id: GameId;
@@ -53,9 +54,18 @@ const GAMES: {
     name: "五子棋",
     nameEn: "Gomoku",
     cover: "/game-gomoku.jpg",
-    desc: "黑白对弈，五子连珠，支持单人挑战 AI 与双人对战。",
+    desc: "黑白对弈，五子连珠，支持单人 AI 对弈与双人对战。",
     tip: "单人 / 双人模式可选",
     tag: "对弈",
+  },
+  {
+    id: "xiangqi",
+    name: "中国象棋",
+    nameEn: "Xiangqi AI",
+    cover: "/game-xiangqi-v2.jpg",
+    desc: "楚河汉界，运筹帷幄，支持单人 AI 博弈与 AI 军师步进。",
+    tip: "单人 AI / 步进模式可选",
+    tag: "博弈",
   },
 ];
 
@@ -124,10 +134,11 @@ function GameModal({
 
         {/* Game content */}
         <div className="p-4 sm:p-5 overflow-y-auto" key={activeGame}>
-          {activeGame === "snake"  && <SnakeGame />}
-          {activeGame === "2048"   && <Game2048 />}
-          {activeGame === "puzzle" && <SlidePuzzle />}
-          {activeGame === "gomoku" && <Gomoku />}
+          {activeGame === "snake"   && <SnakeGame />}
+          {activeGame === "2048"    && <Game2048 />}
+          {activeGame === "puzzle"  && <SlidePuzzle />}
+          {activeGame === "gomoku"  && <Gomoku />}
+          {activeGame === "xiangqi" && <Xiangqi />}
         </div>
       </div>
 

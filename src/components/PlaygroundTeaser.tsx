@@ -1,7 +1,7 @@
 "use client";
 
 import { PLAYGROUND_ITEMS, PlaygroundItem } from "@/data/mockData";
-import { Sparkles, Gamepad2, Grid, Bot, ArrowRight, Dices } from "lucide-react";
+import { Sparkles, Gamepad2, Grid, Bot, ArrowRight, Dices, Award } from "lucide-react";
 import Link from "next/link";
 
 export default function PlaygroundTeaser() {
@@ -15,6 +15,8 @@ export default function PlaygroundTeaser() {
         return <Gamepad2 className="w-5 h-5 text-[#2B4C6F]" />;
       case "Bot":
         return <Bot className="w-5 h-5 text-[#8C4A31]" />;
+      case "Award":
+        return <Award className="w-5 h-5 text-[#C46A4A]" />;
       default:
         return <Gamepad2 className="w-5 h-5 text-[#36513B]" />;
     }
@@ -37,7 +39,7 @@ export default function PlaygroundTeaser() {
               灵感游乐场 (Playground)
             </h2>
             <p className="text-sm sm:text-base text-[#5A5551] max-w-lg font-normal">
-              贪吃蛇、2048、数字华容道与五子棋人机对弈，为创作之余寻找轻松灵感。
+              贪吃蛇、2048、数字华容道、五子棋与中国象棋 AI 对弈，为创作之余寻找轻松灵感。
             </p>
           </div>
           <Link

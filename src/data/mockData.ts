@@ -483,8 +483,15 @@ export const PLAYGROUND_ITEMS: PlaygroundItem[] = [
   {
     id: "gomoku",
     title: "五子棋竞技场",
-    description: "支持单人 AI 对弈与双人同台切磋，体验瞬间绝杀的博弈魅力。",
-    tag: "人机博弈",
+    description: "支持单人 Minimax AI 对弈与双人切磋，体验瞬间绝杀的博弈魅力。",
+    tag: "五子棋AI",
     icon: "Bot",
+  },
+  {
+    id: "xiangqi",
+    title: "中国象棋 AI",
+    description: "楚河汉界，运筹帷幄。内置 Minimax 剪枝 AI 与 AI 军师步进模式。",
+    tag: "象棋博弈",
+    icon: "Award",
   },
 ];
