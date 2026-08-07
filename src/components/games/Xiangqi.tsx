@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { RefreshCw, RotateCcw, User, Bot, Play, Pause, Sparkles, Award } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { RefreshCw, RotateCcw, User, Bot, Award, Sparkles, Play, Pause, AlertTriangle } from "lucide-react";
 
 // --- Xiangqi Types & Constants ---
-type PieceType = "r" | "n" | "b" | "a" | "k" | "c" | "p"; // rook, knight(horse), bishop(elephant), advisor, king, cannon, pawn
+type PieceType = "r" | "n" | "b" | "a" | "k" | "c" | "p"; // rook(车), knight(马), bishop(象/相), advisor(士/仕), king(将/帅), cannon(炮), pawn(卒/兵)
 type Side = "red" | "black";
 
 interface Piece {
@@ -12,7 +12,7 @@ interface Piece {
   side: Side;
 }
 
-// 9 columns x 10 rows grid (0..8 x, 0..9 y)
+// 9 columns (0..8) x 10 rows (0..9) board
 type Board = (Piece | null)[][];
 
 interface Move {
@@ -21,7 +21,6 @@ interface Move {
   captured?: Piece | null;
 }
 
-// Piece Values for Evaluation
 const PIECE_VALUES: Record<PieceType, number> = {
   k: 10000,
   r: 1000,
@@ -32,32 +31,22 @@ const PIECE_VALUES: Record<PieceType, number> = {
   p: 100,
 };
 
-// Initial Xiangqi Setup
-const INITIAL_BOARD: (string | null)[][] = [
-  ["r_r", "r_n", "r_b", "r_a", "r_k", "r_a", "r_b", "r_n", "r_r"], // y=0 (black top)
-  [null, null, null, null, null, null, null, null, null],
-  [null, "r_c", null, null, null, null, null, "r_c", null],
-  ["r_p", null, "r_p", null, "r_p", null, "r_p", null, "r_p"],
-  [null, null, null, null, null, null, null, null, null],
-  // --- River --- (y=4 to y=5)
-  [null, null, null, null, null, null, null, null, null],
-  ["red_p", null, "red_p", null, "red_p", null, "red_p", null, "red_p"],
-  [null, "red_c", null, null, null, null, null, "red_c", null],
-  [null, null, null, null, null, null, null, null, null],
-  ["red_r", "red_n", "red_b", "red_a", "red_k", "red_a", "red_b", "red_n", "red_r"], // y=9 (red bottom)
-];
+const PIECE_NAMES: Record<Side, Record<PieceType, string>> = {
+  red: { k: "帥", a: "仕", b: "相", n: "馬", r: "車", c: "砲", p: "兵" },
+  black: { k: "將", a: "士", b: "象", n: "馬", r: "車", c: "砲", p: "卒" },
+};
 
 function createInitialBoard(): Board {
   const board: Board = Array(10).fill(null).map(() => Array(9).fill(null));
-  
-  // Black pieces at top (y=0..3)
+
+  // Black pieces (Top: y=0..3)
   const bRow0: PieceType[] = ["r", "n", "b", "a", "k", "a", "b", "n", "r"];
   bRow0.forEach((type, x) => { board[0][x] = { type, side: "black" }; });
   board[2][1] = { type: "c", side: "black" };
   board[2][7] = { type: "c", side: "black" };
   [0, 2, 4, 6, 8].forEach((x) => { board[3][x] = { type: "p", side: "black" }; });
 
-  // Red pieces at bottom (y=6..9)
+  // Red pieces (Bottom: y=6..9)
   const rRow9: PieceType[] = ["r", "n", "b", "a", "k", "a", "b", "n", "r"];
   rRow9.forEach((type, x) => { board[9][x] = { type, side: "red" }; });
   board[7][1] = { type: "c", side: "red" };
@@ -67,49 +56,43 @@ function createInitialBoard(): Board {
   return board;
 }
 
-// Chinese labels for display
-const PIECE_NAMES: Record<Side, Record<PieceType, string>> = {
-  red: { k: "帥", a: "仕", b: "相", n: "馬", r: "車", c: "砲", p: "兵" },
-  black: { k: "將", a: "士", b: "象", n: "馬", r: "車", c: "砲", p: "卒" },
-};
-
-// Check inside palace
+// Check inside palace (九宫格: x=3..5, y=0..2 for black, y=7..9 for red)
 function inPalace(x: number, y: number, side: Side): boolean {
   if (x < 3 || x > 5) return false;
   if (side === "black") return y >= 0 && y <= 2;
   return y >= 7 && y <= 9;
 }
 
-// Check if Red King and Black King face each other directly in the same column without pieces between them (照面/飞将)
-function isFlyingGeneral(board: Board): boolean {
-  let redKingPos: [number, number] | null = null;
-  let blackKingPos: [number, number] | null = null;
-
+// Find king position for a given side
+function findKing(board: Board, side: Side): [number, number] | null {
   for (let y = 0; y < 10; y++) {
     for (let x = 0; x < 9; x++) {
-      const piece = board[y][x];
-      if (piece?.type === "k") {
-        if (piece.side === "red") redKingPos = [x, y];
-        if (piece.side === "black") blackKingPos = [x, y];
-      }
+      const p = board[y][x];
+      if (p?.type === "k" && p.side === side) return [x, y];
     }
   }
+  return null;
+}
 
-  if (!redKingPos || !blackKingPos) return false;
-  if (redKingPos[0] !== blackKingPos[0]) return false;
+// Check if Flying General occurs (将帅照面/飞将: same col & no blocking piece)
+function isFlyingGeneral(board: Board): boolean {
+  const redKing = findKing(board, "red");
+  const blackKing = findKing(board, "black");
 
-  const col = redKingPos[0];
-  const minY = Math.min(redKingPos[1], blackKingPos[1]);
-  const maxY = Math.max(redKingPos[1], blackKingPos[1]);
+  if (!redKing || !blackKing) return false;
+  if (redKing[0] !== blackKing[0]) return false; // Not in same column
+
+  const col = redKing[0];
+  const minY = Math.min(redKing[1], blackKing[1]);
+  const maxY = Math.max(redKing[1], blackKing[1]);
 
   for (let y = minY + 1; y < maxY; y++) {
-    if (board[y][col] !== null) return false; // Has blocking piece
+    if (board[y][col] !== null) return false; // Intervening piece exists
   }
-
   return true; // Flying general violation!
 }
 
-// Apply move to board
+// Apply a move to a board immutably
 function makeMove(board: Board, move: Move): Board {
   const newBoard = board.map((row) => [...row]);
   const [fx, fy] = move.from;
@@ -119,7 +102,7 @@ function makeMove(board: Board, move: Move): Board {
   return newBoard;
 }
 
-// Candidate move generator for a given board
+// Generate raw candidate moves without self-check / flying-general filter
 function getRawMoves(board: Board, side: Side): Move[] {
   const moves: Move[] = [];
 
@@ -127,10 +110,9 @@ function getRawMoves(board: Board, side: Side): Move[] {
     for (let x = 0; x < 9; x++) {
       const piece = board[y][x];
       if (!piece || piece.side !== side) continue;
-
       const { type } = piece;
 
-      // 1. King (General)
+      // 1. General/King (将/帅): Orthogonal 1 step in palace
       if (type === "k") {
         const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
         dirs.forEach(([dx, dy]) => {
@@ -142,7 +124,7 @@ function getRawMoves(board: Board, side: Side): Move[] {
         });
       }
 
-      // 2. Advisor
+      // 2. Advisor (士/仕): Diagonal 1 step in palace
       else if (type === "a") {
         const dirs = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
         dirs.forEach(([dx, dy]) => {
@@ -154,7 +136,7 @@ function getRawMoves(board: Board, side: Side): Move[] {
         });
       }
 
-      // 3. Elephant (Bishop) - Cannot cross river, check eye
+      // 3. Elephant (象/相): Diagonal 2 steps ("田"), cannot cross river, check eye (塞象眼)
       else if (type === "b") {
         const dirs = [[2, 2], [2, -2], [-2, 2], [-2, -2]];
         dirs.forEach(([dx, dy]) => {
@@ -168,7 +150,7 @@ function getRawMoves(board: Board, side: Side): Move[] {
         });
       }
 
-      // 4. Horse (Knight) - Check horse leg
+      // 4. Horse (马/馬): "日" shape, check leg (蹩马腿)
       else if (type === "n") {
         const jumps = [
           { step: [0, -1], to: [[-1, -2], [1, -2]] },
@@ -190,7 +172,7 @@ function getRawMoves(board: Board, side: Side): Move[] {
         });
       }
 
-      // 5. Rook (Chariot)
+      // 5. Chariot (车/車): Orthogonal unlimited steps until blocked
       else if (type === "r") {
         const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
         dirs.forEach(([dx, dy]) => {
@@ -209,7 +191,7 @@ function getRawMoves(board: Board, side: Side): Move[] {
         });
       }
 
-      // 6. Cannon (Cannon)
+      // 6. Cannon (炮/砲): Moves like Rook without capture; Captures by jumping 1 platform (炮架)
       else if (type === "c") {
         const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
         dirs.forEach(([dx, dy]) => {
@@ -221,12 +203,12 @@ function getRawMoves(board: Board, side: Side): Move[] {
               if (!target) {
                 moves.push({ from: [x, y], to: [nx, ny], captured: null });
               } else {
-                jumped = true;
+                jumped = true; // Platform found
               }
             } else {
               if (target) {
                 if (target.side !== side) moves.push({ from: [x, y], to: [nx, ny], captured: target });
-                break;
+                break; // Stop after first target after platform
               }
             }
             nx += dx;
@@ -235,7 +217,7 @@ function getRawMoves(board: Board, side: Side): Move[] {
         });
       }
 
-      // 7. Pawn (Soldier)
+      // 7. Soldier/Pawn (兵/卒): 1 step forward; After crossing river, 1 step left/right/forward (no backward)
       else if (type === "p") {
         const dirY = side === "red" ? -1 : 1;
         const hasCrossed = side === "red" ? y <= 4 : y >= 5;
@@ -247,7 +229,7 @@ function getRawMoves(board: Board, side: Side): Move[] {
           if (!target || target.side !== side) moves.push({ from: [x, y], to: [x, fy], captured: target });
         }
 
-        // Sideways if crossed river
+        // Sideways if river crossed
         if (hasCrossed) {
           [-1, 1].forEach((dx) => {
             const nx = x + dx;
@@ -264,15 +246,31 @@ function getRawMoves(board: Board, side: Side): Move[] {
   return moves;
 }
 
-// Legal move generator filtering out moves that cause flying general (将帅照面)
+// Check if a side is in check (将军)
+function isCheck(board: Board, side: Side): boolean {
+  const kingPos = findKing(board, side);
+  if (!kingPos) return true; // King dead
+
+  const enemySide: Side = side === "red" ? "black" : "red";
+  const enemyRawMoves = getRawMoves(board, enemySide);
+
+  return enemyRawMoves.some((m) => m.to[0] === kingPos[0] && m.to[1] === kingPos[1]);
+}
+
+// Strictly legal move generator filtering out moves causing self-check or Flying General (照面)
 function getLegalMoves(board: Board, side: Side): Move[] {
   const rawMoves = getRawMoves(board, side);
   return rawMoves.filter((m) => {
     const nextBoard = makeMove(board, m);
-    return !isFlyingGeneral(nextBoard);
+    // 1. Flying General filter
+    if (isFlyingGeneral(nextBoard)) return false;
+    // 2. Self King in Check filter
+    if (isCheck(nextBoard, side)) return false;
+    return true;
   });
 }
-// Evaluate board score for Red (+) vs Black (-)
+
+// Board evaluation function
 function evaluateBoard(board: Board): number {
   let score = 0;
   for (let y = 0; y < 10; y++) {
@@ -284,12 +282,10 @@ function evaluateBoard(board: Board): number {
       // Positional Bonuses
       if (piece.type === "p") {
         const crossed = piece.side === "red" ? y <= 4 : y >= 5;
-        if (crossed) val += 80; // Pawn crossed river is dangerous
+        if (crossed) val += 80;
       } else if (piece.type === "r" || piece.type === "c") {
-        // Control center files
-        if (x >= 3 && x <= 5) val += 30;
+        if (x >= 3 && x <= 5) val += 30; // Center files
       } else if (piece.type === "n") {
-        // Advanced knights
         if (piece.side === "red" && y <= 6) val += 30;
         if (piece.side === "black" && y >= 3) val += 30;
       }
@@ -310,8 +306,7 @@ function minimax(
   isMaximizing: boolean
 ): { score: number; move: Move | null } {
   if (depth === 0) {
-    // Add small random jitter so AI doesn't play identical games
-    const jitter = (Math.random() - 0.5) * 6;
+    const jitter = (Math.random() - 0.5) * 8;
     return { score: evaluateBoard(board) + jitter, move: null };
   }
 
@@ -322,7 +317,7 @@ function minimax(
     return { score: isMaximizing ? -99999 : 99999, move: null };
   }
 
-  // Move ordering: evaluate capture moves first to optimize alpha-beta pruning
+  // Order capture moves first
   legalMoves.sort((a, b) => {
     const valA = a.captured ? PIECE_VALUES[a.captured.type] : 0;
     const valB = b.captured ? PIECE_VALUES[b.captured.type] : 0;
@@ -341,7 +336,7 @@ function minimax(
         bestMove = move;
       }
       alpha = Math.max(alpha, score);
-      if (beta <= alpha) break; // Alpha-beta cutoff
+      if (beta <= alpha) break;
     }
     return { score: maxEval, move: bestMove };
   } else {
@@ -354,18 +349,147 @@ function minimax(
         bestMove = move;
       }
       beta = Math.min(beta, score);
-      if (beta <= alpha) break; // Alpha-beta cutoff
+      if (beta <= alpha) break;
     }
     return { score: minEval, move: bestMove };
   }
 }
 
-// --- Component ---
+// ── SVG Standard Xiangqi Board Renderer (With Palace Cross & Corner Markers) ───────────
+function StandardBoardSVG() {
+  const cellSize = 44;
+  const paddingX = 22;
+  const paddingY = 22;
+
+  // Grid coordinates
+  const gx = (x: number) => paddingX + x * cellSize;
+  const gy = (y: number) => paddingY + y * cellSize;
+
+  // Corner markers ("└ ┐ ┌ ┘" clips) for Cannon and Pawn positions
+  const markerPositions: [number, number][] = [
+    // Cannons
+    [1, 2], [7, 2], [1, 7], [7, 7],
+    // Pawns
+    [0, 3], [2, 3], [4, 3], [6, 3], [8, 3],
+    [0, 6], [2, 6], [4, 6], [6, 6], [8, 6],
+  ];
+
+  const renderCornerMarker = (cx: number, cy: number, gridX: number) => {
+    const d = 4;
+    const len = 8;
+    const isLeftEdge = gridX === 0;
+    const isRightEdge = gridX === 8;
+
+    return (
+      <g key={`marker-${cx}-${cy}`} stroke="#7C633E" strokeWidth="1.2" fill="none">
+        {/* Top-Left */}
+        {!isLeftEdge && (
+          <path d={`M ${cx - d - len} ${cy - d} L ${cx - d} ${cy - d} L ${cx - d} ${cy - d - len}`} />
+        )}
+        {/* Bottom-Left */}
+        {!isLeftEdge && (
+          <path d={`M ${cx - d - len} ${cy + d} L ${cx - d} ${cy + d} L ${cx - d} ${cy + d + len}`} />
+        )}
+        {/* Top-Right */}
+        {!isRightEdge && (
+          <path d={`M ${cx + d + len} ${cy - d} L ${cx + d} ${cy - d} L ${cx + d} ${cy - d - len}`} />
+        )}
+        {/* Bottom-Right */}
+        {!isRightEdge && (
+          <path d={`M ${cx + d + len} ${cy + d} L ${cx + d} ${cy + d} L ${cx + d} ${cy + d + len}`} />
+        )}
+      </g>
+    );
+  };
+
+  return (
+    <svg viewBox="0 0 396 440" className="w-full h-full pointer-events-none select-none">
+      {/* Outer Border */}
+      <rect x="14" y="14" width="368" height="412" fill="none" stroke="#7C633E" strokeWidth="2.5" />
+      <rect x="18" y="18" width="360" height="404" fill="none" stroke="#7C633E" strokeWidth="1" />
+
+      {/* Horizontal Lines (10 lines: y=0..9) */}
+      {Array.from({ length: 10 }).map((_, y) => (
+        <line
+          key={`h-${y}`}
+          x1={gx(0)}
+          y1={gy(y)}
+          x2={gx(8)}
+          y2={gy(y)}
+          stroke="#8C6D46"
+          strokeWidth="1.2"
+        />
+      ))}
+
+      {/* Vertical Lines (9 lines: x=0..8). Interrupted at River (y=4 to y=5) EXCEPT borders x=0, x=8 */}
+      {Array.from({ length: 9 }).map((_, x) => {
+        if (x === 0 || x === 8) {
+          return (
+            <line
+              key={`v-${x}`}
+              x1={gx(x)}
+              y1={gy(0)}
+              x2={gx(x)}
+              y2={gy(9)}
+              stroke="#8C6D46"
+              strokeWidth="1.2"
+            />
+          );
+        }
+        return (
+          <g key={`v-${x}`}>
+            {/* Top Half (y=0..4) */}
+            <line x1={gx(x)} y1={gy(0)} x2={gx(x)} y2={gy(4)} stroke="#8C6D46" strokeWidth="1.2" />
+            {/* Bottom Half (y=5..9) */}
+            <line x1={gx(x)} y1={gy(5)} x2={gx(x)} y2={gy(9)} stroke="#8C6D46" strokeWidth="1.2" />
+          </g>
+        );
+      })}
+
+      {/* Black Palace Cross Slashes (九宫格斜线: y=0..2, x=3..5) */}
+      <line x1={gx(3)} y1={gy(0)} x2={gx(5)} y2={gy(2)} stroke="#8C6D46" strokeWidth="1.2" />
+      <line x1={gx(5)} y1={gy(0)} x2={gx(3)} y2={gy(2)} stroke="#8C6D46" strokeWidth="1.2" />
+
+      {/* Red Palace Cross Slashes (九宫格斜线: y=7..9, x=3..5) */}
+      <line x1={gx(3)} y1={gy(7)} x2={gx(5)} y2={gy(9)} stroke="#8C6D46" strokeWidth="1.2" />
+      <line x1={gx(5)} y1={gy(7)} x2={gx(3)} y2={gy(9)} stroke="#8C6D46" strokeWidth="1.2" />
+
+      {/* Cannon & Pawn Corner Markers */}
+      {markerPositions.map(([x, y]) => renderCornerMarker(gx(x), gy(y), x))}
+
+      {/* River Text: 楚河 漢界 */}
+      <text
+        x={gx(1.8)}
+        y={gy(4.65)}
+        fill="#7C633E"
+        fontSize="17"
+        fontWeight="bold"
+        fontFamily="serif"
+        letterSpacing="2"
+      >
+        楚 河
+      </text>
+      <text
+        x={gx(5.8)}
+        y={gy(4.65)}
+        fill="#7C633E"
+        fontSize="17"
+        fontWeight="bold"
+        fontFamily="serif"
+        letterSpacing="2"
+      >
+        漢 界
+      </text>
+    </svg>
+  );
+}
+
+// --- Main Xiangqi Component ---
 export default function Xiangqi() {
   const [mode, setMode] = useState<"pve" | "pvp" | "eve" | null>(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [userSide, setUserSide] = useState<Side>("red");
-  
+
   const [board, setBoard] = useState<Board>(createInitialBoard());
   const [turn, setTurn] = useState<Side>("red");
   const [selectedPos, setSelectedPos] = useState<[number, number] | null>(null);
@@ -376,6 +500,9 @@ export default function Xiangqi() {
   const [status, setStatus] = useState<"playing" | "red_win" | "black_win">("playing");
   const [autoPlayEve, setAutoPlayEve] = useState(false);
   const [thinking, setThinking] = useState(false);
+
+  // Check state
+  const inCheck = isCheck(board, turn);
 
   // Reset Game
   const resetGame = useCallback((chosenMode?: "pve" | "pvp" | "eve", side: Side = "red") => {
@@ -399,20 +526,19 @@ export default function Xiangqi() {
   }, [resetGame]);
 
   // Check Game Winner
-  const checkWinner = (b: Board) => {
-    let redKing = false;
-    let blackKing = false;
-    for (let y = 0; y < 10; y++) {
-      for (let x = 0; x < 9; x++) {
-        const p = b[y][x];
-        if (p?.type === "k") {
-          if (p.side === "red") redKing = true;
-          if (p.side === "black") blackKing = true;
-        }
-      }
-    }
+  const checkWinner = (b: Board, nextTurn: Side): "playing" | "red_win" | "black_win" => {
+    const redKing = findKing(b, "red");
+    const blackKing = findKing(b, "black");
+
     if (!redKing) return "black_win";
     if (!blackKing) return "red_win";
+
+    // If opponent has no legal moves (Checkmate or Stalemate/困毙)
+    const moves = getLegalMoves(b, nextTurn);
+    if (moves.length === 0) {
+      return nextTurn === "red" ? "black_win" : "red_win";
+    }
+
     return "playing";
   };
 
@@ -426,13 +552,15 @@ export default function Xiangqi() {
       setSelectedPos(null);
       setValidMoves([]);
 
-      const nextStatus = checkWinner(nextBoard);
+      const nextTurn: Side = turn === "red" ? "black" : "red";
+      const nextStatus = checkWinner(nextBoard, nextTurn);
+
       if (nextStatus !== "playing") {
         setStatus(nextStatus);
         return;
       }
 
-      setTurn((prev) => (prev === "red" ? "black" : "red"));
+      setTurn(nextTurn);
     },
     [board, turn, lastMove]
   );
@@ -453,7 +581,7 @@ export default function Xiangqi() {
     }, 150);
   }, [board, turn, status, thinking, executeMove]);
 
-  // Handle AI turn trigger for PvE (when AI's turn) or EvE auto play
+  // Handle AI turn trigger for PvE or EvE auto play
   useEffect(() => {
     if (status !== "playing" || !mode) return;
     if (mode === "pve" && turn !== userSide) {
@@ -469,13 +597,11 @@ export default function Xiangqi() {
   // Player click handler: In EvE mode, player can manually move BOTH Red and Black pieces!
   const handleCellClick = (x: number, y: number) => {
     if (status !== "playing" || !mode) return;
-
-    // In PvE mode, restrict clicks only to user's side when it's user's turn
     if (mode === "pve" && turn !== userSide) return;
 
     const clickedPiece = board[y][x];
 
-    // Select piece of current turn's side (In EvE / PvP, allows selecting whoever's turn it is)
+    // Select piece of current turn's side
     if (clickedPiece && clickedPiece.side === turn) {
       setSelectedPos([x, y]);
       const allMoves = getLegalMoves(board, turn);
@@ -621,7 +747,7 @@ export default function Xiangqi() {
     <div className="bg-white dark:bg-[#1E2721]/50 rounded-3xl p-6 border border-[#2D2B2C]/6 dark:border-white/8 shadow-[0_4px_24px_rgba(45,43,44,0.05)] space-y-6">
       {/* Side Color & Action Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-[#FAF7F2] dark:bg-[#24221F] p-3 rounded-2xl border border-[#2D2B2C]/6 dark:border-white/10">
-        {/* Status Indicator */}
+        {/* Status & Check Indicator */}
         <div className="flex items-center gap-2 font-semibold">
           <span className="text-[#7A736A] dark:text-[#9EB3A4]">回合:</span>
           <span
@@ -633,6 +759,13 @@ export default function Xiangqi() {
           >
             {turn === "red" ? "🔴 红方 (先手)" : "⬛ 黑方 (后手)"}
           </span>
+
+          {inCheck && status === "playing" && (
+            <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-100 dark:bg-red-950/80 text-red-600 dark:text-red-300 font-bold animate-bounce text-[11px] border border-red-300">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              <span>将军！</span>
+            </span>
+          )}
 
           {thinking && (
             <span className="flex items-center gap-1 text-[#8C4A31] dark:text-[#E5987D] font-bold animate-pulse ml-2">
@@ -653,7 +786,7 @@ export default function Xiangqi() {
                   userSide === "red" ? "bg-red-600 text-white shadow-2xs" : "text-[#7A736A] hover:bg-gray-100 dark:hover:bg-white/10"
                 }`}
               >
-                执红 (先手)
+                执红
               </button>
               <button
                 onClick={() => { setUserSide("black"); resetGame(); }}
@@ -661,7 +794,7 @@ export default function Xiangqi() {
                   userSide === "black" ? "bg-[#2D2B2C] text-white shadow-2xs" : "text-[#7A736A] hover:bg-gray-100 dark:hover:bg-white/10"
                 }`}
               >
-                执黑 (后手)
+                执黑
               </button>
             </div>
           )}
@@ -703,21 +836,18 @@ export default function Xiangqi() {
             className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white dark:bg-[#1E2721] border border-[#2D2B2C]/10 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10 font-bold transition-all shadow-2xs"
           >
             <RefreshCw className="w-3.5 h-3.5 text-[#36513B]" />
-            <span>重开</span>
+            <span>重新模式</span>
           </button>
         </div>
       </div>
 
-      {/* Xiangqi Board (Wood Wabi-Sabi Styling) */}
-      <div className="relative mx-auto max-w-lg aspect-[9/10] bg-[#E8D4B0] dark:bg-[#2A231A] rounded-2xl p-4 sm:p-6 shadow-inner border-4 border-[#8C6D46] dark:border-[#423321] select-none overflow-hidden">
-        {/* River Separator */}
-        <div className="absolute left-4 right-4 top-[48%] -translate-y-1/2 h-10 border-y border-[#A88B5E]/60 flex items-center justify-around text-[#7C633E] dark:text-[#9E8256] font-serif font-bold text-sm tracking-[1.5em] pointer-events-none">
-          <span>楚河</span>
-          <span>漢界</span>
-        </div>
+      {/* Xiangqi Board (SVG Precision Standard Wabi-Sabi Styling) */}
+      <div className="relative mx-auto max-w-md aspect-[396/440] bg-[#E8D4B0] dark:bg-[#2A231A] rounded-2xl p-2 sm:p-3 shadow-inner border-4 border-[#8C6D46] dark:border-[#423321] select-none overflow-hidden">
+        {/* SVG Standard Lines (Palace Cross Slashes, River Lines, Corner Markers) */}
+        <StandardBoardSVG />
 
-        {/* 9x10 Grid Overlay */}
-        <div className="relative w-full h-full grid grid-cols-9 grid-rows-10">
+        {/* 90 Intersection Points Overlay (9 cols x 10 rows) */}
+        <div className="absolute inset-0 p-[22px] grid grid-cols-9 grid-rows-10">
           {board.map((row, y) =>
             row.map((piece, x) => {
               const isSelected = selectedPos?.[0] === x && selectedPos?.[1] === y;
@@ -731,30 +861,20 @@ export default function Xiangqi() {
                   onClick={() => handleCellClick(x, y)}
                   className="relative flex items-center justify-center cursor-pointer group"
                 >
-                  {/* Grid Lines */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    {/* Vertical Line */}
-                    {y !== 4 || x === 0 || x === 8 ? (
-                      <div className="w-px h-full bg-[#B89B6E] dark:bg-[#52422F]" />
-                    ) : null}
-                    {/* Horizontal Line */}
-                    <div className="h-px w-full bg-[#B89B6E] dark:bg-[#52422F] absolute" />
-                  </div>
-
-                  {/* Last move trajectory highlight */}
+                  {/* Last Move Trajectory Highlight */}
                   {(isLastMoveFrom || isLastMoveTo) && (
-                    <div className="absolute inset-1 rounded-full border-2 border-dashed border-[#8C4A31] animate-pulse pointer-events-none" />
+                    <div className="absolute inset-0.5 rounded-full border-2 border-dashed border-[#8C4A31] animate-pulse pointer-events-none" />
                   )}
 
-                  {/* Target Move Indicator Dot */}
+                  {/* Move Target Dot */}
                   {isValidMoveTarget && (
-                    <div className="z-20 w-3.5 h-3.5 rounded-full bg-[#36513B] opacity-80 animate-ping" />
+                    <div className="z-20 w-3.5 h-3.5 rounded-full bg-[#36513B] opacity-85 animate-ping shadow-md" />
                   )}
 
                   {/* Piece Disc */}
                   {piece && (
                     <div
-                      className={`z-10 w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center font-bold text-base sm:text-lg shadow-md transition-transform duration-150 ${
+                      className={`z-10 w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-sm sm:text-base md:text-lg shadow-md transition-transform duration-150 ${
                         isSelected
                           ? "scale-110 ring-4 ring-[#8C4A31]"
                           : "hover:scale-105"
