@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef } from "react";
-import { FEATURED_NOTES, NoteItem } from "@/data/mockData";
+import { getFeaturedNotes } from "@/lib/notes";
+import { NoteItem } from "@/data/mockData";
 import { Code2, Camera, Sparkles, Clock, Calendar, ArrowRight, BookOpen, Tag } from "lucide-react";
 import Link from "next/link";
 import gsap from "gsap";
@@ -12,6 +13,7 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 export default function FeaturedNotes() {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const featuredNotesList = getFeaturedNotes();
 
   useGSAP(() => {
     gsap.from(".note-card-anim", {
@@ -40,8 +42,8 @@ export default function FeaturedNotes() {
     }
   };
 
-  const mainFeaturedNote = FEATURED_NOTES[0];
-  const sideNotes = FEATURED_NOTES.slice(1, 3);
+  const mainFeaturedNote = featuredNotesList[0];
+  const sideNotes = featuredNotesList.slice(1, 3);
 
   return (
     <section ref={sectionRef} id="notes" className="relative w-full py-20 md:py-28 px-4 bg-[#FAF7F2] border-t border-[#2D2B2C]/8">

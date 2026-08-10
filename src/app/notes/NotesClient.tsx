@@ -6,7 +6,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { BookOpen, Search, Code2, Camera, Sparkles, Calendar, Clock, Eye, Heart, Tag, ArrowRight } from "lucide-react";
 
-export default function NotesClient() {
+interface NotesClientProps {
+  initialNotes?: NoteItem[];
+}
+
+export default function NotesClient({ initialNotes }: NotesClientProps) {
+  const notesList = initialNotes || FEATURED_NOTES;
   const [selectedCategory, setSelectedCategory] = useState("全部");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -16,10 +21,10 @@ export default function NotesClient() {
 
   // Collect all unique tags
   const allTags = Array.from(
-    new Set(FEATURED_NOTES.flatMap((note) => note.tags || []))
+    new Set(notesList.flatMap((note) => note.tags || []))
   );
 
-  const filteredNotes = FEATURED_NOTES.filter((note: NoteItem) => {
+  const filteredNotes = notesList.filter((note: NoteItem) => {
     const matchesCategory = selectedCategory === "全部" || note.category === selectedCategory;
     const matchesTag = !selectedTag || (note.tags && note.tags.includes(selectedTag));
     const matchesSearch =

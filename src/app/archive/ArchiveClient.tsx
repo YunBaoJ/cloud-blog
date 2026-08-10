@@ -10,7 +10,12 @@ import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(useGSAP);
 
-export default function ArchiveClient() {
+interface ArchiveClientProps {
+  initialNotes?: NoteItem[];
+}
+
+export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
+  const notesList = initialNotes || FEATURED_NOTES;
   const [selectedCategory, setSelectedCategory] = useState("全部");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,7 +35,7 @@ export default function ArchiveClient() {
   const categories = ["全部", "代码与思考", "生活与摄影", "前端与设计"];
 
   const allTags = Array.from(
-    new Set(FEATURED_NOTES.flatMap((note) => note.tags || []))
+    new Set(notesList.flatMap((note) => note.tags || []))
   );
 
   const ALL_CATEGORIES = categories.filter((c) => c !== "全部");
@@ -40,7 +45,7 @@ export default function ArchiveClient() {
   const activeTag = selectedTag;
   const setActiveTag = setSelectedTag;
 
-  const filteredNotes = FEATURED_NOTES.filter((note: NoteItem) => {
+  const filteredNotes = notesList.filter((note: NoteItem) => {
     const matchesCategory = selectedCategory === "全部" || note.category === selectedCategory;
     const matchesTag = !selectedTag || (note.tags && note.tags.includes(selectedTag));
     const matchesSearch =
@@ -72,7 +77,7 @@ export default function ArchiveClient() {
             文章归档
           </h1>
           <p className="text-base sm:text-lg text-[#5A5551] max-w-2xl font-normal leading-relaxed">
-            全部 {FEATURED_NOTES.length} 篇文章按时间轴与分类脉络梳理，点击卡片直达阅读。
+            全部 {notesList.length} 篇文章按时间轴与分类脉络梳理，点击卡片直达阅读。
           </p>
 
           {/* Search Bar */}
@@ -97,7 +102,7 @@ export default function ArchiveClient() {
           {/* Stats Cards */}
           <div className="grid grid-cols-2 gap-3">
             <div className="p-4 rounded-2xl bg-white border border-[#2D2B2C]/8 shadow-xs text-center space-y-1">
-              <span className="text-2xl font-extrabold text-[#36513B]">{FEATURED_NOTES.length}</span>
+              <span className="text-2xl font-extrabold text-[#36513B]">{notesList.length}</span>
               <p className="text-[11px] text-[#7A736A] font-medium">全部文章</p>
             </div>
             <div className="p-4 rounded-2xl bg-white border border-[#2D2B2C]/8 shadow-xs text-center space-y-1">

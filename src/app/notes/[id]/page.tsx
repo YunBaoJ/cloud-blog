@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { FEATURED_NOTES } from "@/data/mockData";
+import { getAllNotes, getNoteById } from "@/lib/notes";
 import { notFound } from "next/navigation";
 import NoteDetailClient from "./NoteDetailClient";
 
@@ -7,9 +7,16 @@ interface NotePageProps {
   params: Promise<{ id: string }>;
 }
 
+export async function generateStaticParams() {
+  const notes = getAllNotes();
+  return notes.map((note) => ({
+    id: note.id,
+  }));
+}
+
 export async function generateMetadata({ params }: NotePageProps): Promise<Metadata> {
   const { id } = await params;
-  const note = FEATURED_NOTES.find((n) => n.id === id);
+  const note = getNoteById(id);
 
   if (!note) {
     return {
@@ -29,15 +36,16 @@ export async function generateMetadata({ params }: NotePageProps): Promise<Metad
 
 export default async function NoteDetailPage({ params }: NotePageProps) {
   const { id } = await params;
-  const noteIndex = FEATURED_NOTES.findIndex((n) => n.id === id);
+  const allNotes = getAllNotes();
+  const noteIndex = allNotes.findIndex((n) => n.id === id);
 
   if (noteIndex === -1) {
     notFound();
   }
 
-  const note = FEATURED_NOTES[noteIndex];
-  const prevNote = noteIndex > 0 ? FEATURED_NOTES[noteIndex - 1] : null;
-  const nextNote = noteIndex < FEATURED_NOTES.length - 1 ? FEATURED_NOTES[noteIndex + 1] : null;
+  const note = allNotes[noteIndex];
+  const prevNote = noteIndex > 0 ? allNotes[noteIndex - 1] : null;
+  const nextNote = noteIndex < allNotes.length - 1 ? allNotes[noteIndex + 1] : null;
 
   return <NoteDetailClient note={note} prevNote={prevNote} nextNote={nextNote} />;
 }

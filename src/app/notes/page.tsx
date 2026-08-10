@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getAllNotes } from "@/lib/notes";
 import NotesClient from "./NotesClient";
 
 export const metadata: Metadata = {
@@ -11,5 +12,6 @@ export const metadata: Metadata = {
 };
 
 export default function NotesPage() {
-  return <NotesClient />;
+  const notes = getAllNotes();
+  return <NotesClient initialNotes={notes} />;
 }

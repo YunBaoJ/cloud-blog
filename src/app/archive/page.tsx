@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getAllNotes } from "@/lib/notes";
 import ArchiveClient from "./ArchiveClient";
 
 export const metadata: Metadata = {
@@ -11,5 +12,6 @@ export const metadata: Metadata = {
 };
 
 export default function ArchivePage() {
-  return <ArchiveClient />;
+  const notes = getAllNotes();
+  return <ArchiveClient initialNotes={notes} />;
 }
