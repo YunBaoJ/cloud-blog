@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import CommandMenu from "@/components/CommandMenu";
 import Navbar from "@/components/Navbar";
 import ReadingProgress from "@/components/ReadingProgress";
+import { getAllNotes } from "@/lib/notes";
 import "./globals.css";
 
 // Load official HarmonyOS Sans SC (Regular 400 + Bold 700)
@@ -74,6 +75,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const allNotes = getAllNotes();
+
   return (
     <html
       lang="zh-CN"
@@ -84,7 +87,7 @@ export default function RootLayout({
         <ThemeProvider>
           <ReadingProgress />
           <Navbar />
-          <CommandMenu />
+          <CommandMenu notes={allNotes} />
           {children}
         </ThemeProvider>
       </body>

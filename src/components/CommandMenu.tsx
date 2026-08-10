@@ -2,18 +2,28 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, BookOpen, Camera, Sparkles, User, Archive, X, ArrowRight, CornerDownLeft } from "lucide-react";
-import { FEATURED_NOTES, GALLERY_PHOTOS } from "@/data/mockData";
+import { Search, BookOpen, Camera, Sparkles, User, Archive, X, CornerDownLeft, Gamepad2, Compass } from "lucide-react";
+import { FEATURED_NOTES, GALLERY_PHOTOS, NoteItem } from "@/data/mockData";
 
-export default function CommandMenu() {
+interface CommandMenuProps {
+  notes?: NoteItem[];
+}
+
+const GAMES_SEARCH_DATA = [
+  { id: "snake", title: "贪吃蛇小游戏", path: "/playground?game=snake", category: "游乐场 · 游戏", icon: Gamepad2 },
+  { id: "2048", title: "2048 数字合并", path: "/playground?game=2048", category: "游乐场 · 游戏", icon: Gamepad2 },
+  { id: "puzzle", title: "数字华容道拼图", path: "/playground?game=puzzle", category: "游乐场 · 游戏", icon: Gamepad2 },
+  { id: "gomoku", title: "五子棋单人/双人对弈", path: "/playground?game=gomoku", category: "游乐场 · 游戏", icon: Gamepad2 },
+  { id: "xiangqi", title: "中国象棋 AI 博弈", path: "/playground?game=xiangqi", category: "游乐场 · 游戏", icon: Gamepad2 },
+];
+
+export default function CommandMenu({ notes }: CommandMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const router = RouterHook();
+  const router = useRouter();
 
-  function RouterHook() {
-    return useRouter();
-  }
+  const activeNotes = notes || FEATURED_NOTES;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -42,27 +52,33 @@ export default function CommandMenu() {
   const q = query.toLowerCase().trim();
 
   const navResults = [
-    { title: "随笔笔记", path: "/notes", category: "页面", icon: BookOpen },
-    { title: "摄影画廊", path: "/gallery", category: "页面", icon: Camera },
-    { title: "灵感游乐场", path: "/playground", category: "页面", icon: Sparkles },
-    { title: "时光留言板", path: "/guestbook", category: "页面", icon: BookOpen },
-    { title: "文章归档", path: "/archive", category: "页面", icon: Archive },
-    { title: "关于 Cloud", path: "/about", category: "页面", icon: User },
+    { title: "小屋主页", path: "/", category: "页面导航", icon: Compass },
+    { title: "随笔笔记列表", path: "/notes", category: "页面导航", icon: BookOpen },
+    { title: "摄影画廊", path: "/gallery", category: "页面导航", icon: Camera },
+    { title: "摸鱼游乐场", path: "/playground", category: "页面导航", icon: Sparkles },
+    { title: "文章归档时间轴", path: "/archive", category: "页面导航", icon: Archive },
+    { title: "关于 Cloud", path: "/about", category: "页面导航", icon: User },
   ].filter((item) => !q || item.title.toLowerCase().includes(q));
 
-  const noteResults = FEATURED_NOTES.filter(
-    (n) =>
-      !q ||
-      n.title.toLowerCase().includes(q) ||
-      n.summary.toLowerCase().includes(q) ||
-      n.tags.some(t => t.toLowerCase().includes(q)) ||
-      n.content.toLowerCase().includes(q)
-  ).map((n) => ({
-    title: n.title,
-    path: `/notes/${n.id}`,
-    category: `笔记 · ${n.category}`,
-    icon: BookOpen,
-  }));
+  const gameResults = GAMES_SEARCH_DATA.filter(
+    (g) => !q || g.title.toLowerCase().includes(q) || g.category.toLowerCase().includes(q)
+  );
+
+  const noteResults = activeNotes
+    .filter(
+      (n) =>
+        !q ||
+        n.title.toLowerCase().includes(q) ||
+        n.summary.toLowerCase().includes(q) ||
+        (n.tags && n.tags.some((t) => t.toLowerCase().includes(q))) ||
+        (n.content && n.content.toLowerCase().includes(q))
+    )
+    .map((n) => ({
+      title: n.title,
+      path: `/notes/${n.id}`,
+      category: `随笔 · ${n.category}`,
+      icon: BookOpen,
+    }));
 
   const photoResults = GALLERY_PHOTOS.filter(
     (p) =>
@@ -77,7 +93,7 @@ export default function CommandMenu() {
     icon: Camera,
   }));
 
-  const allResults = [...navResults, ...noteResults, ...photoResults];
+  const allResults = [...navResults, ...gameResults, ...noteResults, ...photoResults];
 
   const handleSelect = (path: string) => {
     setIsOpen(false);
@@ -110,11 +126,11 @@ export default function CommandMenu() {
       >
         {/* Input Bar */}
         <div className="flex items-center gap-3 px-5 py-4 border-b border-[#2D2B2C]/8 dark:border-white/10">
-          <Search className="w-5 h-5 text-[#7A736A] dark:text-[#9EB3A4]" />
+          <Search className="w-5 h-5 text-[#36513B] dark:text-[#7CD090]" />
           <input
             type="text"
             autoFocus
-            placeholder="搜索文章、照片或跳转页面... (ESC 退出)"
+            placeholder="搜索 Markdown 文章、小游戏、胶片相册或页面... (ESC 退出)"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -171,7 +187,7 @@ export default function CommandMenu() {
         {/* Footer shortcuts hint */}
         <div className="px-5 py-2.5 bg-[#FAF7F2] dark:bg-[#142219] border-t border-[#2D2B2C]/5 dark:border-white/5 flex items-center justify-between text-[11px] text-[#7A736A] dark:text-[#9EB3A4] font-mono">
           <span>↑ ↓ 选择 · ↵ 确认跳转</span>
-          <span>⌘K 触发搜索</span>
+          <span>⌘K / Ctrl+K 触发搜索</span>
         </div>
       </div>
     </div>
