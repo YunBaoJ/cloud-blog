@@ -396,7 +396,7 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
     ? "text-xl sm:text-2xl text-[#2D2B2C] dark:text-[#E2EBE4]"
     : "text-base sm:text-lg text-[#333031] dark:text-[#D9E5DC]";
 
-  // Extract TOC items with identical heading index counter for 100% unique keys
+  // Extract TOC items with identical heading index counter for 100% unique keys (h2 & h3 only)
   let tocHeadingIndex = 0;
   const tocItems = note.content
     .split("\n")
@@ -409,10 +409,6 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
       if (trimmed.startsWith("## ")) {
         const id = slugifyTitle(trimmed, tocHeadingIndex++);
         return { id, title: trimmed.replace("## ", "").replace(/\*\*/g, ""), level: 2 };
-      }
-      if (trimmed.startsWith("# ")) {
-        const id = slugifyTitle(trimmed, tocHeadingIndex++);
-        return { id, title: trimmed.replace("# ", "").replace(/\*\*/g, ""), level: 1 };
       }
       return null;
     })

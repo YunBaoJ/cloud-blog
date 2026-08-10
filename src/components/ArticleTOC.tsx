@@ -64,9 +64,7 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
     setActiveId(id);
     const el = document.getElementById(id);
     if (el) {
-      const rect = el.getBoundingClientRect();
-      const targetY = rect.top + window.scrollY - 110;
-      window.scrollTo({ top: targetY, behavior: "smooth" });
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
