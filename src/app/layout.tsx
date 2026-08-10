@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import CommandMenu from "@/components/CommandMenu";
 import Navbar from "@/components/Navbar";
 import ReadingProgress from "@/components/ReadingProgress";
+import AgentationDevTool from "@/components/AgentationDevTool";
 import { getAllNotes } from "@/lib/notes";
 import "./globals.css";
 
@@ -88,6 +89,7 @@ export default function RootLayout({
           <ReadingProgress />
           <Navbar />
           <CommandMenu notes={allNotes} />
+          <AgentationDevTool />
           {children}
         </ThemeProvider>
       </body>
