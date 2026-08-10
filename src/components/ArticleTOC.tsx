@@ -33,19 +33,22 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
 
     const handleScroll = () => {
       const headingElements = items
-        .map((item) => document.getElementById(item.id))
-        .filter(Boolean) as HTMLElement[];
+        .map((item) => ({ id: item.id, el: document.getElementById(item.id) }))
+        .filter((item): item is { id: string; el: HTMLElement } => item.el !== null);
 
-      const scrollPosition = window.scrollY + 140;
+      if (headingElements.length === 0) return;
 
-      for (let i = headingElements.length - 1; i >= 0; i--) {
-        const el = headingElements[i];
-        if (el.offsetTop <= scrollPosition) {
-          setActiveId(items[i].id);
-          return;
+      let currentActiveId = headingElements[0].id;
+      for (let i = 0; i < headingElements.length; i++) {
+        const { id, el } = headingElements[i];
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= 180) {
+          currentActiveId = id;
+        } else {
+          break;
         }
       }
-      setActiveId(items[0]?.id || "");
+      setActiveId(currentActiveId);
     };
 
     handleScroll();
@@ -59,7 +62,8 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
     setActiveId(id);
     const el = document.getElementById(id);
     if (el) {
-      const targetY = el.getBoundingClientRect().top + window.scrollY - 100;
+      const rect = el.getBoundingClientRect();
+      const targetY = rect.top + window.scrollY - 110;
       window.scrollTo({ top: targetY, behavior: "smooth" });
     }
   };

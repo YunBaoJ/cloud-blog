@@ -271,12 +271,17 @@ function renderFormattedInlineText(text: string): React.ReactNode {
   });
 }
 
+function generateHeadingSlug(title: string, index: number): string {
+  return `toc-node-${index}`;
+}
+
 function ArticleMarkdownRenderer({ content }: { content: string }) {
   const lines = content.trim().split("\n");
   const elements: React.ReactNode[] = [];
   let inCodeBlock = false;
   let codeBuffer: string[] = [];
   let currentLang = "code";
+  let headingIndex = 0;
 
   lines.forEach((line, idx) => {
     if (line.startsWith("```")) {
@@ -302,14 +307,16 @@ function ArticleMarkdownRenderer({ content }: { content: string }) {
     if (!trimmed) return;
 
     if (trimmed.startsWith("### ")) {
+      const headingId = generateHeadingSlug(trimmed, headingIndex++);
       elements.push(
-        <h3 id={`heading-${idx}`} key={idx} className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#2D2B2C] dark:text-[#F0F5F1] pt-8 pb-3 border-b border-[#2D2B2C]/8 dark:border-white/10 scroll-mt-28">
+        <h3 id={headingId} key={idx} className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#2D2B2C] dark:text-[#F0F5F1] pt-8 pb-3 border-b border-[#2D2B2C]/8 dark:border-white/10 scroll-mt-28">
           {renderFormattedInlineText(trimmed.replace("### ", ""))}
         </h3>
       );
     } else if (trimmed.startsWith("## ")) {
+      const headingId = generateHeadingSlug(trimmed, headingIndex++);
       elements.push(
-        <h2 id={`heading-${idx}`} key={idx} className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#2D2B2C] dark:text-[#F0F5F1] pt-10 pb-4 border-b border-[#2D2B2C]/10 dark:border-white/10 flex items-center gap-3 scroll-mt-28">
+        <h2 id={headingId} key={idx} className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#2D2B2C] dark:text-[#F0F5F1] pt-10 pb-4 border-b border-[#2D2B2C]/10 dark:border-white/10 flex items-center gap-3 scroll-mt-28">
           <span className="w-3 h-7 bg-[#36513B] dark:bg-[#7CD090] rounded-full inline-block" />
           {renderFormattedInlineText(trimmed.replace("## ", ""))}
         </h2>
@@ -364,19 +371,23 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
     ? "text-xl sm:text-2xl text-[#2D2B2C] dark:text-[#E2EBE4]"
     : "text-lg sm:text-[19px] text-[#333031] dark:text-[#D9E5DC]";
 
-  // Extract TOC items from markdown content
+  // Extract TOC items with identical heading index counter
+  let headingCounter = 0;
   const tocItems = note.content
     .split("\n")
-    .map((line, idx) => {
+    .map((line) => {
       const trimmed = line.trim();
       if (trimmed.startsWith("### ")) {
-        return { id: `heading-${idx}`, title: trimmed.replace("### ", "").replace(/\*\*/g, ""), level: 3 };
+        const id = generateHeadingSlug(trimmed, headingCounter++);
+        return { id, title: trimmed.replace("### ", "").replace(/\*\*/g, ""), level: 3 };
       }
       if (trimmed.startsWith("## ")) {
-        return { id: `heading-${idx}`, title: trimmed.replace("## ", "").replace(/\*\*/g, ""), level: 2 };
+        const id = generateHeadingSlug(trimmed, headingCounter++);
+        return { id, title: trimmed.replace("## ", "").replace(/\*\*/g, ""), level: 2 };
       }
       if (trimmed.startsWith("# ")) {
-        return { id: `heading-${idx}`, title: trimmed.replace("# ", "").replace(/\*\*/g, ""), level: 1 };
+        const id = generateHeadingSlug(trimmed, headingCounter++);
+        return { id, title: trimmed.replace("# ", "").replace(/\*\*/g, ""), level: 1 };
       }
       return null;
     })
