@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { List, ChevronRight, X } from "lucide-react";
+import { List, ChevronRight, X, Sparkles } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
@@ -13,8 +13,10 @@ export interface TOCItem {
 
 export default function ArticleTOC({ items }: { items: TOCItem[] }) {
   const [activeId, setActiveId] = useState<string>("");
+  const [scrollProgress, setScrollProgress] = useState<number>(0);
   const [isOpenMobile, setIsOpenMobile] = useState(false);
   const sidebarRef = useRef<HTMLElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
 
   useGSAP(() => {
     if (sidebarRef.current) {
@@ -32,11 +34,26 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
     if (items.length === 0) return;
 
     const handleScroll = () => {
+      // 1. Calculate reading scroll percentage
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight > 0) {
+        const progress = Math.min(100, Math.max(0, Math.round((window.scrollY / totalHeight) * 100)));
+        setScrollProgress(progress);
+      }
+
+      // 2. Active section heading detection
       const headingElements = items
         .map((item) => ({ id: item.id, el: document.getElementById(item.id) }))
         .filter((item): item is { id: string; el: HTMLElement } => item.el !== null);
 
       if (headingElements.length === 0) return;
+
+      // Handle bottom of page edge case
+      const isAtBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 60;
+      if (isAtBottom) {
+        setActiveId(headingElements[headingElements.length - 1].id);
+        return;
+      }
 
       let currentActiveId = headingElements[0].id;
       for (let i = 0; i < headingElements.length; i++) {
@@ -56,7 +73,21 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [items]);
 
-
+  // Safely scroll active list item inside the TOC ul container only (0 impact on window)
+  useEffect(() => {
+    if (!activeId || !listRef.current) return;
+    const activeItemNode = listRef.current.querySelector(`[data-toc-id="${activeId}"]`) as HTMLElement;
+    if (activeItemNode) {
+      const container = listRef.current;
+      const itemTop = activeItemNode.offsetTop;
+      const containerHeight = container.clientHeight;
+      const itemHeight = activeItemNode.clientHeight;
+      container.scrollTo({
+        top: itemTop - containerHeight / 2 + itemHeight / 2,
+        behavior: "smooth",
+      });
+    }
+  }, [activeId]);
 
   const scrollToHeading = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -73,23 +104,35 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
   return (
     <>
       {/* Desktop/Tablet Independent Fixed Left Panel — 0 impact on main article card size */}
-      <aside ref={sidebarRef} className="fixed left-3 sm:left-4 md:left-5 lg:left-6 xl:left-8 2xl:left-12 top-28 z-40 w-52 hidden 2xl:block pointer-events-none">
+      <aside ref={sidebarRef} className="fixed left-3 sm:left-4 md:left-5 lg:left-6 xl:left-8 2xl:left-12 top-28 z-40 w-56 hidden 2xl:block pointer-events-none">
         <nav className="space-y-3 bg-white/95 dark:bg-[#1C1A17]/95 backdrop-blur-xl p-4.5 rounded-2xl border border-[#2D2B2C]/12 dark:border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.08)] pointer-events-auto">
-          <div className="flex items-center justify-between border-b border-[#2D2B2C]/10 dark:border-white/15 pb-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#36513B] dark:text-[#7CD090] uppercase tracking-wider font-mono">
-              <List className="w-4 h-4 text-[#8C4A31] dark:text-[#E5987D]" />
-              <span>文章目录</span>
+          {/* Header with Title & Reading Progress Bar */}
+          <div className="space-y-2 border-b border-[#2D2B2C]/10 dark:border-white/15 pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-[#36513B] dark:text-[#7CD090] uppercase tracking-wider font-mono">
+                <List className="w-4 h-4 text-[#8C4A31] dark:text-[#E5987D]" />
+                <span>文章目录</span>
+              </div>
+              <span className="text-[10px] font-mono text-[#36513B] dark:text-[#7CD090] font-bold px-2 py-0.5 rounded-full bg-[#E2EBE4] dark:bg-[#23382C]">
+                {scrollProgress}% 已读
+              </span>
             </div>
-            <span className="text-[10px] font-mono text-[#7A736A] dark:text-[#9EB3A4] px-2 py-0.5 rounded-full bg-[#FAF7F2] dark:bg-[#24221F] border border-[#2D2B2C]/8 dark:border-white/10">
-              {items.length} 章节
-            </span>
+
+            {/* Reading Progress Line Bar */}
+            <div className="w-full h-1 bg-[#FAF7F2] dark:bg-[#24221F] rounded-full overflow-hidden border border-[#2D2B2C]/5 dark:border-white/5">
+              <div
+                className="h-full bg-[#36513B] dark:bg-[#7CD090] transition-all duration-150 rounded-full"
+                style={{ width: `${scrollProgress}%` }}
+              />
+            </div>
           </div>
 
-          <ul className="space-y-1.5 text-xs font-medium max-h-[65vh] overflow-y-auto pr-1">
+          {/* Heading Items List */}
+          <ul ref={listRef} className="space-y-1.5 text-xs font-medium max-h-[60vh] overflow-y-auto pr-1 scroll-smooth">
             {items.map((item, idx) => {
               const isActive = activeId === item.id;
               return (
-                <li key={`${item.id}-${idx}`} style={{ paddingLeft: item.level === 3 ? "0.75rem" : "0rem" }}>
+                <li key={`${item.id}-${idx}`} data-toc-id={item.id} style={{ paddingLeft: item.level === 3 ? "0.75rem" : "0rem" }}>
                   <a
                     href={`#${item.id}`}
                     onClick={(e) => scrollToHeading(item.id, e)}
@@ -117,12 +160,15 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
             className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#36513B] dark:bg-[#7CD090] text-white dark:text-[#142219] text-xs font-bold shadow-lg hover:scale-105 active:scale-95 transition-all"
           >
             <List className="w-4 h-4" />
-            <span>目录 ({items.length})</span>
+            <span>目录 ({items.length}) · {scrollProgress}%</span>
           </button>
         ) : (
           <div className="w-72 bg-white dark:bg-[#1C1A17] p-5 rounded-3xl border border-[#2D2B2C]/10 dark:border-white/10 shadow-[0_16px_48px_rgba(0,0,0,0.2)] space-y-3 animate-in slide-in-from-bottom-4 duration-200">
             <div className="flex items-center justify-between border-b border-[#2D2B2C]/8 dark:border-white/10 pb-2.5">
-              <span className="text-xs font-bold text-[#36513B] dark:text-[#7CD090] font-mono">目录导航</span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-[#36513B] dark:text-[#7CD090] font-mono">目录导航</span>
+                <span className="text-[10px] text-[#7A736A] dark:text-[#9EB3A4] font-mono">({scrollProgress}%)</span>
+              </div>
               <button
                 onClick={() => setIsOpenMobile(false)}
                 className="p-1 rounded-lg text-[#7A736A] hover:bg-[#2D2B2C]/5 dark:hover:bg-white/10"
@@ -130,6 +176,11 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
                 <X className="w-4 h-4" />
               </button>
             </div>
+
+            <div className="w-full h-1 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
+              <div className="h-full bg-[#36513B] dark:bg-[#7CD090] transition-all duration-150" style={{ width: `${scrollProgress}%` }} />
+            </div>
+
             <ul className="space-y-1 text-xs font-medium max-h-60 overflow-y-auto pr-1">
               {items.map((item) => {
                 const isActive = activeId === item.id;
