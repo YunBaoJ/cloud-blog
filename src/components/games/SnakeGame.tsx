@@ -1,57 +1,141 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import { Play, RotateCcw, Zap } from "lucide-react";
 
-type GameState = 'idle' | 'playing' | 'paused' | 'dead';
-type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
+type GameState = "idle" | "playing" | "paused" | "dead";
+type Direction = "UP" | "DOWN" | "LEFT" | "RIGHT";
+type Difficulty = "easy" | "normal" | "hard";
 
 interface Point {
   x: number;
   y: number;
 }
 
-const GRID_SIZE = 22;
-const INITIAL_SPEED = 150;
-const MIN_SPEED = 60;
-const SPEED_DECREMENT = 2; // per food
+const GRID_SIZE = 20;
+const MIN_BOOST_SPEED = 25; // 长按加速的最高速度上限 (25ms/步)
 
-const INITIAL_SNAKE: Point[] = [
-  { x: 10, y: 10 }
-];
+// Difficulty speed config (ms per step) - 拉大三种难度的基础速度差距
+const DIFFICULTY_CONFIG: Record<
+  Difficulty,
+  { initialSpeed: number; minSpeed: number; canWrap: boolean; label: string }
+> = {
+  easy: { initialSpeed: 180, minSpeed: 100, canWrap: true, label: "简单 (慢速+可穿墙)" },
+  normal: { initialSpeed: 100, minSpeed: 55, canWrap: false, label: "普通 (中速+禁穿墙)" },
+  hard: { initialSpeed: 50, minSpeed: 30, canWrap: false, label: "困难 (极速+禁穿墙)" },
+};
+
+const INITIAL_SNAKE: Point[] = [{ x: 10, y: 10 }];
 
 export default function SnakeGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  
-  const [gameState, setGameState] = useState<GameState>('idle');
+
+  const [gameState, setGameState] = useState<GameState>("idle");
+  const [difficulty, setDifficulty] = useState<Difficulty>("normal");
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
-  
+
   const snakeRef = useRef<Point[]>([...INITIAL_SNAKE]);
-  const directionRef = useRef<Direction>('RIGHT');
-  const nextDirectionRef = useRef<Direction>('RIGHT');
+  const directionRef = useRef<Direction>("RIGHT");
+  const nextDirectionRef = useRef<Direction>("RIGHT");
   const foodRef = useRef<Point>({ x: 18, y: 10 });
-  const speedRef = useRef(INITIAL_SPEED);
+  const speedRef = useRef(DIFFICULTY_CONFIG.normal.initialSpeed);
+  const isAcceleratingRef = useRef(false); // 是否处于长按加速状态
   const gameLoopRef = useRef<NodeJS.Timeout | null>(null);
-  const canvasSizeRef = useRef({ width: 0, height: 440 });
+  const canvasSizeRef = useRef({ width: 0, height: 400 });
   const showDeathTextRef = useRef(false);
 
-  // For touch controls
+  // Touch control reference
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
+  // ── Web Audio Sound Effects ──────────────────────────────────────
+  const playEatSound = useCallback(() => {
+    try {
+      const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AC) return;
+      const ctx = new AC();
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.exponentialRampToValueAtTime(1040, now + 0.08);
+
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.1);
+    } catch {}
+  }, []);
+
+  const playCrashSound = useCallback(() => {
+    try {
+      const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AC) return;
+      const ctx = new AC();
+      const now = ctx.currentTime;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(240, now);
+      osc.frequency.exponentialRampToValueAtTime(50, now + 0.2);
+
+      gain.gain.setValueAtTime(0.5, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.23);
+    } catch {}
+  }, []);
+
+  const playTurnSound = useCallback(() => {
+    try {
+      const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AC) return;
+      const ctx = new AC();
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(800, now);
+      osc.frequency.exponentialRampToValueAtTime(400, now + 0.02);
+
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.03);
+    } catch {}
+  }, []);
+
+  // Persistence
   useEffect(() => {
-    const savedHighScore = localStorage.getItem('snakeHighScore');
+    const savedHighScore = localStorage.getItem("snakeHighScore");
     if (savedHighScore) {
       setHighScore(parseInt(savedHighScore, 10));
     }
   }, []);
 
-  const updateHighScore = useCallback((newScore: number) => {
-    if (newScore > highScore) {
-      setHighScore(newScore);
-      localStorage.setItem('snakeHighScore', newScore.toString());
-    }
-  }, [highScore]);
+  const updateHighScore = useCallback(
+    (newScore: number) => {
+      if (newScore > highScore) {
+        setHighScore(newScore);
+        localStorage.setItem("snakeHighScore", newScore.toString());
+      }
+    },
+    [highScore]
+  );
 
   const generateFood = useCallback((snake: Point[], width: number, height: number): Point => {
     const cols = Math.floor(width / GRID_SIZE);
@@ -63,39 +147,63 @@ export default function SnakeGame() {
         x: Math.floor(Math.random() * cols),
         y: Math.floor(Math.random() * rows),
       };
-      isOccupied = snake.some(segment => segment.x === newFood.x && segment.y === newFood.y);
+      isOccupied = snake.some((segment) => segment.x === newFood.x && segment.y === newFood.y);
     }
     return newFood!;
   }, []);
 
+  // Canvas Drawing
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     const { width, height } = canvasSizeRef.current;
-    
-    // 1. Clear & Background (Warm cream off-white, matching wabi-sabi tone)
-    ctx.fillStyle = '#FAF6EE';
+
+    // 1. Background
+    ctx.fillStyle = "#FAF6EE";
     ctx.fillRect(0, 0, width, height);
 
-    // 2. Draw Food — Red circular dot with subtle highlight
+    // 2. Clear Crisp Grid Background
+    ctx.save();
+    ctx.strokeStyle = "rgba(45, 43, 44, 0.06)";
+    ctx.lineWidth = 1;
+
+    const cols = Math.floor(width / GRID_SIZE);
+    const rows = Math.floor(height / GRID_SIZE);
+
+    for (let c = 0; c <= cols; c++) {
+      ctx.beginPath();
+      ctx.moveTo(c * GRID_SIZE, 0);
+      ctx.lineTo(c * GRID_SIZE, height);
+      ctx.stroke();
+    }
+    for (let r = 0; r <= rows; r++) {
+      ctx.beginPath();
+      ctx.moveTo(0, r * GRID_SIZE);
+      ctx.lineTo(width, r * GRID_SIZE);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // 3. Draw Food
     const foodX = foodRef.current.x * GRID_SIZE + GRID_SIZE / 2;
     const foodY = foodRef.current.y * GRID_SIZE + GRID_SIZE / 2;
     ctx.save();
-    ctx.fillStyle = '#B84A39';
+    ctx.fillStyle = "#B84A39";
+    ctx.shadowColor = "rgba(184, 74, 57, 0.3)";
+    ctx.shadowBlur = 6;
     ctx.beginPath();
-    ctx.arc(foodX, foodY, GRID_SIZE / 2 - 3, 0, 2 * Math.PI);
+    ctx.arc(foodX, foodY, GRID_SIZE / 2 - 2, 0, 2 * Math.PI);
     ctx.fill();
     ctx.restore();
 
-    // 3. Draw Snake — Classic 8-Bit Retro Pixel Grid Style
+    // 4. Draw Snake
     const snake = snakeRef.current;
     if (snake.length > 0) {
       ctx.save();
 
-      // Draw Pixel Segments
       for (let i = snake.length - 1; i >= 0; i--) {
         const seg = snake[i];
         const x = seg.x * GRID_SIZE + 1.5;
@@ -103,106 +211,128 @@ export default function SnakeGame() {
         const size = GRID_SIZE - 3;
 
         ctx.beginPath();
-        // Rounded pixel block
-        ctx.roundRect(x, y, size, size, i === 0 ? 6 : 4);
+        if (typeof ctx.roundRect === "function") {
+          ctx.roundRect(x, y, size, size, i === 0 ? 5 : 3);
+        } else {
+          ctx.rect(x, y, size, size);
+        }
 
-        // Color fill
-        ctx.fillStyle = i === 0 ? '#34543C' : '#36513B';
+        ctx.fillStyle = i === 0 ? "#34543C" : "#36513B";
         ctx.fill();
-        ctx.strokeStyle = '#23382C';
-        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = "#23382C";
+        ctx.lineWidth = 1;
         ctx.stroke();
       }
 
-      // Draw Classic Pixel Eyes on Head Block
+      // Draw Snake Eyes
       const head = snake[0];
       const hx = head.x * GRID_SIZE;
       const hy = head.y * GRID_SIZE;
       const dir = directionRef.current;
 
-      let e1 = { x: hx, y: hy }, e2 = { x: hx, y: hy };
-      if (dir === 'RIGHT') {
-        e1 = { x: hx + GRID_SIZE - 6, y: hy + 5 };
-        e2 = { x: hx + GRID_SIZE - 6, y: hy + GRID_SIZE - 8 };
-      } else if (dir === 'LEFT') {
-        e1 = { x: hx + 4, y: hy + 5 };
-        e2 = { x: hx + 4, y: hy + GRID_SIZE - 8 };
-      } else if (dir === 'UP') {
-        e1 = { x: hx + 5, y: hy + 4 };
-        e2 = { x: hx + GRID_SIZE - 8, y: hy + 4 };
-      } else if (dir === 'DOWN') {
-        e1 = { x: hx + 5, y: hy + GRID_SIZE - 6 };
-        e2 = { x: hx + GRID_SIZE - 8, y: hy + GRID_SIZE - 6 };
+      let e1 = { x: hx, y: hy },
+        e2 = { x: hx, y: hy };
+      if (dir === "RIGHT") {
+        e1 = { x: hx + GRID_SIZE - 5, y: hy + 4 };
+        e2 = { x: hx + GRID_SIZE - 5, y: hy + GRID_SIZE - 7 };
+      } else if (dir === "LEFT") {
+        e1 = { x: hx + 4, y: hy + 4 };
+        e2 = { x: hx + 4, y: hy + GRID_SIZE - 7 };
+      } else if (dir === "UP") {
+        e1 = { x: hx + 4, y: hy + 4 };
+        e2 = { x: hx + GRID_SIZE - 7, y: hy + 4 };
+      } else if (dir === "DOWN") {
+        e1 = { x: hx + 4, y: hy + GRID_SIZE - 5 };
+        e2 = { x: hx + GRID_SIZE - 7, y: hy + GRID_SIZE - 5 };
       }
 
-      // Eye White Pixels
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(e1.x, e1.y, 3.5, 3.5);
-      ctx.fillRect(e2.x, e2.y, 3.5, 3.5);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(e1.x, e1.y, 3, 3);
+      ctx.fillRect(e2.x, e2.y, 3, 3);
 
-      // Pupil Black Pixels
-      ctx.fillStyle = '#111F14';
-      ctx.fillRect(e1.x + 1, e1.y + 1, 1.8, 1.8);
-      ctx.fillRect(e2.x + 1, e2.y + 1, 1.8, 1.8);
+      ctx.fillStyle = "#111F14";
+      ctx.fillRect(e1.x + 0.5, e1.y + 0.5, 1.5, 1.5);
+      ctx.fillRect(e2.x + 0.5, e2.y + 0.5, 1.5, 1.5);
 
       ctx.restore();
     }
 
+    // 5. Draw "撞了" text on death
     if (showDeathTextRef.current) {
-      ctx.fillStyle = '#8C4A31';
-      ctx.font = 'bold 48px "HarmonyOS Sans SC", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('撞了', width / 2, height / 2);
+      ctx.fillStyle = "#8C4A31";
+      ctx.font = 'bold 44px "HarmonyOS Sans SC", sans-serif';
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("撞了！", width / 2, height / 2);
     }
   }, []);
 
   const gameOver = useCallback(() => {
-    setGameState('dead');
+    setGameState("dead");
     showDeathTextRef.current = true;
+    isAcceleratingRef.current = false;
+    playCrashSound();
     updateHighScore(score);
-    draw(); // Draw "撞了"
-    
+    draw();
+
     setTimeout(() => {
       showDeathTextRef.current = false;
-      setGameState(prev => prev); // force render for overlay
+      setGameState((prev) => prev);
     }, 800);
-  }, [score, updateHighScore, draw]);
+  }, [score, updateHighScore, draw, playCrashSound]);
 
   const gameStep = useCallback(() => {
-    if (gameState !== 'playing') return;
+    if (gameState !== "playing") return;
 
     directionRef.current = nextDirectionRef.current;
     const head = snakeRef.current[0];
-    const newHead = { ...head };
+    let newHead = { ...head };
 
     switch (directionRef.current) {
-      case 'UP': newHead.y -= 1; break;
-      case 'DOWN': newHead.y += 1; break;
-      case 'LEFT': newHead.x -= 1; break;
-      case 'RIGHT': newHead.x += 1; break;
+      case "UP":
+        newHead.y -= 1;
+        break;
+      case "DOWN":
+        newHead.y += 1;
+        break;
+      case "LEFT":
+        newHead.x -= 1;
+        break;
+      case "RIGHT":
+        newHead.x += 1;
+        break;
     }
 
     const { width, height } = canvasSizeRef.current;
     const cols = Math.floor(width / GRID_SIZE);
     const rows = Math.floor(height / GRID_SIZE);
 
-    // Check collisions
-    if (
-      newHead.x < 0 || newHead.x >= cols ||
-      newHead.y < 0 || newHead.y >= rows ||
-      snakeRef.current.some(s => s.x === newHead.x && s.y === newHead.y)
-    ) {
+    const config = DIFFICULTY_CONFIG[difficulty];
+
+    // Easy mode wall wrapping vs Normal/Hard wall collision
+    if (config.canWrap) {
+      newHead.x = (newHead.x + cols) % cols;
+      newHead.y = (newHead.y + rows) % rows;
+    } else {
+      if (newHead.x < 0 || newHead.x >= cols || newHead.y < 0 || newHead.y >= rows) {
+        gameOver();
+        return;
+      }
+    }
+
+    // Self collision
+    if (snakeRef.current.some((s) => s.x === newHead.x && s.y === newHead.y)) {
       gameOver();
       return;
     }
 
     const newSnake = [newHead, ...snakeRef.current];
 
-    // Check food
+    // Food collision
     if (newHead.x === foodRef.current.x && newHead.y === foodRef.current.y) {
-      setScore(s => s + 1);
-      speedRef.current = Math.max(MIN_SPEED, speedRef.current - SPEED_DECREMENT);
+      setScore((s) => s + 1);
+      playEatSound();
+      speedRef.current = Math.max(config.minSpeed, speedRef.current - 1.5);
       foodRef.current = generateFood(newSnake, width, height);
     } else {
       newSnake.pop();
@@ -211,230 +341,256 @@ export default function SnakeGame() {
     snakeRef.current = newSnake;
     draw();
 
-    gameLoopRef.current = setTimeout(gameStep, speedRef.current);
-  }, [gameState, gameOver, draw, generateFood]);
+    // ⚡ 长按方向键加速计算：如长按则步长缩减为 35%，但最高速度受 MIN_BOOST_SPEED (25ms) 保护
+    const currentBaseSpeed = speedRef.current;
+    const nextInterval = isAcceleratingRef.current
+      ? Math.max(MIN_BOOST_SPEED, Math.floor(currentBaseSpeed * 0.35))
+      : currentBaseSpeed;
+
+    gameLoopRef.current = setTimeout(gameStep, nextInterval);
+  }, [gameState, difficulty, gameOver, draw, generateFood, playEatSound]);
 
   useEffect(() => {
-    if (gameState === 'playing') {
-      gameLoopRef.current = setTimeout(gameStep, speedRef.current);
+    if (gameState === "playing") {
+      const currentBaseSpeed = speedRef.current;
+      const nextInterval = isAcceleratingRef.current
+        ? Math.max(MIN_BOOST_SPEED, Math.floor(currentBaseSpeed * 0.35))
+        : currentBaseSpeed;
+      gameLoopRef.current = setTimeout(gameStep, nextInterval);
     }
     return () => {
       if (gameLoopRef.current) clearTimeout(gameLoopRef.current);
     };
   }, [gameState, gameStep]);
 
-  const startGame = useCallback(() => {
-    const { width, height } = canvasSizeRef.current;
-    const midX = Math.floor(width / GRID_SIZE / 2);
-    const midY = Math.floor(height / GRID_SIZE / 2);
-    snakeRef.current = [
-      { x: midX, y: midY }
-    ];
-    directionRef.current = 'RIGHT';
-    nextDirectionRef.current = 'RIGHT';
-    setScore(0);
-    speedRef.current = INITIAL_SPEED;
-    showDeathTextRef.current = false;
-    foodRef.current = generateFood(snakeRef.current, width, height);
-    setGameState('playing');
-  }, [generateFood]);
+  // Start / Restart Game with specific difficulty
+  const startNewGameWithDifficulty = useCallback(
+    (targetDiff: Difficulty) => {
+      if (gameLoopRef.current) {
+        clearTimeout(gameLoopRef.current);
+        gameLoopRef.current = null;
+      }
 
-  // Handle Resize
+      setDifficulty(targetDiff);
+
+      const { width, height } = canvasSizeRef.current;
+      const midX = Math.floor((width || 400) / GRID_SIZE / 2);
+      const midY = Math.floor((height || 400) / GRID_SIZE / 2);
+
+      snakeRef.current = [{ x: midX, y: midY }];
+      directionRef.current = "RIGHT";
+      nextDirectionRef.current = "RIGHT";
+      setScore(0);
+      speedRef.current = DIFFICULTY_CONFIG[targetDiff].initialSpeed;
+      isAcceleratingRef.current = false;
+      showDeathTextRef.current = false;
+
+      foodRef.current = generateFood(snakeRef.current, width || 400, height || 400);
+      setGameState("playing");
+    },
+    [generateFood]
+  );
+
+  // Resize Observer
   useEffect(() => {
-    const resizeObserver = new ResizeObserver(entries => {
-      for (let entry of entries) {
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
         if (entry.target === containerRef.current) {
           const { width } = entry.contentRect;
-          const canvasWidth = Math.floor(width / GRID_SIZE) * GRID_SIZE; // Keep it aligned to grid
+          const canvasWidth = Math.floor(width / GRID_SIZE) * GRID_SIZE;
           if (canvasRef.current) {
             canvasRef.current.width = canvasWidth;
-            canvasRef.current.height = 440;
+            canvasRef.current.height = 400;
+            canvasSizeRef.current = { width: canvasWidth, height: 400 };
+            draw();
           }
-          canvasSizeRef.current = { width: canvasWidth, height: 440 };
-          draw();
         }
       }
     });
 
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
-    }
-
+    if (containerRef.current) resizeObserver.observe(containerRef.current);
     return () => resizeObserver.disconnect();
   }, [draw]);
 
-  // Handle Keyboard Inputs
+  // ⌨️ Keyboard Events: Turn & Hold Key Boost
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd', ' '].includes(e.key)) {
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(e.code)) {
         e.preventDefault();
       }
 
-      const key = e.key.toLowerCase();
+      if (gameState !== "playing") return;
 
-      // Restart on Enter or Space if game is over or idle
-      if ((key === 'enter' || key === ' ') && (gameState === 'dead' || gameState === 'idle')) {
-        startGame();
-        return;
+      // 开启长按加速
+      isAcceleratingRef.current = true;
+
+      const current = directionRef.current;
+      let turned = false;
+
+      if ((e.code === "KeyW" || e.code === "ArrowUp") && current !== "DOWN") {
+        nextDirectionRef.current = "UP";
+        turned = true;
+      } else if ((e.code === "KeyS" || e.code === "ArrowDown") && current !== "UP") {
+        nextDirectionRef.current = "DOWN";
+        turned = true;
+      } else if ((e.code === "KeyA" || e.code === "ArrowLeft") && current !== "RIGHT") {
+        nextDirectionRef.current = "LEFT";
+        turned = true;
+      } else if ((e.code === "KeyD" || e.code === "ArrowRight") && current !== "LEFT") {
+        nextDirectionRef.current = "RIGHT";
+        turned = true;
       }
 
-      if (gameState !== 'playing') return;
+      if (turned) playTurnSound();
+    };
 
-      if ((key === 'arrowup' || key === 'w') && directionRef.current !== 'DOWN') {
-        nextDirectionRef.current = 'UP';
-      } else if ((key === 'arrowdown' || key === 's') && directionRef.current !== 'UP') {
-        nextDirectionRef.current = 'DOWN';
-      } else if ((key === 'arrowleft' || key === 'a') && directionRef.current !== 'RIGHT') {
-        nextDirectionRef.current = 'LEFT';
-      } else if ((key === 'arrowright' || key === 'd') && directionRef.current !== 'LEFT') {
-        nextDirectionRef.current = 'RIGHT';
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (["KeyW", "KeyS", "KeyA", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.code)) {
+        isAcceleratingRef.current = false;
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown, { passive: false });
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [gameState, startGame]);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [gameState, playTurnSound]);
 
-  // Handle Touch Inputs
+  // Touch Swipe Controls
   const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartRef.current = {
-      x: e.touches[0].clientX,
-      y: e.touches[0].clientY
-    };
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+    isAcceleratingRef.current = true; // Touch & Hold for boost
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!touchStartRef.current || gameState !== 'playing') return;
+    isAcceleratingRef.current = false;
+    if (!touchStartRef.current || gameState !== "playing") return;
 
-    const touchEndX = e.changedTouches[0].clientX;
-    const touchEndY = e.changedTouches[0].clientY;
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - touchStartRef.current.x;
+    const dy = touch.clientY - touchStartRef.current.y;
+    touchStartRef.current = null;
 
-    const dx = touchEndX - touchStartRef.current.x;
-    const dy = touchEndY - touchStartRef.current.y;
+    if (Math.abs(dx) < 15 && Math.abs(dy) < 15) return;
+
+    const current = directionRef.current;
+    let turned = false;
 
     if (Math.abs(dx) > Math.abs(dy)) {
-      if (dx > 30 && directionRef.current !== 'LEFT') {
-        nextDirectionRef.current = 'RIGHT';
-      } else if (dx < -30 && directionRef.current !== 'RIGHT') {
-        nextDirectionRef.current = 'LEFT';
+      if (dx > 0 && current !== "LEFT") {
+        nextDirectionRef.current = "RIGHT";
+        turned = true;
+      } else if (dx < 0 && current !== "RIGHT") {
+        nextDirectionRef.current = "LEFT";
+        turned = true;
       }
     } else {
-      if (dy > 30 && directionRef.current !== 'UP') {
-        nextDirectionRef.current = 'DOWN';
-      } else if (dy < -30 && directionRef.current !== 'DOWN') {
-        nextDirectionRef.current = 'UP';
+      if (dy > 0 && current !== "UP") {
+        nextDirectionRef.current = "DOWN";
+        turned = true;
+      } else if (dy < 0 && current !== "DOWN") {
+        nextDirectionRef.current = "UP";
+        turned = true;
       }
     }
-    touchStartRef.current = null;
+
+    if (turned) playTurnSound();
   };
 
-  const isNewHighScore = score > 0 && score >= highScore;
-
   return (
-    <div className="bg-white dark:bg-[#1E2721]/50 rounded-3xl p-6 border border-[#2D2B2C]/6 dark:border-white/10 shadow-[0_4px_24px_rgba(45,43,44,0.05)] font-['HarmonyOS_Sans_SC',sans-serif] relative max-w-2xl mx-auto">
-      {/* Header Info */}
-      <div className="flex justify-between items-center mb-4 text-[#2D2B2C] dark:text-[#FAF7F2]">
-        <div className="flex flex-col">
-          <span className="text-xs font-mono text-[#7A736A] uppercase tracking-wider">当前得分</span>
-          <span className="text-3xl font-bold text-[#8C4A31] font-mono">{score}</span>
+    <div className="bg-white dark:bg-[#1E2721]/50 rounded-3xl p-6 border border-[#2D2B2C]/6 dark:border-white/8 shadow-[0_4px_24px_rgba(45,43,44,0.05)] space-y-4">
+      {/* Top Header & Mode Switcher */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#2D2B2C]/8 dark:border-white/10">
+        {/* Scores */}
+        <div className="flex items-center gap-4 text-xs font-bold text-[#2D2B2C] dark:text-[#F0F5F1]">
+          <span>
+            得 分: <strong className="text-[#8C4A31] text-base">{score}</strong>
+          </span>
+          <span className="text-[#7A736A] dark:text-[#9EB3A4]">
+            最高分: <strong>{highScore}</strong>
+          </span>
         </div>
-        <div className="flex flex-col text-right">
-          <span className="text-xs font-mono text-[#7A736A] uppercase tracking-wider">最高纪录</span>
-          <span className="text-2xl font-bold text-[#36513B] dark:text-[#567a5d] font-mono">{highScore}</span>
+
+        {/* Mode Switch Buttons (点击直接切换模式并强制重开一局) */}
+        <div className="flex items-center gap-1 bg-[#FAF7F2] dark:bg-[#24221F] p-1 rounded-2xl border border-[#2D2B2C]/6 dark:border-white/10 text-xs font-semibold">
+          <button
+            onClick={() => startNewGameWithDifficulty("easy")}
+            className={`px-3 py-1 rounded-xl transition-all ${
+              difficulty === "easy"
+                ? "bg-[#36513B] text-white shadow-2xs font-bold"
+                : "text-[#7A736A] hover:text-[#2D2B2C] dark:hover:text-white"
+            }`}
+          >
+            简单 (可穿墙)
+          </button>
+          <button
+            onClick={() => startNewGameWithDifficulty("normal")}
+            className={`px-3 py-1 rounded-xl transition-all ${
+              difficulty === "normal"
+                ? "bg-[#36513B] text-white shadow-2xs font-bold"
+                : "text-[#7A736A] hover:text-[#2D2B2C] dark:hover:text-white"
+            }`}
+          >
+            普通
+          </button>
+          <button
+            onClick={() => startNewGameWithDifficulty("hard")}
+            className={`px-3 py-1 rounded-xl transition-all ${
+              difficulty === "hard"
+                ? "bg-[#8C4A31] text-white shadow-2xs font-bold"
+                : "text-[#7A736A] hover:text-[#2D2B2C] dark:hover:text-white"
+            }`}
+          >
+            困难 (极速)
+          </button>
         </div>
       </div>
 
-      {/* Game Area */}
-      <div 
-        ref={containerRef} 
-        className="relative w-full rounded-2xl overflow-hidden bg-[#FAF7F2] border border-[#2D2B2C]/10 shadow-inner"
+      {/* Game Canvas Container */}
+      <div
+        ref={containerRef}
+        className="relative w-full rounded-2xl overflow-hidden shadow-inner border-2 border-[#2D2B2C]/10 dark:border-white/10"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        <canvas 
-          ref={canvasRef}
-          className="block w-full h-[440px]"
-        />
+        <canvas ref={canvasRef} className="block w-full h-[400px]" />
 
-        {/* Initial Idle Overlay */}
-        {gameState === 'idle' && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#FAF7F2]/85 backdrop-blur-sm p-6 space-y-4">
-            <div className="w-16 h-16 rounded-2xl bg-[#36513B]/10 border border-[#36513B]/20 flex items-center justify-center text-3xl shadow-sm animate-bounce">
-              🐍
-            </div>
-            <div className="text-center space-y-1">
-              <h3 className="text-xl font-bold text-[#2D2B2C] dark:text-[#FAF7F2]">贪吃蛇灵感冒险</h3>
-              <p className="text-xs text-[#7A736A] font-mono">点击按钮或按键盘 Enter 键开始游戏</p>
-            </div>
-            <button 
-              onClick={startGame}
-              className="px-8 py-3 bg-[#36513B] hover:bg-[#2d4432] text-[#FAF7F2] rounded-2xl font-bold text-base transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2"
+        {/* Start Overlay */}
+        {gameState === "idle" && (
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center space-y-4">
+            <h3 className="text-2xl font-bold text-white tracking-wide">贪吃蛇大冒险</h3>
+            <p className="text-xs text-white/80 max-w-xs">
+              {DIFFICULTY_CONFIG[difficulty].label} · 长按方向键可加速（上限 25ms）
+            </p>
+            <button
+              onClick={() => startNewGameWithDifficulty(difficulty)}
+              className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#36513B] text-white font-bold hover:scale-105 transition-all shadow-md"
             >
+              <Play className="w-4 h-4 fill-current" />
               <span>开始游戏</span>
-              <span className="text-xs font-mono opacity-60 bg-white/20 px-2 py-0.5 rounded">Enter ↵</span>
             </button>
           </div>
         )}
 
-        {/* GameOver UX/UI Overlay - Designed with UI/UX Pro Max guidelines */}
-        {gameState === 'dead' && !showDeathTextRef.current && (
-          <div className="absolute inset-0 flex items-center justify-center bg-[#1E2721]/50 dark:bg-black/70 backdrop-blur-md animate-in fade-in duration-200 p-6 z-30">
-            <div className="bg-[#FAF7F2] dark:bg-[#1E2721] p-6 sm:p-8 rounded-3xl shadow-2xl flex flex-col items-center border border-white/80 dark:border-white/10 max-w-sm w-full space-y-5 animate-in zoom-in-95 duration-200">
-              
-              {/* Header Title & Badge */}
-              <div className="text-center space-y-1.5">
-                {isNewHighScore ? (
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-bold animate-pulse mb-1">
-                    <span>🏆</span>
-                    <span>创下新纪录！NEW BEST</span>
-                  </div>
-                ) : (
-                  <div className="text-xs font-mono text-[#8C4A31] font-semibold uppercase tracking-widest">
-                    GAME OVER ● 游戏结束
-                  </div>
-                )}
-                <h3 className="text-2xl font-bold text-[#2D2B2C] dark:text-[#FAF7F2]">
-                  {isNewHighScore ? '太棒了！突破极限' : '这次差一点点'}
-                </h3>
-              </div>
-
-              {/* Score Dashboard Matrix */}
-              <div className="grid grid-cols-2 gap-3 w-full bg-white dark:bg-[#151C17] p-4 rounded-2xl border border-[#2D2B2C]/8 dark:border-white/8 shadow-2xs">
-                <div className="flex flex-col items-center justify-center p-2 border-r border-[#2D2B2C]/8 dark:border-white/8">
-                  <span className="text-[11px] font-mono text-[#7A736A] uppercase">本次得分</span>
-                  <span className="text-3xl font-extrabold text-[#8C4A31] font-mono mt-0.5">{score}</span>
-                </div>
-                <div className="flex flex-col items-center justify-center p-2">
-                  <span className="text-[11px] font-mono text-[#7A736A] uppercase">历史最高</span>
-                  <span className="text-2xl font-bold text-[#36513B] dark:text-[#567a5d] font-mono mt-0.5">{highScore}</span>
-                </div>
-              </div>
-
-              {/* CTA Action Buttons */}
-              <div className="w-full space-y-2 pt-1">
-                <button 
-                  onClick={startGame}
-                  className="w-full py-3 bg-[#36513B] hover:bg-[#2d4432] text-[#FAF7F2] rounded-2xl font-bold transition-all shadow-md hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 group"
-                >
-                  <span>再来一局</span>
-                  <span className="text-xs font-mono opacity-70 bg-white/20 px-2 py-0.5 rounded group-hover:bg-white/30 transition-colors">Enter ↵</span>
-                </button>
-              </div>
-
-              <p className="text-[11px] font-mono text-[#7A736A] text-center">
-                键盘按下 <kbd className="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 border border-black/10 font-sans">Enter</kbd> 或 <kbd className="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 border border-black/10 font-sans">Space</kbd> 可快速重开
-              </p>
-
-            </div>
+        {/* GameOver Overlay */}
+        {gameState === "dead" && !showDeathTextRef.current && (
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center space-y-4 animate-in fade-in duration-200">
+            <h3 className="text-2xl font-bold text-white">游戏结束！</h3>
+            <p className="text-sm text-gray-300">
+              得分: <strong className="text-amber-400 font-bold">{score}</strong> | 最高分: <strong>{highScore}</strong>
+            </p>
+            <button
+              onClick={() => startNewGameWithDifficulty(difficulty)}
+              className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#36513B] text-white font-bold hover:scale-105 transition-all shadow-md"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>再试一次</span>
+            </button>
           </div>
         )}
-      </div>
-      
-      {/* Controls Hint */}
-      <div className="mt-4 text-center text-xs font-mono text-[#2D2B2C]/60 dark:text-[#FAF7F2]/60 flex items-center justify-center gap-4">
-        <span>键盘 WASD / 方向键</span>
-        <span>•</span>
-        <span>支持触摸滑动</span>
       </div>
     </div>
   );

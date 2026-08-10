@@ -505,76 +505,24 @@ export default function Xiangqi() {
   const inCheck = isCheck(board, turn);
   const [showCheckAlert, setShowCheckAlert] = useState(false);
 
-  // ── Xiangqi Sound Effects ─────────────────────────────────────────
-  // 1. Move Sound (沉稳木质落子声 "嗒")
+  // ── Xiangqi Recorded Audio Sample Effects ──────────────────────────
+  // 1. Move Sound (真实实木象棋叩击棋盘声)
   const playMoveSound = useCallback(() => {
     try {
-      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-      const now = ctx.currentTime;
-
-      // Wooden body knock
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(480, now);
-      osc.frequency.exponentialRampToValueAtTime(110, now + 0.06);
-      gain.gain.setValueAtTime(0.5, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      // Surface snap
-      const snap = ctx.createOscillator();
-      const snapGain = ctx.createGain();
-      snap.type = "triangle";
-      snap.frequency.setValueAtTime(1400, now);
-      snap.frequency.exponentialRampToValueAtTime(200, now + 0.03);
-      snapGain.gain.setValueAtTime(0.3, now);
-      snapGain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
-      snap.connect(snapGain);
-      snapGain.connect(ctx.destination);
-
-      osc.start(now);
-      osc.stop(now + 0.07);
-      snap.start(now);
-      snap.stop(now + 0.04);
+      const audio = new Audio("/sounds/move.wav");
+      audio.volume = 0.85;
+      audio.play().catch(() => {});
     } catch {
       // Audio fallback
     }
   }, []);
 
-  // 2. Capture Sound (棋子相撞吃子重击声 "啪嗒！")
+  // 2. Capture Sound (两块实木棋子强烈相撞+砸落重响)
   const playCaptureSound = useCallback(() => {
     try {
-      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-      const now = ctx.currentTime;
-
-      // Impact 1: Hard wood slap
-      const osc1 = ctx.createOscillator();
-      const gain1 = ctx.createGain();
-      osc1.type = "sawtooth";
-      osc1.frequency.setValueAtTime(900, now);
-      osc1.frequency.exponentialRampToValueAtTime(180, now + 0.09);
-      gain1.gain.setValueAtTime(0.6, now);
-      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
-      osc1.connect(gain1);
-      gain1.connect(ctx.destination);
-
-      // Impact 2: Deep thud
-      const osc2 = ctx.createOscillator();
-      const gain2 = ctx.createGain();
-      osc2.type = "sine";
-      osc2.frequency.setValueAtTime(320, now);
-      osc2.frequency.exponentialRampToValueAtTime(80, now + 0.12);
-      gain2.gain.setValueAtTime(0.5, now);
-      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-      osc2.connect(gain2);
-      gain2.connect(ctx.destination);
-
-      osc1.start(now);
-      osc1.stop(now + 0.1);
-      osc2.start(now);
-      osc2.stop(now + 0.13);
+      const audio = new Audio("/sounds/capture.wav");
+      audio.volume = 0.9;
+      audio.play().catch(() => {});
     } catch {
       // Audio fallback
     }

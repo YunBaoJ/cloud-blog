@@ -310,42 +310,87 @@ export default function Gomoku() {
 
   const aiColor = playerColor === "black" ? "white" : "black";
 
-  // ── Realistic Web Audio Sound Effects ──────────────────────────────
-  // 1. Crisp Stone Drop Sound (模拟云子扣木棋盘声)
-  const playStoneSound = useCallback(() => {
+  // ── 100% Identical Sound Engine from gomoku.com ─────────────────────
+  // 模拟棋子敲击木质棋盘: 6ms 尖锐瞬间 + 600-720Hz 噪波木响 + 320->140Hz 下滑扫频
+  const playStoneSound = useCallback((color: "black" | "white" = "black") => {
     try {
-      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-      const now = ctx.currentTime;
+      const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AC) return;
+      const c = new AC();
+      if (c.state === "suspended") { c.resume(); }
 
-      // Click snap (High frequency attack)
-      const osc1 = ctx.createOscillator();
-      const gain1 = ctx.createGain();
-      osc1.type = "triangle";
-      osc1.frequency.setValueAtTime(2200, now);
-      osc1.frequency.exponentialRampToValueAtTime(300, now + 0.04);
-      gain1.gain.setValueAtTime(0.4, now);
-      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
-      osc1.connect(gain1);
-      gain1.connect(ctx.destination);
+      const now = c.currentTime;
+      const isBlack = color === "black";
+      const vary = 0.94 + Math.random() * 0.12;                        // ±6% 音高微变, 避免机械感
+      const force = (isBlack ? 1.0 : 0.82) * (0.85 + Math.random() * 0.3); // 黑子稍重 + 力道微变
 
-      // Wooden resonance body (Low frequency thump)
-      const osc2 = ctx.createOscillator();
-      const gain2 = ctx.createGain();
-      osc2.type = "sine";
-      osc2.frequency.setValueAtTime(650, now);
-      osc2.frequency.exponentialRampToValueAtTime(120, now + 0.08);
-      gain2.gain.setValueAtTime(0.3, now);
-      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-      osc2.connect(gain2);
-      gain2.connect(ctx.destination);
+      const master = c.createGain();
+      const peak = Math.min(0.6, 0.5 * force);
+      master.gain.setValueAtTime(peak, now);
+      master.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+      master.connect(c.destination);
 
-      osc1.start(now);
-      osc1.stop(now + 0.05);
-      osc2.start(now);
-      osc2.stop(now + 0.09);
-    } catch {
-      // Audio autoplay policy fallback
-    }
+      // A) 接触瞬间: 6ms 尖锐噪音(高通感, 亮而干)
+      const nDur = 0.006;
+      const nBuf = c.createBuffer(1, Math.ceil(c.sampleRate * nDur), c.sampleRate);
+      const nd = nBuf.getChannelData(0);
+      for (let i = 0; i < nd.length; i++) {
+        nd[i] = (Math.random() * 2 - 1) * (1 - i / nd.length);
+      }
+      const noise = c.createBufferSource();
+      noise.buffer = nBuf;
+      const bp = c.createBiquadFilter();
+      bp.type = "bandpass";
+      bp.frequency.value = (isBlack ? 3600 : 4300) * vary;
+      bp.Q.value = 0.7; // 宽频带 → 干净的“嗒”而非哨音
+      const nGain = c.createGain();
+      nGain.gain.value = 1.0;
+      noise.connect(bp);
+      bp.connect(nGain);
+      nGain.connect(master);
+      noise.start(now);
+      noise.stop(now + nDur);
+
+      // B) 木板敲击体: 中低频噪音爆发——实心音质来源
+      const bDur = 0.035;
+      const bBuf = c.createBuffer(1, Math.ceil(c.sampleRate * bDur), c.sampleRate);
+      const bData = bBuf.getChannelData(0);
+      for (let j = 0; j < bData.length; j++) {
+        bData[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / bData.length, 1.6);
+      }
+      const body = c.createBufferSource();
+      body.buffer = bBuf;
+      const bodyBp = c.createBiquadFilter();
+      bodyBp.type = "bandpass";
+      bodyBp.frequency.value = (isBlack ? 600 : 720) * vary;
+      bodyBp.Q.value = 1.0;
+      const bodyG = c.createGain();
+      bodyG.gain.value = 0.95;
+      body.connect(bodyBp);
+      bodyBp.connect(bodyG);
+      bodyG.connect(master);
+      body.start(now);
+      body.stop(now + bDur);
+
+      // C) 实体重量感: 下滑扫频 (320->140Hz 瞬间下坠 = 实体木块撞击音, 35ms 即收)
+      const th = c.createOscillator();
+      th.type = "sine";
+      const f0 = (isBlack ? 320 : 360) * vary;
+      const f1 = (isBlack ? 140 : 170) * vary;
+      th.frequency.setValueAtTime(f0, now);
+      th.frequency.exponentialRampToValueAtTime(f1, now + 0.025);
+      const thG = c.createGain();
+      thG.gain.setValueAtTime(isBlack ? 0.5 : 0.36, now);
+      thG.gain.exponentialRampToValueAtTime(0.0001, now + 0.035);
+      th.connect(thG);
+      thG.connect(master);
+      th.start(now);
+      th.stop(now + 0.06);
+
+      setTimeout(() => {
+        try { master.disconnect(); } catch {}
+      }, 300);
+    } catch {}
   }, []);
 
   // 2. Victory Arpeggio Chime (连五胜出欢快和弦)
@@ -376,7 +421,7 @@ export default function Gomoku() {
   const place = useCallback((idx: number, b: Stone[], t: "black" | "white"): Stone[] => {
     const next = [...b];
     next[idx] = t;
-    playStoneSound();
+    playStoneSound(t);
     return next;
   }, [playStoneSound]);
 
@@ -756,47 +801,92 @@ export default function Gomoku() {
         </div>
       </div>
 
-      {/* Board */}
-      <div className="overflow-auto">
+      {/* Standard 15x15 Gomoku Board (Wood Wabi-Sabi Styling) */}
+      <div className="overflow-auto pb-2">
         <div
-          className="relative mx-auto select-none"
+          className="relative mx-auto select-none rounded-2xl p-6 sm:p-7 shadow-inner border-4 border-[#8C6D46] dark:border-[#423321] overflow-hidden"
           style={{
-            width: SIZE * 28,
-            height: SIZE * 28,
-            background: "#DEB887",
-            backgroundImage: "radial-gradient(circle at 30% 30%, #E8C97A 0%, #C8A05A 100%)",
-            borderRadius: 12,
-            padding: 14,
-            boxShadow: "inset 0 2px 8px rgba(0,0,0,0.15), 0 4px 16px rgba(0,0,0,0.12)",
+            width: SIZE * 28 + 36,
+            height: SIZE * 28 + 36,
+            background: "#E8D4B0",
+            backgroundImage: "radial-gradient(circle at 30% 30%, #F5E6C8 0%, #D8B57E 100%)",
           }}
         >
-          {/* Grid lines */}
+          {/* SVG Standard Grid Lines, Double Outer Frame, 5 Star Points, Coordinates */}
           <svg
             className="absolute inset-0 pointer-events-none"
-            width={SIZE * 28}
-            height={SIZE * 28}
+            width={SIZE * 28 + 36}
+            height={SIZE * 28 + 36}
           >
-            {Array.from({ length: SIZE }).map((_, i) => (
-              <g key={i}>
-                <line
-                  x1={14 + i * 28} y1={14}
-                  x2={14 + i * 28} y2={14 + (SIZE - 1) * 28}
-                  stroke="rgba(0,0,0,0.3)" strokeWidth="0.8"
-                />
-                <line
-                  x1={14} y1={14 + i * 28}
-                  x2={14 + (SIZE - 1) * 28} y2={14 + i * 28}
-                  stroke="rgba(0,0,0,0.3)" strokeWidth="0.8"
+            {/* Outer Double Frame Line */}
+            <rect
+              x="12"
+              y="12"
+              width={SIZE * 28 + 12}
+              height={SIZE * 28 + 12}
+              fill="none"
+              stroke="#7C633E"
+              strokeWidth="1.8"
+            />
+
+            {/* 15x15 Grid Lines */}
+            {Array.from({ length: SIZE }).map((_, i) => {
+              const pos = 18 + i * 28;
+              return (
+                <g key={i}>
+                  {/* Vertical Line */}
+                  <line
+                    x1={pos}
+                    y1={18}
+                    x2={pos}
+                    y2={18 + (SIZE - 1) * 28}
+                    stroke="#7C633E"
+                    strokeWidth="1"
+                  />
+                  {/* Horizontal Line */}
+                  <line
+                    x1={18}
+                    y1={pos}
+                    x2={18 + (SIZE - 1) * 28}
+                    y2={pos}
+                    stroke="#7C633E"
+                    strokeWidth="1"
+                  />
+                </g>
+              );
+            })}
+
+            {/* 5 Standard Star Points (天元 (7,7) & 四角星 (3,3),(11,3),(3,11),(11,11)) */}
+            {[[3, 3], [3, 11], [7, 7], [11, 3], [11, 11]].map(([r, c]) => (
+              <g key={`star-${r}-${c}`}>
+                <circle
+                  cx={18 + c * 28}
+                  cy={18 + r * 28}
+                  r="3.5"
+                  fill="#4A341B"
                 />
               </g>
             ))}
-            {/* Star points */}
-            {[[3,3],[3,11],[7,7],[11,3],[11,11]].map(([r,c]) => (
-              <circle key={`${r}-${c}`}
-                cx={14 + c * 28} cy={14 + r * 28}
-                r="3" fill="rgba(0,0,0,0.35)"
-              />
-            ))}
+
+            {/* Coordinate Labels: Top/Bottom A-O, Left/Right 15-1 */}
+            {Array.from({ length: SIZE }).map((_, i) => {
+              const pos = 18 + i * 28;
+              const colLabel = String.fromCharCode(65 + (i >= 8 ? i + 1 : i)); // A-O (Skip I as per Go/Renju rules)
+              const rowLabel = (15 - i).toString();
+
+              return (
+                <g key={`label-${i}`} fill="#7C633E" fontSize="9" fontWeight="bold" fontFamily="monospace">
+                  {/* Top Column Label */}
+                  <text x={pos} y="9" textAnchor="middle">{colLabel}</text>
+                  {/* Bottom Column Label */}
+                  <text x={pos} y={SIZE * 28 + 31} textAnchor="middle">{colLabel}</text>
+                  {/* Left Row Label */}
+                  <text x="6" y={pos + 3} textAnchor="middle">{rowLabel}</text>
+                  {/* Right Row Label */}
+                  <text x={SIZE * 28 + 30} y={pos + 3} textAnchor="middle">{rowLabel}</text>
+                </g>
+              );
+            })}
           </svg>
 
           {/* Cells (intersection clicks) */}
@@ -815,8 +905,8 @@ export default function Gomoku() {
                     : "cursor-default"
                 }`}
                 style={{
-                  left: 14 + c * 28 - 12,
-                  top: 14 + r * 28 - 12,
+                  left: 18 + c * 28 - 12,
+                  top: 18 + r * 28 - 12,
                   width: 24, height: 24,
                 }}
               >
