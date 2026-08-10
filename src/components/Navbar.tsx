@@ -137,16 +137,16 @@ export default function Navbar() {
           {/* Theme toggle (夜间模式切换) */}
           <ThemeToggle />
 
-          {/* 干净整洁的内嵌搜索按钮 (与导航栏融为一体) */}
+          {/* 显眼清晰边框的内嵌搜索按钮 (与导航栏融为一体) */}
           <button
             type="button"
             onClick={triggerSearch}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-[#5A5551] dark:text-[#9EB3A4] hover:text-[#2D2B2C] dark:hover:text-white hover:bg-white/70 dark:hover:bg-white/10 transition-all group"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium text-[#2D2B2C] dark:text-[#E2EBE4] bg-black/4 dark:bg-white/10 border border-[#2D2B2C]/20 dark:border-white/25 hover:border-[#36513B]/50 dark:hover:border-[#7CD090]/50 hover:bg-white dark:hover:bg-[#1E2721] transition-all shadow-2xs group"
             title="全局搜索"
             aria-label="全局搜索"
           >
             <Search className="w-3.5 h-3.5 text-[#36513B] dark:text-[#7CD090] group-hover:scale-110 transition-transform flex-shrink-0" />
-            <span className="text-[#5A5551] dark:text-[#9EB3A4] group-hover:text-[#2D2B2C] dark:group-hover:text-white transition-colors">
+            <span className="text-[#333031] dark:text-[#E2EBE4] font-semibold transition-colors">
               搜索...
             </span>
           </button>
