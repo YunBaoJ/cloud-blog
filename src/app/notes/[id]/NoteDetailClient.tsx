@@ -416,10 +416,14 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
 
   return (
     <div ref={containerRef} className="min-h-screen bg-[#FAF7F2] dark:bg-[#141C16] text-[#2D2B2C] dark:text-[#F0F5F1] transition-colors duration-300">
-      {/* ArticleTOC as independent floating component — 0 impact on main card size */}
-      <ArticleTOC items={tocItems} />
+      <main className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 space-y-10">
+        {/* Left Dynamic Sticky Track for ArticleTOC — 0 impact on main width, moves with page */}
+        <div className="hidden 2xl:block absolute -left-64 top-28 bottom-20 w-56 pointer-events-none">
+          <div className="sticky top-28 pointer-events-auto">
+            <ArticleTOC items={tocItems} />
+          </div>
+        </div>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 space-y-10">
         {/* Top Controls */}
         <div className="flex items-center justify-between">
           <Link

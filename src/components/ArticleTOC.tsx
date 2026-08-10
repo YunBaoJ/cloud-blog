@@ -103,9 +103,9 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
 
   return (
     <>
-      {/* Desktop/Tablet Independent Fixed Left Panel — 0 impact on main article card size */}
-      <aside ref={sidebarRef} className="fixed left-3 sm:left-4 md:left-5 lg:left-6 xl:left-8 2xl:left-12 top-28 z-40 w-56 hidden 2xl:block pointer-events-none">
-        <nav className="space-y-3 bg-white/95 dark:bg-[#1C1A17]/95 backdrop-blur-xl p-4.5 rounded-2xl border border-[#2D2B2C]/12 dark:border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.08)] pointer-events-auto">
+      {/* Desktop/Tablet Dynamic Sticky Track Panel — 0 impact on main article card size, follows page scroll */}
+      <aside ref={sidebarRef} className="w-56 pointer-events-auto">
+        <nav className="space-y-3 bg-white/95 dark:bg-[#1C1A17]/95 backdrop-blur-xl p-4.5 rounded-2xl border border-[#2D2B2C]/12 dark:border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
           {/* Header with Title & Reading Progress Bar */}
           <div className="space-y-2 border-b border-[#2D2B2C]/10 dark:border-white/15 pb-3">
             <div className="flex items-center justify-between">
