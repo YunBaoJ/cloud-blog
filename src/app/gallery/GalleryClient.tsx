@@ -1,11 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Footer from "@/components/Footer";
 import { GALLERY_PHOTOS, GalleryPhoto } from "@/data/mockData";
 import Image from "next/image";
 import { Camera, MapPin, Calendar, X, ChevronLeft, ChevronRight, Sliders, Crosshair, Sparkles } from "lucide-react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(useGSAP);
 
 const CATEGORIES = [
   { key: "all", label: "全部作品" },
@@ -20,7 +24,35 @@ export default function GalleryClient() {
   const [selectedPhoto, setSelectedPhoto] = useState<GalleryPhoto | null>(null);
   const [mounted, setMounted] = useState(false);
 
+  const galleryGridRef = useRef<HTMLDivElement>(null);
+  const modalContentRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => { setMounted(true); }, []);
+
+  useGSAP(() => {
+    gsap.from(".gallery-photo-card", {
+      y: 40,
+      opacity: 0,
+      scale: 0.95,
+      duration: 0.6,
+      stagger: 0.06,
+      ease: "power2.out",
+      clearProps: "all",
+    });
+  }, { scope: galleryGridRef, dependencies: [activeCategory] });
+
+  // Modal open animation
+  useGSAP(() => {
+    if (selectedPhoto && modalContentRef.current) {
+      gsap.from(modalContentRef.current, {
+        scale: 0.92,
+        opacity: 0,
+        y: 20,
+        duration: 0.45,
+        ease: "back.out(1.2)",
+      });
+    }
+  }, { dependencies: [selectedPhoto] });
 
   // Filter photos
   const filteredPhotos = GALLERY_PHOTOS.filter(
@@ -144,7 +176,7 @@ export default function GalleryClient() {
       </section>
 
       {/* Gallery Photo Grid — Japanese Washi Tape Polaroid Style Cards */}
-      <section className="py-16 pb-24 px-6 sm:px-12 lg:px-20 max-w-6xl mx-auto">
+      <section ref={galleryGridRef} className="py-16 pb-24 px-6 sm:px-12 lg:px-20 max-w-6xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 pt-4">
           {filteredPhotos.map((photo, idx) => {
             const rotationClass = rotations[idx % rotations.length];
@@ -153,7 +185,7 @@ export default function GalleryClient() {
               <div
                 key={photo.id}
                 onClick={() => setSelectedPhoto(photo)}
-                className={`group relative bg-white rounded-2xl p-4 pb-6 shadow-[0_6px_24px_rgba(45,43,44,0.06)] border border-[#2D2B2C]/8 transition-all duration-300 transform ${rotationClass} hover:rotate-0 hover:scale-[1.03] hover:shadow-[0_20px_40px_rgba(45,43,44,0.14)] cursor-pointer z-10 hover:z-20`}
+                className={`gallery-photo-card group relative bg-white rounded-2xl p-4 pb-6 shadow-[0_6px_24px_rgba(45,43,44,0.06)] border border-[#2D2B2C]/8 transition-all duration-300 transform ${rotationClass} hover:rotate-0 hover:scale-[1.03] hover:shadow-[0_20px_40px_rgba(45,43,44,0.14)] cursor-pointer z-10 hover:z-20`}
               >
                 {/* Semi-transparent Washi Tape */}
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-[#F5E8D3]/85 border border-[#E8D7BE]/70 rotate-[-1deg] backdrop-blur-2xs shadow-2xs z-20 pointer-events-none rounded-xs flex items-center justify-center">
@@ -242,7 +274,7 @@ export default function GalleryClient() {
         )}
 
         {/* Modal Content Box */}
-        <div className="relative w-full max-w-6xl max-h-[85vh] bg-[#FAF7F2] text-[#2D2B2C] rounded-3xl overflow-hidden border border-white/90 shadow-[0_24px_64px_rgba(0,0,0,0.22)] grid grid-cols-1 lg:grid-cols-12">
+        <div ref={modalContentRef} className="relative w-full max-w-6xl max-h-[85vh] bg-[#FAF7F2] text-[#2D2B2C] rounded-3xl overflow-hidden border border-white/90 shadow-[0_24px_64px_rgba(0,0,0,0.22)] grid grid-cols-1 lg:grid-cols-12">
           {/* Left Image Viewfinder HUD Area */}
           <div className="lg:col-span-8 relative bg-[#141715] flex flex-col items-center justify-between p-4 sm:p-5 select-none overflow-hidden border-b lg:border-b-0 lg:border-r border-[#36513B]/20">
             {/* Top Camera Focal Scale Ruler Bar */}

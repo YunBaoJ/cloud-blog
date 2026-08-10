@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Footer from "@/components/Footer";
@@ -9,7 +9,11 @@ import Game2048 from "@/components/games/Game2048";
 import SlidePuzzle from "@/components/games/SlidePuzzle";
 import Gomoku from "@/components/games/Gomoku";
 import Xiangqi from "@/components/games/Xiangqi";
-import { X, Play } from "lucide-react";
+import { X, Play, Gamepad2 } from "lucide-react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(useGSAP);
 
 type GameId = "snake" | "2048" | "puzzle" | "gomoku" | "xiangqi";
 
@@ -157,8 +161,21 @@ function GameModal({
 export default function PlaygroundClient() {
   const [activeGame, setActiveGame] = useState<GameId | null>(null);
   const [mounted, setMounted] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { setMounted(true); }, []);
+
+  useGSAP(() => {
+    gsap.from(".game-card-anim", {
+      y: 25,
+      opacity: 0,
+      scale: 0.96,
+      duration: 0.5,
+      stagger: 0.08,
+      ease: "power2.out",
+      clearProps: "all",
+    });
+  }, { scope: gridRef });
 
   const close = useCallback(() => setActiveGame(null), []);
 
@@ -181,57 +198,84 @@ export default function PlaygroundClient() {
     <>
       <main className="min-h-screen bg-[#FAF7F2] dark:bg-[#142219] text-[#2D2B2C] dark:text-[#F0F5F1]">
 
-        {/* Header */}
-        <section className="pt-32 pb-12 px-6 sm:px-12 lg:px-20 border-b border-[#2D2B2C]/8 dark:border-white/8 bg-gradient-to-b from-[#E2EBE4]/30 to-transparent">
-          <div className="max-w-5xl mx-auto space-y-3">
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-              摸鱼游乐场
+        {/* Header Section */}
+        <section className="pt-32 pb-14 px-6 sm:px-12 lg:px-20 border-b border-[#2D2B2C]/8 dark:border-white/8 bg-gradient-to-b from-[#E2EBE4]/35 via-[#FAF7F2] to-[#FAF7F2] dark:from-[#23382C]/30 dark:to-transparent">
+          <div className="max-w-6xl mx-auto space-y-4">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#E2EBE4] dark:bg-[#23382C] text-[#36513B] dark:text-[#7CD090] text-xs font-mono font-semibold border border-[#36513B]/15 shadow-2xs">
+              <Gamepad2 className="w-4 h-4" />
+              <span>复古街机 &amp; 经典小游戏实验室</span>
+            </div>
+
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#2D2B2C] dark:text-[#F0F5F1]">
+              摸鱼游乐场 (Playground Arcade)
             </h1>
-            <p className="text-sm text-[#7A736A] dark:text-[#9EB3A4]">
-              选择一款游戏，点击 Play 开始。
+            <p className="text-base sm:text-lg text-[#7A736A] dark:text-[#9EB3A4] max-w-2xl font-normal leading-relaxed">
+              工作余暇的放松驿站。提供贪吃蛇、2048、数字华容道、五子棋 AI 与中国象棋 AI 等 5 款精巧小游戏，支持键盘与移动端触摸操控。
             </p>
           </div>
         </section>
 
-        {/* Game Cards Grid */}
-        <section className="py-14 px-6 sm:px-12 lg:px-20 max-w-5xl mx-auto">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+        {/* Game Cards Grid — Spacious 3-column Layout */}
+        <section ref={gridRef} className="py-16 pb-24 px-6 sm:px-12 lg:px-20 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-9">
             {GAMES.map((game) => (
               <div
                 key={game.id}
-                className="group bg-white dark:bg-[#1E2721]/70 rounded-2xl overflow-hidden border border-[#2D2B2C]/6 dark:border-white/8 shadow-[0_2px_12px_rgba(45,43,44,0.04)] hover:shadow-[0_8px_28px_rgba(45,43,44,0.10)] transition-all duration-300 hover:-translate-y-1"
+                onClick={() => setActiveGame(game.id)}
+                className="game-card-anim group relative bg-white dark:bg-[#1E2721]/90 rounded-3xl overflow-hidden border border-[#2D2B2C]/8 dark:border-white/10 shadow-[0_8px_30px_rgba(45,43,44,0.05)] hover:shadow-[0_20px_45px_rgba(45,43,44,0.14)] dark:hover:shadow-[0_20px_45px_rgba(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-2 flex flex-col justify-between cursor-pointer"
               >
-                {/* Cover */}
-                <div className="relative aspect-square overflow-hidden bg-[#F0EDE6] dark:bg-[#23382C]">
+                {/* Cover Image Box — 16:10 Wide Aspect Ratio */}
+                <div className="relative aspect-[16/10] overflow-hidden bg-[#F0EDE6] dark:bg-[#23382C] border-b border-[#2D2B2C]/5 dark:border-white/5">
                   <Image
                     src={game.cover}
                     alt={game.name}
                     fill
-                    sizes="(max-width: 640px) 50vw, 25vw"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/85 dark:bg-[#142219]/85 backdrop-blur-sm text-[#36513B] dark:text-[#7CD090]">
+
+                  {/* Dark Overlay with Play Icon on Hover */}
+                  <div className="absolute inset-0 bg-black/40 backdrop-blur-3xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <div className="w-14 h-14 rounded-full bg-white/90 dark:bg-[#36513B] text-[#36513B] dark:text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                      <Play className="w-6 h-6 fill-current ml-1" />
+                    </div>
+                  </div>
+
+                  {/* Tag Pill */}
+                  <span className="absolute top-3 left-3 text-xs font-bold px-3 py-1 rounded-full bg-black/50 backdrop-blur-md text-white font-mono border border-white/20">
                     {game.tag}
                   </span>
                 </div>
 
-                {/* Body */}
-                <div className="p-4 space-y-3">
-                  <div>
-                    <h2 className="text-sm font-bold text-[#2D2B2C] dark:text-[#F0F5F1]">
-                      {game.name}
-                    </h2>
-                    <p className="text-[11px] text-[#7A736A] dark:text-[#9EB3A4] leading-relaxed mt-0.5">
+                {/* Card Body */}
+                <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-xl font-bold text-[#2D2B2C] dark:text-[#F0F5F1] group-hover:text-[#36513B] dark:group-hover:text-[#7CD090] transition-colors">
+                        {game.name}
+                      </h2>
+                      <span className="text-xs font-mono text-[#7A736A] dark:text-[#9EB3A4] font-semibold">
+                        {game.nameEn}
+                      </span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-[#5A5551] dark:text-[#9EB3A4] leading-relaxed font-normal">
                       {game.desc}
                     </p>
                   </div>
-                  <button
-                    onClick={() => setActiveGame(game.id)}
-                    className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-[#36513B] dark:bg-[#2A4D32] text-white text-xs font-bold hover:bg-[#283E2C] active:scale-95 transition-all"
-                  >
-                    <Play className="w-3 h-3 fill-current" />
-                    Play
-                  </button>
+
+                  <div className="pt-3 border-t border-[#2D2B2C]/6 dark:border-white/8 flex items-center justify-between text-xs text-[#7A736A] dark:text-[#9EB3A4]">
+                    <span className="font-mono text-[11px] bg-[#FAF7F2] dark:bg-[#142219] px-2.5 py-1 rounded-lg border border-[#2D2B2C]/5 dark:border-white/5">
+                      🎮 {game.tip}
+                    </span>
+
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#36513B] dark:bg-[#2E4D36] text-white text-xs font-bold hover:bg-[#283E2C] dark:hover:bg-[#385E42] active:scale-95 transition-all shadow-2xs"
+                    >
+                      <Play className="w-3.5 h-3.5 fill-current" />
+                      <span>开始游戏</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

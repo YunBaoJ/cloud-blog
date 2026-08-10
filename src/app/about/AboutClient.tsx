@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import Footer from "@/components/Footer";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,6 +9,11 @@ import {
   Camera, BookOpen, Layers, Cpu, Palette,
   MapPin, ArrowUpRight,
 } from "lucide-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const SKILLS = [
   { icon: Code2, label: "Next.js / React", color: "bg-[#E2EBE4] text-[#36513B]" },
@@ -46,8 +52,47 @@ const TIMELINE = [
 ];
 
 export default function AboutClient() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    // Desk photo parallax
+    gsap.from(".about-desk-img", {
+      scale: 1.08,
+      duration: 1.2,
+      ease: "power2.out",
+      clearProps: "scale",
+    });
+
+    // Skill pills entrance
+    gsap.from(".about-skill-pill", {
+      y: 20,
+      opacity: 0,
+      stagger: 0.06,
+      duration: 0.6,
+      ease: "power2.out",
+      clearProps: "all",
+      scrollTrigger: {
+        trigger: ".about-skills-section",
+        start: "top 80%",
+      },
+    });
+
+    // Timeline entrance
+    gsap.from(".about-timeline-item", {
+      y: 30,
+      opacity: 0,
+      stagger: 0.12,
+      duration: 0.8,
+      ease: "power2.out",
+      clearProps: "all",
+      scrollTrigger: {
+        trigger: ".about-timeline-section",
+        start: "top 75%",
+      },
+    });
+  }, { scope: containerRef });
   return (
-    <main className="min-h-screen bg-[#FAF7F2] text-[#2D2B2C]">
+    <main ref={containerRef} className="min-h-screen bg-[#FAF7F2] text-[#2D2B2C]">
       {/* — Asymmetric Split Header — */}
       <section className="pt-28 pb-0 px-6 sm:px-12 lg:px-20 border-b border-[#2D2B2C]/8 bg-gradient-to-b from-[#E2EBE4]/25 to-transparent">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-end">
@@ -91,7 +136,7 @@ export default function AboutClient() {
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"
               priority
-              className="object-cover object-top"
+              className="about-desk-img object-cover object-top"
             />
             {/* Subtle vignette at bottom edge */}
             <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#FAF7F2]/60 to-transparent" />
@@ -118,13 +163,13 @@ export default function AboutClient() {
         </div>
 
         {/* Skills */}
-        <div className="space-y-5">
+        <div className="about-skills-section space-y-5">
           <h2 className="text-xl font-bold text-[#2D2B2C]">技能与热爱</h2>
           <div className="flex flex-wrap gap-2.5">
             {SKILLS.map((skill) => (
               <div
                 key={skill.label}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-transform hover:scale-[1.03] cursor-default select-none ${skill.color}`}
+                className={`about-skill-pill inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-transform hover:scale-[1.03] cursor-default select-none ${skill.color}`}
               >
                 <skill.icon className="w-3.5 h-3.5" />
                 <span>{skill.label}</span>
@@ -134,12 +179,12 @@ export default function AboutClient() {
         </div>
 
         {/* Timeline — left-spine, right-cards */}
-        <div className="space-y-6">
+        <div className="about-timeline-section space-y-6">
           <h2 className="text-xl font-bold text-[#2D2B2C]">成长时间线</h2>
 
           <div className="space-y-10">
             {TIMELINE.map((block) => (
-              <div key={block.year} className="grid grid-cols-[48px_1fr] sm:grid-cols-[64px_1fr] gap-x-6">
+              <div key={block.year} className="about-timeline-item grid grid-cols-[48px_1fr] sm:grid-cols-[64px_1fr] gap-x-6">
                 {/* Year label + spine */}
                 <div className="flex flex-col items-center gap-0 pt-0.5">
                   <span className="text-sm font-extrabold text-[#2B4C6F] tabular-nums">{block.year}</span>

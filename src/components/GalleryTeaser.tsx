@@ -1,8 +1,14 @@
 "use client";
 
+import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Camera, ArrowRight, MapPin, Calendar } from "lucide-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 interface FeaturedPhoto {
   id: string;
@@ -45,14 +51,31 @@ const FEATURED_PHOTOS: FeaturedPhoto[] = [
 ];
 
 export default function GalleryTeaser() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    gsap.from(".gallery-card-anim", {
+      y: 20,
+      opacity: 0,
+      scale: 0.98,
+      duration: 0.4,
+      stagger: 0.06,
+      ease: "power2.out",
+      clearProps: "all",
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top 85%",
+      },
+    });
+  }, { scope: containerRef });
   return (
-    <section className="relative w-full py-20 md:py-28 px-4 bg-[#F5F0E6] border-t border-[#2D2B2C]/8 overflow-hidden">
+    <section ref={containerRef} className="relative w-full py-20 md:py-28 px-4 bg-[#F5F0E6] border-t border-[#2D2B2C]/8 overflow-hidden">
       {/* Background Subtle Accent */}
       <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-[#8C4A31]/5 blur-3xl rounded-full pointer-events-none" />
 
       <div className="relative z-10 max-w-6xl mx-auto space-y-12">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="gallery-card-anim flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FAF0EA] text-[#8C4A31] text-xs font-semibold tracking-wide shadow-2xs">
               <Camera className="w-3.5 h-3.5" />
@@ -76,12 +99,12 @@ export default function GalleryTeaser() {
         </div>
 
         {/* Polaroid Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10 pt-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
           {FEATURED_PHOTOS.map((photo) => (
             <Link
               key={photo.id}
               href="/gallery"
-              className={`group relative bg-white rounded-2xl p-4 pb-6 shadow-[0_6px_24px_rgba(45,43,44,0.06)] border border-[#2D2B2C]/5 transition-all duration-300 transform ${photo.rotation} hover:rotate-0 hover:scale-[1.03] hover:shadow-[0_20px_40px_rgba(45,43,44,0.14)] z-10 hover:z-20`}
+              className={`gallery-card-anim group relative bg-white p-5 rounded-2xl shadow-[0_8px_30px_rgba(45,43,44,0.06)] hover:shadow-[0_20px_40px_rgba(45,43,44,0.12)] transition-all duration-500 transform ${photo.rotation} hover:rotate-0 hover:-translate-y-2 flex flex-col justify-between`}
             >
               {/* Semi-transparent Washi Tape (和纸胶带) */}
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-[#F5E8D3]/85 border border-[#E8D7BE]/70 rotate-[-1deg] backdrop-blur-2xs shadow-2xs z-10 pointer-events-none rounded-xs flex items-center justify-center">
@@ -94,6 +117,7 @@ export default function GalleryTeaser() {
                   src={photo.src}
                   alt={photo.title}
                   fill
+                  priority
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />

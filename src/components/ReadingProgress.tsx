@@ -1,39 +1,51 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
+import gsap from "gsap";
 
 export default function ReadingProgress() {
-  const [progress, setProgress] = useState(0);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
-    const handleScroll = () => {
+    const updateProgress = () => {
       const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
       const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight || 0;
       const clientHeight = window.innerHeight || document.documentElement.clientHeight || 0;
       const totalHeight = scrollHeight - clientHeight;
 
-      if (totalHeight > 0) {
-        const currentProgress = (scrollTop / totalHeight) * 100;
-        setProgress(Math.min(100, Math.max(0, currentProgress)));
-      } else {
-        setProgress(0);
+      const currentRatio = totalHeight > 0 ? Math.min(1, Math.max(0, scrollTop / totalHeight)) : 0;
+
+      if (progressRef.current) {
+        gsap.to(progressRef.current, {
+          scaleX: currentRatio,
+          duration: 0.1,
+          ease: "power1.out",
+          overwrite: "auto",
+        });
       }
     };
 
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll, { passive: true });
+    // Immediate calculation + delayed recalculation after images/content mount
+    updateProgress();
+    const timer = setTimeout(updateProgress, 300);
+
+    window.addEventListener("scroll", updateProgress, { passive: true });
+    window.addEventListener("resize", updateProgress, { passive: true });
+
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
+      clearTimeout(timer);
+      window.removeEventListener("scroll", updateProgress);
+      window.removeEventListener("resize", updateProgress);
     };
-  }, []);
+  }, [pathname]);
 
   return (
     <div className="fixed top-0 left-0 right-0 z-[100] h-1.5 bg-black/5 dark:bg-white/5 pointer-events-none">
       <div
-        className="h-full bg-[#36513B] dark:bg-[#7CD090] shadow-[0_0_10px_#36513B] dark:shadow-[0_0_12px_#7CD090] transition-all duration-100 ease-out rounded-r-full"
-        style={{ width: `${progress}%` }}
+        ref={progressRef}
+        className="h-full bg-gradient-to-r from-[#36513B] via-[#4E7A56] to-[#7CD090] dark:from-[#36513B] dark:via-[#7CD090] dark:to-[#A8F0BA] shadow-[0_0_12px_#36513B] dark:shadow-[0_0_14px_#7CD090] origin-left scale-x-0"
       />
     </div>
   );

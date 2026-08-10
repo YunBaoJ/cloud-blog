@@ -1,15 +1,31 @@
 "use client";
 
+import { useState, useRef } from "react";
 import Footer from "@/components/Footer";
 import { FEATURED_NOTES, NoteItem } from "@/data/mockData";
 import { Archive, Search, Tag, Calendar, Clock, ArrowUpRight, ArrowRight, FolderOpen, Filter } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(useGSAP);
 
 export default function ArchiveClient() {
   const [selectedCategory, setSelectedCategory] = useState("全部");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const mainRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    gsap.from(".archive-card-anim", {
+      y: 20,
+      opacity: 0,
+      stagger: 0.05,
+      duration: 0.5,
+      ease: "power2.out",
+      clearProps: "all",
+    });
+  }, { scope: mainRef, dependencies: [selectedCategory, selectedTag, searchQuery] });
 
   const categories = ["全部", "代码与思考", "生活与摄影", "前端与设计"];
 
@@ -44,7 +60,7 @@ export default function ArchiveClient() {
   const grouped = years.map((yr) => [yr, notesByYear[yr]] as [string, NoteItem[]]);
 
   return (
-    <main className="min-h-screen bg-[#FAF7F2] text-[#2D2B2C]">
+    <main ref={mainRef} className="min-h-screen bg-[#FAF7F2] text-[#2D2B2C]">
       {/* Header Section */}
       <section className="relative pt-32 pb-16 px-6 sm:px-12 lg:px-20 border-b border-[#2D2B2C]/8 bg-gradient-to-b from-[#E2EBE4]/30 to-transparent">
         <div className="max-w-6xl mx-auto space-y-5">
@@ -176,7 +192,7 @@ export default function ArchiveClient() {
                     <Link
                       key={note.id}
                       href={`/notes/${note.id}`}
-                      className="group flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 rounded-2xl bg-white border border-[#2D2B2C]/6 hover:border-[#36513B]/30 hover:shadow-[0_4px_20px_rgba(54,81,59,0.08)] transition-all gap-3"
+                      className="archive-card-anim group flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 rounded-2xl bg-white border border-[#2D2B2C]/6 hover:border-[#36513B]/30 hover:shadow-[0_4px_20px_rgba(54,81,59,0.08)] transition-all gap-3"
                     >
                       <div className="space-y-1.5 flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2 text-xs text-[#7A736A]">

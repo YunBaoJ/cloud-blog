@@ -1,10 +1,34 @@
 "use client";
 
+import { useRef } from "react";
 import { FEATURED_NOTES, NoteItem } from "@/data/mockData";
 import { Code2, Camera, Sparkles, Clock, Calendar, ArrowRight, BookOpen, Tag } from "lucide-react";
 import Link from "next/link";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 export default function FeaturedNotes() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    gsap.from(".note-card-anim", {
+      y: 25,
+      opacity: 0,
+      scale: 0.98,
+      duration: 0.5,
+      stagger: 0.08,
+      ease: "power2.out",
+      clearProps: "all",
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: "top 82%",
+      },
+    });
+  }, { scope: sectionRef });
+
   const getIcon = (iconName: string) => {
     switch (iconName) {
       case "Code2":
@@ -17,16 +41,16 @@ export default function FeaturedNotes() {
   };
 
   const mainFeaturedNote = FEATURED_NOTES[0];
-  const sideNotes = FEATURED_NOTES.slice(1);
+  const sideNotes = FEATURED_NOTES.slice(1, 3);
 
   return (
-    <section id="notes" className="relative w-full py-20 md:py-28 px-4 bg-[#FAF7F2] border-t border-[#2D2B2C]/8">
+    <section ref={sectionRef} id="notes" className="relative w-full py-20 md:py-28 px-4 bg-[#FAF7F2] border-t border-[#2D2B2C]/8">
       {/* Soft Ambient Background Glow */}
       <div className="absolute top-1/3 right-10 w-96 h-96 bg-[#FDEEE9]/40 blur-3xl rounded-full pointer-events-none" />
 
       <div className="relative z-10 max-w-6xl mx-auto space-y-12">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="note-card-anim flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#E2EBE4] text-[#36513B] text-xs font-semibold tracking-wide shadow-2xs">
               <BookOpen className="w-3.5 h-3.5" />
@@ -55,7 +79,7 @@ export default function FeaturedNotes() {
           {/* Main Featured Note (Left 7 Cols) */}
           <Link
             href="/notes"
-            className="lg:col-span-7 group relative bg-white/90 backdrop-blur-xs rounded-3xl p-8 border border-white/90 shadow-[0_4px_24px_rgba(45,43,44,0.04)] hover:-translate-y-1.5 hover:shadow-[0_16px_36px_rgba(45,43,44,0.09)] transition-all duration-300 flex flex-col justify-between"
+            className="note-card-anim lg:col-span-7 group relative bg-white/90 backdrop-blur-xs rounded-3xl p-8 border border-white/90 shadow-[0_4px_24px_rgba(45,43,44,0.04)] hover:-translate-y-1.5 hover:shadow-[0_16px_36px_rgba(45,43,44,0.09)] transition-all duration-300 flex flex-col justify-between"
           >
             <div className="space-y-6">
               <div className="flex items-center justify-between">
@@ -116,7 +140,7 @@ export default function FeaturedNotes() {
               <Link
                 key={note.id}
                 href="/notes"
-                className="group relative bg-white/90 backdrop-blur-xs rounded-3xl p-6 border border-white/90 shadow-[0_4px_24px_rgba(45,43,44,0.04)] hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(45,43,44,0.07)] transition-all duration-300 flex flex-col justify-between flex-1"
+                className="note-card-anim group relative bg-white/90 backdrop-blur-xs rounded-3xl p-6 border border-white/90 shadow-[0_4px_24px_rgba(45,43,44,0.04)] hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(45,43,44,0.07)] transition-all duration-300 flex flex-col justify-between flex-1"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">

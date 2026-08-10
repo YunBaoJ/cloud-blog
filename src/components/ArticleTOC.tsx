@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { List, ChevronRight, X } from "lucide-react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 export interface TOCItem {
   id: string;
@@ -12,6 +14,19 @@ export interface TOCItem {
 export default function ArticleTOC({ items }: { items: TOCItem[] }) {
   const [activeId, setActiveId] = useState<string>("");
   const [isOpenMobile, setIsOpenMobile] = useState(false);
+  const sidebarRef = useRef<HTMLElement>(null);
+
+  useGSAP(() => {
+    if (sidebarRef.current) {
+      gsap.from(sidebarRef.current, {
+        x: -30,
+        opacity: 0,
+        duration: 0.8,
+        ease: "power2.out",
+        delay: 0.3,
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (items.length === 0) return;
@@ -53,7 +68,7 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
   return (
     <>
       {/* Desktop Floating Outer Left Panel — Positioned further left for generous breathing room from the main article card */}
-      <aside className="fixed left-2 sm:left-4 md:left-6 xl:left-6 2xl:left-12 3xl:left-20 top-80 z-40 w-52 hidden xl:block animate-in fade-in duration-300">
+      <aside ref={sidebarRef} className="fixed left-2 sm:left-4 md:left-6 xl:left-6 2xl:left-12 3xl:left-20 top-80 z-40 w-52 hidden xl:block">
         <nav className="space-y-3 bg-white/85 dark:bg-[#1C1A17]/85 backdrop-blur-xl p-5 rounded-3xl border border-[#2D2B2C]/8 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
           <div className="flex items-center justify-between border-b border-[#2D2B2C]/8 dark:border-white/10 pb-3">
             <div className="flex items-center gap-2 text-xs font-bold text-[#36513B] dark:text-[#7CD090] uppercase tracking-wider font-mono">

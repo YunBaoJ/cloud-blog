@@ -1,13 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import ReadingProgress from "@/components/ReadingProgress";
+import { useState, useRef } from "react";
 import Footer from "@/components/Footer";
 import ArticleTOC from "@/components/ArticleTOC";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Clock, Eye, ChevronRight, ChevronLeft, Copy, Check, Type, Sparkles } from "lucide-react";
 import { NoteItem } from "@/data/mockData";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 interface NoteDetailClientProps {
   note: NoteItem;
@@ -149,6 +153,29 @@ function ArticleMarkdownRenderer({ content }: { content: string }) {
 
 export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetailClientProps) {
   const [fontSizeLevel, setFontSizeLevel] = useState<"sm" | "base" | "lg">("base");
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    // Header items stagger entrance
+    gsap.from(".note-header-anim", {
+      y: 20,
+      opacity: 0,
+      stagger: 0.1,
+      duration: 0.7,
+      ease: "power2.out",
+      clearProps: "all",
+    });
+
+    // Content paper card fade in
+    gsap.from(".note-paper-card", {
+      y: 30,
+      opacity: 0,
+      duration: 0.8,
+      ease: "power2.out",
+      delay: 0.35,
+      clearProps: "all",
+    });
+  }, { scope: containerRef });
 
   const fontSizeClass = fontSizeLevel === "sm"
     ? "text-sm text-[#3A3638] dark:text-[#D1E0D4]"
@@ -175,9 +202,7 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
     .filter(Boolean) as { id: string; title: string; level: number }[];
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] dark:bg-[#141C16] text-[#2D2B2C] dark:text-[#F0F5F1] transition-colors duration-300">
-      <ReadingProgress />
-
+    <div ref={containerRef} className="min-h-screen bg-[#FAF7F2] dark:bg-[#141C16] text-[#2D2B2C] dark:text-[#F0F5F1] transition-colors duration-300">
       {/* Left Floating TOC Sidebar — Follows scroll on the left */}
       <ArticleTOC items={tocItems} />
 
@@ -230,7 +255,7 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
 
         {/* Header Section */}
         <div className="space-y-4 text-center sm:text-left border-b border-[#2D2B2C]/8 dark:border-white/10 pb-8">
-          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+          <div className="note-header-anim flex flex-wrap items-center justify-center sm:justify-start gap-2">
             <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#E2EBE4] dark:bg-[#23382C] text-[#36513B] dark:text-[#7CD090]">
               {note.category}
             </span>
@@ -241,11 +266,11 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
             ))}
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#2D2B2C] dark:text-[#F0F5F1] leading-tight">
+          <h1 className="note-header-anim text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#2D2B2C] dark:text-[#F0F5F1] leading-tight">
             {note.title}
           </h1>
 
-          <div className="flex items-center justify-center sm:justify-start gap-4 text-xs text-[#7A736A] dark:text-[#9EB3A4] font-mono">
+          <div className="note-header-anim flex items-center justify-center sm:justify-start gap-4 text-xs text-[#7A736A] dark:text-[#9EB3A4] font-mono">
             <span className="flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5" />
               {note.date}
@@ -262,7 +287,7 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
         </div>
 
         {/* Restored Original White Paper Rounded Reading Card */}
-        <div className="w-full bg-white/95 dark:bg-[#1E2721]/90 backdrop-blur-sm rounded-3xl p-8 sm:p-14 md:p-16 border border-white dark:border-white/10 shadow-[0_8px_32px_rgba(45,43,44,0.04)]">
+        <div className="note-paper-card w-full bg-white/95 dark:bg-[#1E2721]/90 backdrop-blur-sm rounded-3xl p-8 sm:p-14 md:p-16 border border-white dark:border-white/10 shadow-[0_8px_32px_rgba(45,43,44,0.04)]">
           <div className={`space-y-6 ${fontSizeClass}`}>
             <ArticleMarkdownRenderer content={note.content} />
           </div>

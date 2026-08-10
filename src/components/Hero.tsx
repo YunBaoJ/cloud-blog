@@ -1,9 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { BookOpen, Gamepad2, ArrowRight, RefreshCw, Copy, Check, Loader2, Sparkles, Quote } from "lucide-react";
 import TextType from "@/components/TextType";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(useGSAP);
 
 // Upper and Lower parts of the classic poem
 const POETIC_TITLES = [
@@ -73,8 +77,21 @@ export default function Hero() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const heroRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    gsap.from(".hero-anim-item", {
+      y: 35,
+      opacity: 0,
+      duration: 1.1,
+      stagger: 0.15,
+      ease: "power2.out",
+      clearProps: "all",
+    });
+  }, { scope: heroRef });
+
   return (
-    <section className="relative isolate min-h-[100dvh] w-full flex flex-col justify-between overflow-hidden bg-[#121A15] px-6 sm:px-12 lg:px-20 pt-32 pb-16 md:pt-36 md:pb-20">
+    <section ref={heroRef} className="relative isolate min-h-[100dvh] w-full flex flex-col justify-between overflow-hidden bg-[#121A15] px-6 sm:px-12 lg:px-20 pt-32 pb-16 md:pt-36 md:pb-20">
       {/* 1. Full-Bleed High-Res User Background Wallpaper */}
       <div className="absolute inset-0 z-0 w-full h-full">
         <Image
@@ -97,7 +114,7 @@ export default function Hero() {
         <div className="max-w-2xl lg:max-w-3xl text-left space-y-7 sm:space-y-8">
           
           {/* Avatar & "云归何处" Persona Capsule Badge */}
-          <div className="inline-flex items-center gap-3 px-3.5 py-1.5 rounded-full bg-white/16 border border-white/25 backdrop-blur-2xl shadow-[0_8px_24px_rgba(0,0,0,0.18)] transition-all duration-300 hover:bg-white/22 hover:border-white/35 group">
+          <div className="hero-anim-item inline-flex items-center gap-3 px-3.5 py-1.5 rounded-full bg-white/16 border border-white/25 backdrop-blur-2xl shadow-[0_8px_24px_rgba(0,0,0,0.18)] transition-all duration-300 hover:bg-white/22 hover:border-white/35 group">
             <div className="relative flex-shrink-0">
               <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden ring-1.5 ring-white/80 shadow-xs bg-white/20 transition-transform duration-300 group-hover:scale-105">
                 <Image
@@ -123,7 +140,7 @@ export default function Hero() {
           </div>
 
           {/* Main Typewriter Title & Description */}
-          <div className="space-y-4 pt-1">
+          <div className="hero-anim-item space-y-4 pt-1">
             <TextType
               as="h1"
               text={POETIC_TITLES}
@@ -142,7 +159,7 @@ export default function Hero() {
           </div>
 
           {/* Action Capsule Buttons */}
-          <div className="flex flex-wrap items-center gap-4 pt-2">
+          <div className="hero-anim-item flex flex-wrap items-center gap-4 pt-2">
             <a
               href="/notes"
               className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 sm:px-8 sm:py-4 rounded-full bg-[#F7F8F1] hover:bg-white text-[#2D2B2C] font-semibold text-sm sm:text-base transition-all duration-200 shadow-[0_12px_32px_-10px_rgba(0,0,0,0.5)] hover:-translate-y-1 active:translate-y-0 group/btn"
