@@ -19,6 +19,49 @@ interface NoteDetailClientProps {
   nextNote: NoteItem | null;
 }
 
+function highlightCodeTokens(code: string): React.ReactNode[] {
+  const lines = code.split("\n");
+  return lines.map((line, lineIdx) => {
+    // 1. Comments
+    if (line.trim().startsWith("//") || line.trim().startsWith("#")) {
+      return (
+        <div key={lineIdx} className="italic text-[#7A8B7E]">
+          {line}
+        </div>
+      );
+    }
+
+    // Tokenize line
+    const tokenRegex = /(\b(?:import|export|from|default|const|let|var|function|return|async|await|if|else|interface|type|class|try|catch|new|of|in|as)\b|".*?"|'.*?'|`.*?`|\b\d+\b|\/\/.*)/g;
+    const parts = line.split(tokenRegex);
+
+    return (
+      <div key={lineIdx} className="table-row">
+        <span className="table-cell select-none text-right pr-4 text-[#4E6354] font-mono text-[11px]">
+          {lineIdx + 1}
+        </span>
+        <span className="table-cell whitespace-pre">
+          {parts.map((part, pIdx) => {
+            if (/^(import|export|from|default|const|let|var|function|return|async|await|if|else|interface|type|class|try|catch|new|of|in|as)$/.test(part)) {
+              return <span key={pIdx} className="text-[#E8C68A] font-bold">{part}</span>;
+            }
+            if (/^["'`].*["'`]$/.test(part)) {
+              return <span key={pIdx} className="text-[#E49A74]">{part}</span>;
+            }
+            if (/^\d+$/.test(part)) {
+              return <span key={pIdx} className="text-[#7AB8E6]">{part}</span>;
+            }
+            if (part.startsWith("//")) {
+              return <span key={pIdx} className="italic text-[#7A8B7E]">{part}</span>;
+            }
+            return <span key={pIdx} className="text-[#E2EBE4]">{part}</span>;
+          })}
+        </span>
+      </div>
+    );
+  });
+}
+
 function CodeBlock({ code, lang }: { code: string; lang: string }) {
   const [copied, setCopied] = useState(false);
 
@@ -29,30 +72,43 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
   };
 
   return (
-    <div className="relative my-6 rounded-2xl bg-[#1E2721] border border-white/10 overflow-hidden shadow-md group">
-      {/* Code Header Bar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-black/30 border-b border-white/10 text-xs text-[#9EB3A4] font-mono">
-        <span>{lang || "code"}</span>
+    <div className="relative my-6 rounded-2xl bg-[#18231C] border border-white/12 overflow-hidden shadow-xl group">
+      {/* Code Header Bar with Mac Window Dots */}
+      <div className="flex items-center justify-between px-4 py-2.5 bg-[#121A15] border-b border-white/10 text-xs font-mono">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F56] inline-block" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E] inline-block" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#27C93F] inline-block" />
+          </div>
+          <span className="text-[11px] text-[#9EB3A4] font-semibold uppercase tracking-wider ml-2">
+            {lang || "code"}
+          </span>
+        </div>
+
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all active:scale-95"
+          className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/8 hover:bg-white/15 text-[#D1E0D4] hover:text-white transition-all active:scale-95 border border-white/10 text-xs font-medium"
         >
           {copied ? (
             <>
               <Check className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-emerald-400 font-bold">已复制</span>
+              <span className="text-emerald-400 font-bold">已复制!</span>
             </>
           ) : (
             <>
-              <Copy className="w-3.5 h-3.5" />
-              <span>复制</span>
+              <Copy className="w-3.5 h-3.5 text-[#9EB3A4]" />
+              <span>复制代码</span>
             </>
           )}
         </button>
       </div>
 
-      <pre className="p-5 sm:p-6 overflow-x-auto font-mono text-xs sm:text-sm text-[#E2EBE4] leading-relaxed">
-        <code>{code}</code>
+      {/* Code Content with Line Numbers & Syntax Highlighting */}
+      <pre className="p-4 sm:p-5 overflow-x-auto font-mono text-xs sm:text-sm text-[#E2EBE4] leading-relaxed bg-[#18231C]">
+        <code className="table w-full border-collapse">
+          {highlightCodeTokens(code)}
+        </code>
       </pre>
     </div>
   );
