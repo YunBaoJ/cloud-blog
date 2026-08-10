@@ -303,33 +303,33 @@ function ArticleMarkdownRenderer({ content }: { content: string }) {
 
     if (trimmed.startsWith("### ")) {
       elements.push(
-        <h3 id={`heading-${idx}`} key={idx} className="text-xl sm:text-2xl font-bold text-[#2D2B2C] dark:text-[#F0F5F1] pt-6 pb-2 border-b border-[#2D2B2C]/8 dark:border-white/10 scroll-mt-28">
+        <h3 id={`heading-${idx}`} key={idx} className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#2D2B2C] dark:text-[#F0F5F1] pt-8 pb-3 border-b border-[#2D2B2C]/8 dark:border-white/10 scroll-mt-28">
           {renderFormattedInlineText(trimmed.replace("### ", ""))}
         </h3>
       );
     } else if (trimmed.startsWith("## ")) {
       elements.push(
-        <h2 id={`heading-${idx}`} key={idx} className="text-2xl sm:text-3xl font-bold text-[#2D2B2C] dark:text-[#F0F5F1] pt-8 pb-3 border-b border-[#2D2B2C]/10 dark:border-white/10 flex items-center gap-2 scroll-mt-28">
-          <span className="w-2.5 h-6 bg-[#36513B] rounded-full inline-block" />
+        <h2 id={`heading-${idx}`} key={idx} className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#2D2B2C] dark:text-[#F0F5F1] pt-10 pb-4 border-b border-[#2D2B2C]/10 dark:border-white/10 flex items-center gap-3 scroll-mt-28">
+          <span className="w-3 h-7 bg-[#36513B] dark:bg-[#7CD090] rounded-full inline-block" />
           {renderFormattedInlineText(trimmed.replace("## ", ""))}
         </h2>
       );
     } else if (trimmed.startsWith("> ")) {
       elements.push(
-        <blockquote key={idx} className="my-6 pl-4 py-3 border-l-4 border-[#36513B] bg-[#FAF7F2] dark:bg-[#23382C] rounded-r-2xl italic text-[#5A5551] dark:text-[#9EB3A4]">
+        <blockquote key={idx} className="my-8 pl-5 py-4 border-l-4 border-[#36513B] dark:border-[#7CD090] bg-[#FAF7F2] dark:bg-[#23382C] rounded-r-2xl italic text-[#4A4541] dark:text-[#AEC2B4] text-base sm:text-lg">
           {renderFormattedInlineText(trimmed.replace("> ", ""))}
         </blockquote>
       );
     } else {
       elements.push(
-        <p key={idx} className="leading-relaxed font-normal">
+        <p key={idx} className="leading-relaxed sm:leading-[1.85] font-normal tracking-wide">
           {renderFormattedInlineText(trimmed)}
         </p>
       );
     }
   });
 
-  return <div className="space-y-5">{elements}</div>;
+  return <div className="space-y-6">{elements}</div>;
 }
 
 export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetailClientProps) {
@@ -359,10 +359,10 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
   }, { scope: containerRef });
 
   const fontSizeClass = fontSizeLevel === "sm"
-    ? "text-sm text-[#3A3638] dark:text-[#D1E0D4]"
+    ? "text-base text-[#3A3638] dark:text-[#D1E0D4]"
     : fontSizeLevel === "lg"
-    ? "text-lg text-[#2D2B2C] dark:text-[#E2EBE4]"
-    : "text-base text-[#333031] dark:text-[#D9E5DC]";
+    ? "text-xl sm:text-2xl text-[#2D2B2C] dark:text-[#E2EBE4]"
+    : "text-lg sm:text-[19px] text-[#333031] dark:text-[#D9E5DC]";
 
   // Extract TOC items from markdown content
   const tocItems = note.content
