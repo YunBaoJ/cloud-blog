@@ -1,61 +1,84 @@
 "use client";
 
 import { useState } from "react";
-import { Feather, Heart, Mail, Globe, ArrowUp, Send, CheckCircle2 } from "lucide-react";
+import { Feather, Heart, Mail, Globe, ArrowUp } from "lucide-react";
+
+const INSPIRATIONS = [
+  { text: "代码是写给未来的自己与同行的情书，愿它干净、清澈、余音绕梁。", author: "Cloud · 代码探索" },
+  { text: "胶片最迷人的地方，在于它不可逆的静止与对时间无声的敬畏。", author: "Cloud · 胶片观察" },
+  { text: "水温 92℃，研磨度中细，焖蒸 30 秒，生活与手冲咖啡一样需要节奏。", author: "Cloud · 晨间仪式" },
+  { text: "完美的视觉不是元素的堆砌，而是把多余的噪音删减到无法再减。", author: "Design Taste" },
+  { text: "保持好奇，保持对细节无理取的苛求，这是手艺人最浪漫的坚持。", author: "Wabi-Sabi Craft" },
+];
 
 export default function Footer() {
-  const [email, setEmail] = useState("");
-  const [subscribed, setSubscribed] = useState(false);
+  const [quoteIndex, setQuoteIndex] = useState(0);
+  const [copied, setCopied] = useState(false);
+  const [shuffling, setShuffling] = useState(false);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !email.includes("@")) return;
-    setSubscribed(true);
+  const handleNextQuote = () => {
+    setShuffling(true);
     setTimeout(() => {
-      setSubscribed(false);
-      setEmail("");
-    }, 4000);
+      setQuoteIndex((prev) => (prev + 1) % INSPIRATIONS.length);
+      setShuffling(false);
+    }, 150);
   };
 
+  const handleCopyQuote = () => {
+    const current = INSPIRATIONS[quoteIndex];
+    navigator.clipboard.writeText(`"${current.text}" — ${current.author}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const currentQuote = INSPIRATIONS[quoteIndex];
+
   return (
-    <footer className="w-full bg-[#FAF7F2] text-[#5A5551] pt-16 pb-12 border-t border-[#2D2B2C]/8">
+    <footer className="w-full bg-[#FAF7F2] dark:bg-[#141C16] text-[#5A5551] dark:text-[#9EB3A4] pt-16 pb-12 border-t border-[#2D2B2C]/8 dark:border-white/10 transition-colors">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Newsletter Subscription Bar */}
-        <div className="p-8 sm:p-10 rounded-3xl bg-[#E2EBE4]/60 border border-[#36513B]/15 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-1 text-center md:text-left">
-            <h3 className="text-lg font-bold text-[#2D2B2C]">订阅「云间通信」Newsletter</h3>
-            <p className="text-xs text-[#5A5551]">每月一封，分享不定期更新的代码探索、胶片镜头与生活絮语。</p>
+        {/* Replacement: Daily Inspiration & Wisdom Card */}
+        <div className="p-8 sm:p-10 rounded-3xl bg-[#E2EBE4]/60 dark:bg-[#1E2721]/80 border border-[#36513B]/15 dark:border-white/10 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#36513B]/10 dark:bg-[#7CD090]/15 text-[#36513B] dark:text-[#7CD090] text-xs font-bold tracking-wider">
+              <span>✦ 灵光一闪 · 每日一言</span>
+            </div>
+
+            <div className={`transition-opacity duration-200 ${shuffling ? "opacity-0" : "opacity-100"}`}>
+              <p className="text-base sm:text-lg font-medium text-[#2D2B2C] dark:text-[#F0F5F1] italic leading-relaxed">
+                “{currentQuote.text}”
+              </p>
+              <p className="text-xs font-mono text-[#7A736A] dark:text-[#9EB3A4] mt-1">
+                — {currentQuote.author}
+              </p>
+            </div>
           </div>
 
-          <form onSubmit={handleSubscribe} className="w-full md:w-auto flex items-center gap-2">
-            {!subscribed ? (
-              <div className="flex items-center w-full md:w-80 bg-white rounded-2xl p-1.5 border border-[#2D2B2C]/10 focus-within:border-[#36513B] shadow-2xs transition-all">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="输入你的 Email 邮箱..."
-                  className="w-full px-3 py-1 text-xs bg-transparent text-[#2D2B2C] focus:outline-none placeholder-[#7A736A]"
-                />
-                <button
-                  type="submit"
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#36513B] text-white text-xs font-bold hover:bg-[#2A402E] active:scale-95 transition-all flex-shrink-0"
-                >
-                  <span>订阅</span>
-                  <Send className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            ) : (
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#36513B] text-white text-xs font-bold animate-in fade-in zoom-in-95 duration-200">
-                <CheckCircle2 className="w-4 h-4 text-emerald-300" />
-                <span>订阅成功！感谢关注「云间通信」</span>
-              </div>
-            )}
-          </form>
+          <div className="flex items-center gap-3 w-full md:w-auto justify-end flex-shrink-0">
+            <button
+              type="button"
+              onClick={handleNextQuote}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-white dark:bg-[#2A382E] border border-[#2D2B2C]/10 dark:border-white/10 text-[#2D2B2C] dark:text-[#F0F5F1] text-xs font-bold hover:bg-[#36513B] hover:text-white dark:hover:bg-[#7CD090] dark:hover:text-[#141C16] transition-all shadow-2xs active:scale-95 group"
+            >
+              <Feather className={`w-3.5 h-3.5 group-hover:rotate-45 transition-transform ${shuffling ? "animate-spin" : ""}`} />
+              <span>换一换</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleCopyQuote}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[#36513B] dark:bg-[#7CD090] text-white dark:text-[#141C16] text-xs font-bold hover:bg-[#2A402E] transition-all shadow-2xs active:scale-95"
+            >
+              {copied ? (
+                <span>已复制句子!</span>
+              ) : (
+                <span>复制此句</span>
+              )}
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-8 pb-12 border-b border-[#2D2B2C]/8">
