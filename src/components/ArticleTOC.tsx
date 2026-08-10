@@ -56,6 +56,15 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [items]);
 
+  // Auto scroll active item into view inside TOC container
+  useEffect(() => {
+    if (!activeId) return;
+    const activeEl = document.querySelector(`a[href="#${activeId}"]`);
+    if (activeEl) {
+      activeEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  }, [activeId]);
+
   const scrollToHeading = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
     setIsOpenMobile(false);
@@ -72,45 +81,43 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
 
   return (
     <>
-      {/* Desktop/Tablet Fixed Outer Left Panel — Square with smooth rounded-2xl corners, aligned at top-28 */}
-      <aside ref={sidebarRef} className="fixed left-3 sm:left-4 md:left-5 lg:left-6 xl:left-8 2xl:left-14 top-28 z-40 w-52 hidden lg:block">
-        <nav className="space-y-3 bg-white/95 dark:bg-[#1C1A17]/95 backdrop-blur-xl p-4.5 rounded-2xl border border-[#2D2B2C]/12 dark:border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
-          <div className="flex items-center justify-between border-b border-[#2D2B2C]/10 dark:border-white/15 pb-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#36513B] dark:text-[#7CD090] uppercase tracking-wider font-mono">
-              <List className="w-4 h-4 text-[#8C4A31] dark:text-[#E5987D]" />
-              <span>文章目录</span>
-            </div>
-            <span className="text-[10px] font-mono text-[#7A736A] dark:text-[#9EB3A4] px-2 py-0.5 rounded-full bg-[#FAF7F2] dark:bg-[#24221F] border border-[#2D2B2C]/8 dark:border-white/10">
-              {items.length} 章节
-            </span>
+      {/* Desktop/Tablet Nav Card Panel */}
+      <nav ref={sidebarRef} className="hidden xl:block space-y-3 bg-white/95 dark:bg-[#1C1A17]/95 backdrop-blur-xl p-4.5 rounded-2xl border border-[#2D2B2C]/12 dark:border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
+        <div className="flex items-center justify-between border-b border-[#2D2B2C]/10 dark:border-white/15 pb-3">
+          <div className="flex items-center gap-2 text-xs font-bold text-[#36513B] dark:text-[#7CD090] uppercase tracking-wider font-mono">
+            <List className="w-4 h-4 text-[#8C4A31] dark:text-[#E5987D]" />
+            <span>文章目录</span>
           </div>
+          <span className="text-[10px] font-mono text-[#7A736A] dark:text-[#9EB3A4] px-2 py-0.5 rounded-full bg-[#FAF7F2] dark:bg-[#24221F] border border-[#2D2B2C]/8 dark:border-white/10">
+            {items.length} 章节
+          </span>
+        </div>
 
-          <ul className="space-y-1.5 text-xs font-medium max-h-[65vh] overflow-y-auto pr-1">
-            {items.map((item) => {
-              const isActive = activeId === item.id;
-              return (
-                <li key={item.id} style={{ paddingLeft: item.level === 3 ? "0.75rem" : "0rem" }}>
-                  <a
-                    href={`#${item.id}`}
-                    onClick={(e) => scrollToHeading(item.id, e)}
-                    className={`flex items-center gap-1.5 py-1.5 px-2.5 rounded-xl transition-all duration-200 ${
-                      isActive
-                        ? "bg-[#36513B] text-white dark:bg-[#7CD090] dark:text-[#142219] font-bold shadow-2xs translate-x-1"
-                        : "text-[#5A5551] dark:text-[#9EB3A4] hover:bg-[#FAF7F2] dark:hover:bg-[#23382C] hover:text-[#2D2B2C] dark:hover:text-[#F0F5F1]"
-                    }`}
-                  >
-                    <ChevronRight className={`w-3 h-3 flex-shrink-0 transition-transform ${isActive ? "translate-x-0.5 opacity-100 text-white dark:text-[#142219]" : "opacity-40"}`} />
-                    <span className="truncate">{item.title}</span>
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-      </aside>
+        <ul className="space-y-1.5 text-xs font-medium max-h-[65vh] overflow-y-auto pr-1">
+          {items.map((item) => {
+            const isActive = activeId === item.id;
+            return (
+              <li key={item.id} style={{ paddingLeft: item.level === 3 ? "0.75rem" : "0rem" }}>
+                <a
+                  href={`#${item.id}`}
+                  onClick={(e) => scrollToHeading(item.id, e)}
+                  className={`flex items-center gap-1.5 py-1.5 px-2.5 rounded-xl transition-all duration-200 ${
+                    isActive
+                      ? "bg-[#36513B] text-white dark:bg-[#7CD090] dark:text-[#142219] font-bold shadow-2xs translate-x-1"
+                      : "text-[#5A5551] dark:text-[#9EB3A4] hover:bg-[#FAF7F2] dark:hover:bg-[#23382C] hover:text-[#2D2B2C] dark:hover:text-[#F0F5F1]"
+                  }`}
+                >
+                  <ChevronRight className={`w-3 h-3 flex-shrink-0 transition-transform ${isActive ? "translate-x-0.5 opacity-100 text-white dark:text-[#142219]" : "opacity-40"}`} />
+                  <span className="truncate">{item.title}</span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
 
       {/* Mobile Floating Capsule Button & Popup Panel */}
-      <div className="lg:hidden fixed right-5 bottom-6 z-40">
+      <div className="xl:hidden fixed right-5 bottom-6 z-40">
         {!isOpenMobile ? (
           <button
             onClick={() => setIsOpenMobile(true)}

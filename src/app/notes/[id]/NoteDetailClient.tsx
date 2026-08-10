@@ -395,11 +395,17 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
 
   return (
     <div ref={containerRef} className="min-h-screen bg-[#FAF7F2] dark:bg-[#141C16] text-[#2D2B2C] dark:text-[#F0F5F1] transition-colors duration-300">
-      {/* Left Floating TOC Sidebar — Follows scroll on the left */}
-      <ArticleTOC items={tocItems} />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 space-y-10">
-        {/* Top Controls */}
+          {/* Sticky TOC Sidebar Column (Left 3-cols) */}
+          <aside className="hidden xl:block xl:col-span-3 sticky top-28 z-40">
+            <ArticleTOC items={tocItems} />
+          </aside>
+
+          {/* Main Article Content Column (Right 9-cols) */}
+          <div className="xl:col-span-9 space-y-10 min-w-0">
+            {/* Top Controls */}
         <div className="flex items-center justify-between">
           <Link
             href="/notes"
@@ -555,7 +561,9 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
             ) : <div />}
           </div>
         </div>
-      </main>
+      </div>
+        </div>
+    </main>
 
       <Footer />
     </div>
