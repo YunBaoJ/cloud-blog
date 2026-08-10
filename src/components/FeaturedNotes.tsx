@@ -1,8 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { getFeaturedNotes } from "@/lib/notes";
-import { NoteItem } from "@/data/mockData";
+import { FEATURED_NOTES, NoteItem } from "@/data/mockData";
 import { Code2, Camera, Sparkles, Clock, Calendar, ArrowRight, BookOpen, Tag } from "lucide-react";
 import Link from "next/link";
 import gsap from "gsap";
@@ -11,9 +10,13 @@ import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-export default function FeaturedNotes() {
+interface FeaturedNotesProps {
+  initialNotes?: NoteItem[];
+}
+
+export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const featuredNotesList = getFeaturedNotes();
+  const featuredNotesList = initialNotes || FEATURED_NOTES;
 
   useGSAP(() => {
     gsap.from(".note-card-anim", {

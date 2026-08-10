@@ -5,8 +5,11 @@ import GalleryTeaser from "@/components/GalleryTeaser";
 import PlaygroundTeaser from "@/components/PlaygroundTeaser";
 import NewsletterSection from "@/components/NewsletterSection";
 import Footer from "@/components/Footer";
+import { getFeaturedNotes } from "@/lib/notes";
 
 export default function Home() {
+  const notes = getFeaturedNotes();
+
   return (
     <div className="min-h-screen w-full flex flex-col bg-[#FAF7F2] text-[#2D2B2C] overflow-x-hidden">
       {/* Main Content Pipeline */}
@@ -18,7 +21,7 @@ export default function Home() {
         <HomepageStats />
 
         {/* 3. Featured Notes — Asymmetric Bento 7:5 Grid */}
-        <FeaturedNotes />
+        <FeaturedNotes initialNotes={notes} />
 
         {/* 4. Polaroid Photography Showcase Teaser */}
         <GalleryTeaser />
