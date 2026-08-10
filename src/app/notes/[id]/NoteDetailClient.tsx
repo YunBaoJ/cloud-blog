@@ -22,11 +22,18 @@ interface NoteDetailClientProps {
 function highlightCodeTokens(code: string): React.ReactNode[] {
   const lines = code.split("\n");
   return lines.map((line, lineIdx) => {
+    const lineNumber = lineIdx + 1;
+
     // 1. Comments
     if (line.trim().startsWith("//") || line.trim().startsWith("#")) {
       return (
-        <div key={lineIdx} className="italic text-[#7A8B7E]">
-          {line}
+        <div key={lineIdx} className="flex min-w-full leading-relaxed">
+          <span className="w-7 sm:w-9 shrink-0 select-none text-right pr-3.5 text-[#4E6354] font-mono text-xs">
+            {lineNumber}
+          </span>
+          <span className="flex-1 whitespace-pre italic text-[#7A8B7E]">
+            {line}
+          </span>
         </div>
       );
     }
@@ -36,11 +43,11 @@ function highlightCodeTokens(code: string): React.ReactNode[] {
     const parts = line.split(tokenRegex);
 
     return (
-      <div key={lineIdx} className="table-row">
-        <span className="table-cell select-none text-right pr-4 text-[#4E6354] font-mono text-[11px]">
-          {lineIdx + 1}
+      <div key={lineIdx} className="flex min-w-full leading-relaxed">
+        <span className="w-7 sm:w-9 shrink-0 select-none text-right pr-3.5 text-[#4E6354] font-mono text-xs">
+          {lineNumber}
         </span>
-        <span className="table-cell whitespace-pre">
+        <span className="flex-1 whitespace-pre">
           {parts.map((part, pIdx) => {
             if (/^(import|export|from|default|const|let|var|function|return|async|await|if|else|interface|type|class|try|catch|new|of|in|as)$/.test(part)) {
               return <span key={pIdx} className="text-[#E8C68A] font-bold">{part}</span>;
@@ -72,16 +79,16 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
   };
 
   return (
-    <div className="relative my-6 rounded-2xl bg-[#18231C] border border-white/12 overflow-hidden shadow-xl group">
+    <div className="relative my-6 rounded-2xl bg-[#141C16] border border-white/10 overflow-hidden shadow-xl group">
       {/* Code Header Bar with Mac Window Dots */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-[#121A15] border-b border-white/10 text-xs font-mono">
+      <div className="flex items-center justify-between px-4 py-2.5 bg-[#0D140E] border-b border-white/10 text-xs font-mono">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F56] inline-block" />
             <span className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E] inline-block" />
             <span className="w-2.5 h-2.5 rounded-full bg-[#27C93F] inline-block" />
           </div>
-          <span className="text-[11px] text-[#9EB3A4] font-semibold uppercase tracking-wider ml-2">
+          <span className="text-[11px] text-[#9EB3A4] font-bold uppercase tracking-wider ml-2 font-mono">
             {lang || "code"}
           </span>
         </div>
@@ -104,12 +111,12 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
         </button>
       </div>
 
-      {/* Code Content with Line Numbers & Syntax Highlighting */}
-      <pre className="p-4 sm:p-5 overflow-x-auto font-mono text-xs sm:text-sm text-[#E2EBE4] leading-relaxed bg-[#18231C]">
-        <code className="table w-full border-collapse">
+      {/* Code Content Container */}
+      <div className="p-4 sm:p-5 overflow-x-auto font-mono text-xs sm:text-sm text-[#E2EBE4] leading-relaxed bg-[#141C16]">
+        <div className="inline-block min-w-full">
           {highlightCodeTokens(code)}
-        </code>
-      </pre>
+        </div>
+      </div>
     </div>
   );
 }
