@@ -72,6 +72,7 @@ function highlightCodeTokens(code: string): React.ReactNode[] {
 function CodeBlock({ code, lang }: { code: string; lang: string }) {
   const [copied, setCopied] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const linesCount = code.split("\n").length;
   const isLongCode = linesCount > 6;
@@ -83,77 +84,158 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
   };
 
   return (
-    <div className="relative my-6 rounded-2xl bg-[#141C16] border border-white/10 overflow-hidden shadow-xl group transition-all duration-300">
-      {/* Code Header Bar with Mac Window Dots */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-[#0D140E] border-b border-white/10 text-xs font-mono">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F56] inline-block" />
-            <span className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E] inline-block" />
-            <span className="w-2.5 h-2.5 rounded-full bg-[#27C93F] inline-block" />
+    <>
+      <div className="relative my-6 rounded-2xl bg-[#141C16] border border-white/10 overflow-hidden shadow-xl group">
+        {/* Code Header Bar with Mac Window Dots */}
+        <div className="flex items-center justify-between px-4 py-2.5 bg-[#0D140E] border-b border-white/10 text-xs font-mono">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F56] inline-block" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E] inline-block" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#27C93F] inline-block" />
+            </div>
+            <span className="text-[11px] text-[#9EB3A4] font-bold uppercase tracking-wider ml-2 font-mono">
+              {lang || "code"}
+            </span>
           </div>
-          <span className="text-[11px] text-[#9EB3A4] font-bold uppercase tracking-wider ml-2 font-mono">
-            {lang || "code"}
-          </span>
+
+          <div className="flex items-center gap-2">
+            {/* Independent Fullscreen Window Button */}
+            <button
+              type="button"
+              onClick={() => setIsFullscreen(true)}
+              className="p-1 rounded-xl bg-white/8 hover:bg-white/15 text-[#9EB3A4] hover:text-white transition-all active:scale-95 border border-white/10"
+              title="独立全屏窗口查看"
+              aria-label="独立全屏窗口查看"
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Copy Button */}
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/8 hover:bg-white/15 text-[#D1E0D4] hover:text-white transition-all active:scale-95 border border-white/10 text-xs font-medium"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-emerald-400 font-bold">已复制!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-[#9EB3A4]" />
+                  <span>复制代码</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
-        <button
-          onClick={handleCopy}
-          className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/8 hover:bg-white/15 text-[#D1E0D4] hover:text-white transition-all active:scale-95 border border-white/10 text-xs font-medium"
+        {/* Code Content Container — Snappy 150ms Response */}
+        <div
+          className={`p-4 sm:p-5 overflow-x-auto font-mono text-xs sm:text-sm text-[#E2EBE4] leading-relaxed bg-[#141C16] relative transition-all duration-150 ease-out ${
+            isLongCode && !isExpanded ? "max-h-[190px] overflow-hidden" : "max-h-none"
+          }`}
         >
-          {copied ? (
-            <>
-              <Check className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-emerald-400 font-bold">已复制!</span>
-            </>
-          ) : (
-            <>
-              <Copy className="w-3.5 h-3.5 text-[#9EB3A4]" />
-              <span>复制代码</span>
-            </>
-          )}
-        </button>
-      </div>
+          <div className="inline-block min-w-full">
+            {highlightCodeTokens(code)}
+          </div>
 
-      {/* Code Content Container with Height Clamping & Smooth Transition */}
-      <div
-        className={`p-4 sm:p-5 overflow-x-auto font-mono text-xs sm:text-sm text-[#E2EBE4] leading-relaxed bg-[#141C16] transition-all duration-500 ease-in-out relative ${
-          isLongCode && !isExpanded ? "max-h-[190px] overflow-hidden" : "max-h-[3000px]"
-        }`}
-      >
-        <div className="inline-block min-w-full">
-          {highlightCodeTokens(code)}
+          {/* Gradient Overlay for Collapsed State */}
+          {isLongCode && !isExpanded && (
+            <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#141C16] via-[#141C16]/85 to-transparent pointer-events-none" />
+          )}
         </div>
 
-        {/* Gradient Overlay for Collapsed State */}
-        {isLongCode && !isExpanded && (
-          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#141C16] via-[#141C16]/85 to-transparent pointer-events-none" />
+        {/* Bottom In-place Expand / Hide Collapse Toggle Bar */}
+        {isLongCode && (
+          <div className="px-4 py-2 bg-[#0D140E] border-t border-white/10 flex items-center justify-center">
+            <button
+              type="button"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-white/6 hover:bg-white/12 text-xs font-semibold text-[#7CD090] hover:text-white transition-all border border-white/10 active:scale-95"
+            >
+              {isExpanded ? (
+                <>
+                  <span>隐藏 / 收起代码</span>
+                  <ChevronUp className="w-3.5 h-3.5" />
+                </>
+              ) : (
+                <>
+                  <span>展开完整代码 ({linesCount} 行)</span>
+                  <ChevronDown className="w-3.5 h-3.5" />
+                </>
+              )}
+            </button>
+          </div>
         )}
       </div>
 
-      {/* Bottom In-place Expand / Hide Collapse Toggle Bar */}
-      {isLongCode && (
-        <div className="px-4 py-2.5 bg-[#0D140E] border-t border-white/10 flex items-center justify-center">
-          <button
-            type="button"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-white/6 hover:bg-white/12 text-xs font-semibold text-[#7CD090] hover:text-white transition-all border border-white/10 active:scale-95"
+      {/* Independent Fullscreen Window Modal */}
+      {isFullscreen && (
+        <div
+          className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md p-4 sm:p-8 flex flex-col items-center justify-center animate-in fade-in duration-150"
+          onClick={() => setIsFullscreen(false)}
+        >
+          <div
+            className="w-full max-w-5xl max-h-[90vh] bg-[#141C16] border border-white/15 rounded-3xl overflow-hidden shadow-2xl flex flex-col"
+            onClick={(e) => e.stopPropagation()}
           >
-            {isExpanded ? (
-              <>
-                <span>隐藏 / 收起代码</span>
-                <ChevronUp className="w-3.5 h-3.5" />
-              </>
-            ) : (
-              <>
-                <span>展开完整代码 ({linesCount} 行)</span>
-                <ChevronDown className="w-3.5 h-3.5" />
-              </>
-            )}
-          </button>
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 bg-[#0D140E] border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-3 h-3 rounded-full bg-[#FF5F56]" />
+                  <span className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
+                  <span className="w-3 h-3 rounded-full bg-[#27C93F]" />
+                </div>
+                <span className="text-sm font-mono font-bold text-[#7CD090] uppercase tracking-wider ml-2">
+                  {lang || "code"} · 独立沉浸式视窗 ({linesCount} 行)
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-medium transition-all active:scale-95 border border-white/10"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-4 h-4 text-emerald-400" />
+                      <span className="text-emerald-400 font-bold">已复制!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4 text-[#9EB3A4]" />
+                      <span>复制代码</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsFullscreen(false)}
+                  className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-[#9EB3A4] hover:text-white transition-all active:scale-95 border border-white/10"
+                  title="关闭窗口"
+                  aria-label="关闭窗口"
+                >
+                  <Minimize2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Fullscreen Code Content */}
+            <div className="p-6 overflow-auto flex-1 font-mono text-sm leading-relaxed bg-[#141C16]">
+              <div className="inline-block min-w-full">
+                {highlightCodeTokens(code)}
+              </div>
+            </div>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
