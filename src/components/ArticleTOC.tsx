@@ -88,10 +88,10 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
           </div>
 
           <ul className="space-y-1.5 text-xs font-medium max-h-[65vh] overflow-y-auto pr-1">
-            {items.map((item) => {
+            {items.map((item, idx) => {
               const isActive = activeId === item.id;
               return (
-                <li key={item.id} style={{ paddingLeft: item.level === 3 ? "0.75rem" : "0rem" }}>
+                <li key={`${item.id}-${idx}`} style={{ paddingLeft: item.level === 3 ? "0.75rem" : "0rem" }}>
                   <a
                     href={`#${item.id}`}
                     onClick={(e) => scrollToHeading(item.id, e)}

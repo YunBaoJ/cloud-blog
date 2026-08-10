@@ -273,7 +273,7 @@ function renderFormattedInlineText(text: string): React.ReactNode {
   });
 }
 
-function slugifyTitle(text: string): string {
+function slugifyTitle(text: string, index: number): string {
   const clean = text
     .replace(/^#+\s*/, "")
     .replace(/\*\*/g, "")
@@ -281,8 +281,10 @@ function slugifyTitle(text: string): string {
     .trim()
     .toLowerCase()
     .replace(/[^\w\u4e00\u9fa5]/g, "-")
-    .replace(/-+/g, "-");
-  return `heading-${clean || "node"}`;
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  const base = clean || "heading";
+  return `heading-${index}-${base}`;
 }
 
 function ArticleMarkdownRenderer({ content, fontSizeLevel }: { content: string; fontSizeLevel: "sm" | "base" | "lg" }) {
@@ -291,6 +293,7 @@ function ArticleMarkdownRenderer({ content, fontSizeLevel }: { content: string; 
   let inCodeBlock = false;
   let codeBuffer: string[] = [];
   let currentLang = "code";
+  let headingIndex = 0;
 
   // Heading sizes tuned to font size control
   const h2Size = fontSizeLevel === "sm"
@@ -329,14 +332,14 @@ function ArticleMarkdownRenderer({ content, fontSizeLevel }: { content: string; 
     if (!trimmed) return;
 
     if (trimmed.startsWith("### ")) {
-      const headingId = slugifyTitle(trimmed);
+      const headingId = slugifyTitle(trimmed, headingIndex++);
       elements.push(
         <h3 id={headingId} key={idx} className={`${h3Size} text-[#2D2B2C] dark:text-[#F0F5F1] pt-6 pb-2 border-b border-[#2D2B2C]/8 dark:border-white/10 scroll-mt-28`}>
           {renderFormattedInlineText(trimmed.replace("### ", ""))}
         </h3>
       );
     } else if (trimmed.startsWith("## ")) {
-      const headingId = slugifyTitle(trimmed);
+      const headingId = slugifyTitle(trimmed, headingIndex++);
       elements.push(
         <h2 id={headingId} key={idx} className={`${h2Size} text-[#2D2B2C] dark:text-[#F0F5F1] pt-8 pb-3 border-b border-[#2D2B2C]/10 dark:border-white/10 flex items-center gap-2.5 scroll-mt-28`}>
           <span className="w-2.5 h-6 bg-[#36513B] dark:bg-[#7CD090] rounded-full inline-block" />
@@ -393,21 +396,22 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
     ? "text-xl sm:text-2xl text-[#2D2B2C] dark:text-[#E2EBE4]"
     : "text-base sm:text-lg text-[#333031] dark:text-[#D9E5DC]";
 
-  // Extract TOC items with 100% identical title slug
+  // Extract TOC items with identical heading index counter for 100% unique keys
+  let tocHeadingIndex = 0;
   const tocItems = note.content
     .split("\n")
     .map((line) => {
       const trimmed = line.trim();
       if (trimmed.startsWith("### ")) {
-        const id = slugifyTitle(trimmed);
+        const id = slugifyTitle(trimmed, tocHeadingIndex++);
         return { id, title: trimmed.replace("### ", "").replace(/\*\*/g, ""), level: 3 };
       }
       if (trimmed.startsWith("## ")) {
-        const id = slugifyTitle(trimmed);
+        const id = slugifyTitle(trimmed, tocHeadingIndex++);
         return { id, title: trimmed.replace("## ", "").replace(/\*\*/g, ""), level: 2 };
       }
       if (trimmed.startsWith("# ")) {
-        const id = slugifyTitle(trimmed);
+        const id = slugifyTitle(trimmed, tocHeadingIndex++);
         return { id, title: trimmed.replace("# ", "").replace(/\*\*/g, ""), level: 1 };
       }
       return null;
