@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MessageSquare, Send, Sparkles, Heart, Coffee, ShieldCheck } from "lucide-react";
+import { MessageSquare, Send, Sparkles, Heart, ShieldCheck } from "lucide-react";
 
 interface GuestbookEntry {
   id: string;
@@ -24,8 +24,8 @@ const PRESET_MESSAGES: GuestbookEntry[] = [
   {
     id: "g-2",
     name: "Avery_Dev",
-    avatar: "☕",
-    message: "游乐场里的五子棋 AI 进化得很有挑战性，手冲咖啡计时器也很实用！保持这份数字宁静。",
+    avatar: "♟️",
+    message: "游乐场里的五子棋与象棋 AI 进化得很有挑战性！专注计时器也很实用，保持这份数字宁静。",
     date: "2026-08-04",
     likes: 8,
   },
@@ -41,13 +41,13 @@ const PRESET_MESSAGES: GuestbookEntry[] = [
     id: "g-4",
     name: "Cloud",
     avatar: "📖",
-    message: "欢迎来到我的数字小屋！无论是关于前端代码、胶片摄影还是手冲咖啡，都欢迎留下你的足迹。",
+    message: "欢迎来到我的数字小屋！无论是关于前端代码、胶片摄影还是阅读思考，都欢迎留下你的足迹。",
     date: "2026-08-01",
     likes: 24,
   },
 ];
 
-const AVATAR_OPTIONS = ["☕", "📷", "🌿", "📖", "🎨", "🌙", "🍵", "🕯️", "🪵"];
+const AVATAR_OPTIONS = ["📚", "📷", "🌿", "📖", "🎨", "🌙", "🍵", "🕯️", "🪵"];
 
 export default function GuestbookClient() {
   const [entries, setEntries] = useState<GuestbookEntry[]>(PRESET_MESSAGES);
@@ -125,7 +125,7 @@ export default function GuestbookClient() {
           数字小屋留言板 (Guestbook)
         </h1>
         <p className="text-sm sm:text-base text-[#5A5551] dark:text-[#9EB3A4] max-w-lg mx-auto leading-relaxed">
-          写下一句问候，留下你此刻的想法。愿文字如手冲咖啡般平实温润。
+          写下一句问候，留下你此刻的想法。愿文字如春风般平实温润。
         </p>
       </div>
 

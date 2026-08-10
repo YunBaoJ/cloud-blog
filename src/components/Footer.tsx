@@ -6,7 +6,7 @@ import { Feather, Heart, Mail, Globe, ArrowUp } from "lucide-react";
 const INSPIRATIONS = [
   { text: "代码是写给未来的自己与同行的情书，愿它干净、清澈、余音绕梁。", author: "Cloud · 代码探索" },
   { text: "胶片最迷人的地方，在于它不可逆的静止与对时间无声的敬畏。", author: "Cloud · 胶片观察" },
-  { text: "水温 92℃，研磨度中细，焖蒸 30 秒，生活与手冲咖啡一样需要节奏。", author: "Cloud · 晨间仪式" },
+  { text: "翻开书页的呼吸，与键盘落下的声音，都是静心生活的深沉节奏。", author: "Cloud · 晨间仪式" },
   { text: "完美的视觉不是元素的堆砌，而是把多余的噪音删减到无法再减。", author: "Design Taste" },
   { text: "保持好奇，保持对细节无理取的苛求，这是手艺人最浪漫的坚持。", author: "Wabi-Sabi Craft" },
 ];

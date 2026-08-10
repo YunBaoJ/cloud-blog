@@ -15,7 +15,7 @@ const CATEGORIES = [
   { key: "all", label: "全部作品" },
   { key: "film", label: "胶片随笔" },
   { key: "nature", label: "自然与植物" },
-  { key: "coffee", label: "咖啡与日常" },
+  { key: "study", label: "书房与日常" },
   { key: "city", label: "城市与建筑" },
 ];
 
@@ -152,7 +152,7 @@ export default function GalleryClient() {
           </h1>
 
           <p className="text-base sm:text-lg text-[#7A736A] max-w-3xl leading-relaxed">
-            记录日常里的晨光、胶片颗粒、手冲咖啡与远山落日。点击任意照片可开启大图，支持滚轮与方向键自由切换照片。
+            记录日常里的晨光、胶片颗粒、案头书籍与远山落日。点击任意照片可开启大图，支持滚轮与方向键自由切换照片。
           </p>
 
           {/* Category Filter Pills */}

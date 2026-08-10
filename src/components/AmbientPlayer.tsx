@@ -44,7 +44,7 @@ const PLAYLIST: Track[] = [
   },
   {
     id: "midnight_code",
-    title: "深夜代码与手冲咖啡",
+    title: "深夜代码与书房雨声",
     artist: "Cloud",
     album: "Midnight Sessions",
     coverColor: "from-[#2D2B2C] to-[#4A3B32]",
@@ -73,7 +73,7 @@ const PLAYLIST: Track[] = [
     ],
   },
   {
-    id: "coffee_afternoon",
+    id: "study_afternoon",
     title: "午后阳光的温润随想",
     artist: "Acoustic Cafe",
     album: "Sunny Terrace",

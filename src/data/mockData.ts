@@ -34,7 +34,7 @@ export interface GalleryPhoto {
   id: string;
   title: string;
   description: string;
-  category: "all" | "film" | "nature" | "city" | "coffee";
+  category: "all" | "film" | "nature" | "city" | "study" | "street" | "reading" | "design";
   categoryLabel: string;
   src: string;
   aspectRatio: string;
@@ -54,8 +54,8 @@ export interface GalleryPhoto {
 export const STATUS_PILLS: StatusItem[] = [
   {
     id: "latte",
-    icon: "Coffee",
-    text: "正在喝燕麦拿铁",
+    icon: "BookOpen",
+    text: "正在研读《设计心理学》",
     bgClass: "bg-[#E2EBE4]",
     textClass: "text-[#36513B]",
     dotColor: "bg-[#4E7A56]",
@@ -104,13 +104,13 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
   },
   {
     id: "photo-2",
-    title: "手冲咖啡的闷蒸时刻",
-    description: "水流触及咖啡粉饼的瞬间，微小气泡膨胀排气，散发出浓郁榛果香。",
-    category: "coffee",
-    categoryLabel: "咖啡与日常",
+    title: "书房案头的晨光时刻",
+    description: "阳光穿过百叶窗，在手记本与木质书桌上升起温暖的微光。",
+    category: "study",
+    categoryLabel: "书房与日常",
     src: "/gallery/coffee.jpg",
     aspectRatio: "aspect-square",
-    location: "数字小屋 · 咖啡角",
+    location: "数字小屋 · 书房角",
     date: "2026-07-25",
     exif: {
       camera: "Fujifilm X100V",
@@ -120,17 +120,17 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
       shutterSpeed: "1/250s",
       iso: "200",
     },
-    story: "使用浅烘焙埃塞俄比亚耶加雪菲，30秒闷蒸过程记录。胶片模拟 Classic Chrome 调色。",
+    story: "晨间 7 点的书房一角，开一盏暖色桌灯，记录当天的创作计划。胶片模拟 Classic Chrome 调色。",
   },
   {
     id: "photo-3",
-    title: "午后静谧的燕麦拿铁",
-    description: "阳光穿过木质百叶窗，在陶瓷杯边沿洒下金黄的光斑。",
-    category: "coffee",
-    categoryLabel: "咖啡与日常",
+    title: "午后静谧的阅读时光",
+    description: "精装书籍在桌面上散发着幽幽墨香，阳光划过质感书页。",
+    category: "study",
+    categoryLabel: "书房与日常",
     src: "/gallery/latte.jpg",
     aspectRatio: "aspect-4/3",
-    location: "静谧咖啡馆",
+    location: "静谧书坊",
     date: "2026-07-20",
     exif: {
       camera: "Leica M10-P",
@@ -140,7 +140,7 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
       shutterSpeed: "1/1000s",
       iso: "160",
     },
-    story: "周末午后的轻盈时光，伴随着店内爵士乐流淌，静静记录下的咖啡奶泡拉花与木桌纹理。",
+    story: "周末午后的轻盈时光，伴随着室内古典乐流淌，静静记录下书页里的动人文字与木桌纹理。",
   },
   {
     id: "photo-4",
@@ -220,7 +220,7 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
       shutterSpeed: "1/160s",
       iso: "160",
     },
-    story: "手冲壶、玻璃下滴的咖啡与障子窗外透进来的漫射光，营造出和质静谧氛围。",
+    story: "木质书桌、翻开的书页与障子窗外透进来的漫射光，营造出和质静谧氛围。",
   },
 ];
 
@@ -284,13 +284,13 @@ export function Sanctuary({ readingMode }: DigitalSanctuaryProps) {
   },
   {
     id: "note-7",
-    title: "静寂美学：代码、咖啡与胶片摄影的日常",
-    summary: "雨后清晨，伴着手冲咖啡的香气度过静谧时光。聊聊 Web 设计里的减法美学，以及潜藏在日常生活中的微小感动。",
+    title: "静寂美学：代码、阅读与胶片摄影的日常",
+    summary: "雨后清晨，伴着墨香与书痕度过静谧时光。聊聊 Web 设计里的减法美学，以及潜藏在日常生活中的微小感动。",
     category: "生活与摄影",
     date: "2026-08-01",
     readTime: "6 分钟",
     iconName: "Camera",
-    tags: ["#生活美学", "#手冲咖啡", "#胶片摄影", "#宁静"],
+    tags: ["#生活美学", "#阅读思考", "#胶片摄影", "#宁静"],
     views: 1320,
     likes: 168,
     content: `
@@ -298,16 +298,16 @@ export function Sanctuary({ readingMode }: DigitalSanctuaryProps) {
 
 在数字生活飞速旋转的当下，我们内心真正渴求的，是一块能够让心灵平复下来的“余白”空间。
 
-清晨阳光下冲煮的一杯手冲咖啡、雨后竹林里按下的胶片快门，以及精心构筑的优雅代码——这些事物在本质上都由**时间的美学**交织连接。
+清晨阳光下的安静阅读、雨后竹林里按下的胶片快门，以及精心构筑的优雅代码——这些事物在本质上都由**时间的美学**交织连接。
 
 ---
 
-## 1. 手冲咖啡与异步处理的共鸣
+## 1. 深度阅读与代码构筑的共鸣
 
-在将热水注入咖啡粉时，存在一个极其关键的步骤——30 秒的“闷蒸（Bloom）”。这是咖啡粉释放二氧化碳、唤醒潜在风味因子的静谧等待。
+在打开一本书静心研读时，存在一个极其关键的阶段——沉浸式的思维建构。这是大脑理清脉络、唤醒潜在创造因子的静谧过程。
 
-* **闷蒸的留白**：若是急于大量注水，水流会沿着缝隙通道快速溜走，导致萃取不足、风味平淡。
-* **代码的异步**：这与在 Promise 或 Async/Await 中静心等待异步数据加载完成的原理如出一辙。
+* **思维的留白**：若是急于快速浏览，文字便只会浮于表面，无法形成深刻的理解。
+* **代码的构建**：这与在 Promise 或 Async/Await 中静心等待异步数据解析完成的原理如出一辙。
 
 > "创造真正美好事物的秘诀，在于不畏惧时间，并全身心地享受过程本身。"
 
@@ -324,54 +324,54 @@ export function Sanctuary({ readingMode }: DigitalSanctuaryProps) {
   },
   {
     id: "note-1",
-    title: "在代码里探索并发模型与手冲咖啡的共鸣",
-    summary: "探讨异步编程里的等待艺术，就像等待手冲咖啡第二次注水时静谧膨胀的咖啡粉粉饼。代码与咖啡，都是关于时间的淬炼。",
+    title: "在代码里探索并发模型与深度阅读的共鸣",
+    summary: "探讨异步编程里的等待艺术，就像沉浸于一本好书时静谧思考的过程。代码与阅读，都是关于时间的淬炼。",
     category: "代码与思考",
     date: "2026-07-28",
     readTime: "6 分钟",
     iconName: "Code2",
-    tags: ["#并发模型", "#Async", "#手冲咖啡", "#思考"],
+    tags: ["#并发模型", "#Async", "#深度阅读", "#思考"],
     views: 1420,
     likes: 98,
     content: `
 ### 引言：在等待中寻找秩序
 
-软件工程里的并发模型（Concurrency）与清晨的一杯手冲咖啡，表面上看似风马牛不相及，但在本质上，它们都是关于**“时间分配”与“状态调度”**的艺术。
+软件工程里的并发模型（Concurrency）与清晨的深度阅读，表面上看似风马牛不相及，但在本质上，它们都是关于**“时间分配”与“状态调度”**的艺术。
 
-写代码时，我们用 Promises、Async/Await 或 Channel 协调异步任务，避免线程阻塞；而在冲煮咖啡时，我们精确计算闷蒸的 30 秒与第二次注水时粉饼的排气膨胀，等待风味彻底绽放。
+写代码时，我们用 Promises、Async/Await 或 Channel 协调异步任务，避免线程阻塞；而在阅读思考时，我们精细沉淀概念脉络，等待灵感彻底绽放。
 
 ---
 
-### 1. 闷蒸（Bloom）与异步初始化
+### 1. 专注沉淀与异步初始化
 
-手冲的第一步是注入 40g 92℃ 的热水，让刚磨好的咖啡粉在 30 秒内吐出二氧化碳。这恰如系统启动时的组件异步挂载：
+阅读的第一阶段是建立背景上下文，让大脑在静谧中理清知识结构。这恰如系统启动时的组件异步挂载：
 
 \`\`\`typescript
-// 类似于咖啡闷蒸：非阻塞初始化
-async function initializeCoffeeBloom(coffeeBeans: Bean): Promise<Status> {
-  const bloomed = await startBlooming(coffeeBeans, { durationMs: 30000 });
-  console.log("粉饼闷蒸完成，风味因子准备就绪...");
-  return bloomed.status;
+// 类似于阅读沉淀：非阻塞初始化
+async function initializeDeepReading(bookContext: Book): Promise<Status> {
+  const ready = await prepareMindset(bookContext, { durationMs: 30000 });
+  console.log("上下文构建完成，思想准备就绪...");
+  return ready.status;
 }
 \`\`\`
 
-如果我们急于在闷蒸未完成时大量注水，水流会沿着缝隙快速通道流走，萃取不足；同样，如果在异步数据未 Promise.all 解析完成前强行渲染 UI，页面就会出现严重的布局抖动与白屏。
+如果我们急于在上下文未建立好时快速浏览，信息无法深层吸收；同样，如果在异步数据未 Promise.all 解析完成前强行渲染 UI，页面就会出现严重的布局抖动与白屏。
 
 ---
 
-### 2. 管道流（Pipelines）与风味萃取
+### 2. 管道流（Pipelines）与知识汲取
 
-在现代前端架构中，数据的流转类似于咖啡液滴落入玻璃壶的过程：
+在现代前端架构中，数据的流转类似于思考脉络的延伸：
 
-> "代码不是越复杂越好，好的架构就像清澈的咖啡液，入口顺滑，回甘悠长。"
+> "代码不是越复杂越好，好的架构就像清澈的文字，入口顺畅，回甘悠长。"
 
-当我们把复杂的异步回调解耦为响应式流（RxJS / Streams）时，数据的传递变得可预测、可追踪。正如掌控手冲的水流速度（mL/s），稳定的流速决定了最终杯中的酸甜平衡。
+当我们把复杂的异步回调解耦为响应式流（RxJS / Streams）时，数据的传递变得可预测、可追踪。决定了最终整体系统的稳定平衡。
 
 ---
 
 ### 结语
 
-无论是敲击键盘上的每一个字符，还是静静观察一滴咖啡落入壶底，专注与敬畏都是最珍贵的品质。愿你在代码与生活中，都能找到属于自己的节奏。
+无论是敲击键盘上的每一个字符，还是静静阅读书页上的每一行文字，专注与敬畏都是最珍贵的品质。愿你在代码与生活中，都能找到属于自己的节奏。
     `,
   },
   {

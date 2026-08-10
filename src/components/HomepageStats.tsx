@@ -1,6 +1,6 @@
 "use client";
 
-import { Code2, Camera, Feather, Coffee, MapPin, Radio } from "lucide-react";
+import { Code2, Camera, Feather, BookOpen, MapPin, Radio } from "lucide-react";
 
 export default function HomepageStats() {
   const stats = [
@@ -33,12 +33,12 @@ export default function HomepageStats() {
     },
     {
       id: "life",
-      icon: Coffee,
+      icon: BookOpen,
       iconColor: "text-[#C46A4A]",
       bgColor: "bg-[#FDEEE9]",
       title: "数字生活",
       metric: "3 项试验",
-      desc: "手冲咖啡 · 森林雨声",
+      desc: "书案白噪 · 森林雨声",
     },
   ];
 

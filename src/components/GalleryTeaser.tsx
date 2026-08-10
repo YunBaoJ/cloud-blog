@@ -41,8 +41,8 @@ const FEATURED_PHOTOS: FeaturedPhoto[] = [
   },
   {
     id: "p3",
-    title: "手冲咖啡与晨光微影",
-    category: "咖啡与生活",
+    title: "书房案头与晨光微影",
+    category: "阅读与生活",
     location: "客房桌前",
     date: "2026-07-10",
     src: "/gallery/coffee.jpg",

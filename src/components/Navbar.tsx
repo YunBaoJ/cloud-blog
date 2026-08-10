@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Coffee, Feather, Sparkles, BookOpen, User, Camera, Archive, MessageSquare, Search } from "lucide-react";
+import { Feather, Sparkles, BookOpen, User, Camera, Archive, MessageSquare, Search } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import AmbientPlayer from "./AmbientPlayer";
 

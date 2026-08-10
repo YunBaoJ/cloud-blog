@@ -31,11 +31,11 @@ const BASE_URL = "https://cloud.example.com";
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "Cloud 的数字小屋 | 代码、诗意与生活",
+    default: "Cloud 的数字小屋 | 极简 Web 工程与生活美学",
     template: "%s | Cloud 的数字小屋",
   },
-  description: "记录写给机器的代码，也记录留给生活的诗意与摄影。一个前端工程师的数字客房，关于 Web 工程、胶片摄影与手冲咖啡。",
-  keywords: ["前端工程师", "博客", "摄影", "Web开发", "Next.js", "胶片", "手冲咖啡"],
+  description: "记录写给机器的代码，也记录留给生活的诗意与摄影。一个前端工程师的数字客房，关于 Web 工程、胶片摄影与深度阅读。",
+  keywords: ["前端工程师", "博客", "摄影", "Web开发", "Next.js", "胶片", "阅读思考"],
   authors: [{ name: "云归何处", url: BASE_URL }],
   creator: "云归何处",
   openGraph: {

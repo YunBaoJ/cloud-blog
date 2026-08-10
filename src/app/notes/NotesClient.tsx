@@ -63,8 +63,8 @@ export default function NotesClient({ initialNotes }: NotesClientProps) {
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#2D2B2C]">
             随笔笔记 (Notes &amp; Essays)
           </h1>
-          <p className="text-base sm:text-lg text-[#5A5551] max-w-2xl font-normal leading-relaxed">
-            记录针对前端技术架构、并发模型思考、手冲咖啡与生活光影的深度长文与碎碎念。点击可进入专属文章页面阅读。
+          <p className="text-base sm:text-lg text-[#5A5551] dark:text-[#9EB3A4] max-w-2xl leading-relaxed">
+            记录针对前端技术架构、并发模型思考、深度阅读与生活光影的长文与随手笔记。点击可进入专属文章页面阅读。
           </p>
 
           {/* Search & Filter Bar */}

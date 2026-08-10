@@ -5,8 +5,8 @@ import Footer from "@/components/Footer";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Code2, Heart, Coffee, Mail, Globe,
-  Camera, BookOpen, Layers, Cpu, Palette,
+  Code2, Heart, BookOpen, Mail, Globe,
+  Camera, Layers, Cpu, Palette,
   MapPin, ArrowUpRight,
 } from "lucide-react";
 import gsap from "gsap";
@@ -20,10 +20,9 @@ const SKILLS = [
   { icon: Layers, label: "TypeScript", color: "bg-[#E2EBE4] text-[#2B4C6F]" },
   { icon: Palette, label: "CSS / Tailwind", color: "bg-[#F4F1EA] text-[#544F49]" },
   { icon: Cpu, label: "Node.js", color: "bg-[#E2EBE4] text-[#36513B]" },
-  { icon: Camera, label: "胶片摄影", color: "bg-[#FAF0EA] text-[#8C4A31]" },
-  { icon: Coffee, label: "手冲咖啡", color: "bg-[#FDEEE9] text-[#C46A4A]" },
-  { icon: BookOpen, label: "阅读与写作", color: "bg-[#F4F1EA] text-[#544F49]" },
-  { icon: Heart, label: "设计系统", color: "bg-[#FDEEE9] text-[#8C4A31]" },
+  { icon: Camera, label: "胶片摄影", color: "bg-[#EBF3ED] text-[#36513B]" },
+  { icon: BookOpen, label: "沉浸阅读", color: "bg-[#FDEEE9] text-[#C46A4A]" },
+  { icon: Heart, label: "生活美学", color: "bg-[#F4F1EA] text-[#6E6359]" },
 ];
 
 const TIMELINE = [
@@ -39,7 +38,7 @@ const TIMELINE = [
     events: [
       { month: "11月", desc: "发表首篇关于 React Server Components 的深度实践笔记" },
       { month: "06月", desc: "购入 Fujifilm X100V，踏入胶片摄影的美丽世界" },
-      { month: "01月", desc: "开始每日手冲咖啡记录，探索埃塞俄比亚与哥伦比亚豆的风味差异" },
+      { month: "01月", desc: "开始每日阅读手记，探索建筑、排版与经典哲学的深度思考" },
     ],
   },
   {
@@ -107,7 +106,7 @@ export default function AboutClient() {
               <span className="text-[#36513B]">云归何处</span>
             </h1>
             <p className="text-base text-[#5A5551] leading-relaxed max-w-md">
-              这里是我的数字客房与生活实验场地。在白天书写极致性能的现代 Web 应用，在夜晚磨手冲咖啡、拍胶片、记录岁月的诗意。
+              这里是我的数字客房与生活实验场地。在白天书写极致性能的现代 Web 应用，在夜晚静心读书、拍胶片、记录岁月的诗意。
             </p>
             <div className="flex flex-wrap items-center gap-3 text-xs font-medium pt-2">
               <div className="flex items-center gap-1.5 text-[#7A736A]">
