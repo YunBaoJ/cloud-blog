@@ -23,7 +23,7 @@ export default function Navbar() {
   return (
     <header className="fixed top-5 inset-x-0 z-50 w-full pointer-events-none px-4 sm:px-6 lg:px-8">
       {/* Centered Floating Nav Container */}
-      <div className="max-w-6xl mx-auto flex items-center justify-center">
+      <div className="max-w-6xl mx-auto flex items-center justify-center gap-3">
         
         {/* Apple Acrylic Liquid Glass Floating Pill Bar */}
         <div className="pointer-events-auto relative inline-flex items-center gap-1 sm:gap-1.5 rounded-full p-1.5 transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-2xl saturate-150"
@@ -137,20 +137,27 @@ export default function Navbar() {
           {/* Theme toggle (夜间模式切换) */}
           <ThemeToggle />
 
-          {/* Search Trigger Button (全局搜索图标与快捷键提示) */}
-          <button
-            onClick={triggerSearch}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium text-[#5A5551] dark:text-[#9EB3A4] hover:text-[#2D2B2C] dark:hover:text-white hover:bg-white/70 dark:hover:bg-white/10 transition-all group"
-            title="全局搜索 (Cmd + K / Ctrl + K)"
-            aria-label="全局搜索"
-          >
-            <Search className="w-3.5 h-3.5 text-[#36513B] dark:text-[#7CD090] group-hover:scale-110 transition-transform" />
-            <span className="hidden sm:inline text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-black/6 dark:bg-white/12 text-[#7A736A] dark:text-[#9EB3A4]">
-              ⌘K
-            </span>
-          </button>
-
         </div>
+
+        {/* 2. Standalone Independent Search Pill Container on the Right (独立搜索胶囊) */}
+        <button
+          type="button"
+          onClick={triggerSearch}
+          className="pointer-events-auto cursor-pointer relative inline-flex items-center gap-2 rounded-full px-3.5 py-2 transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-2xl saturate-150 group hover:scale-[1.03] active:scale-95"
+          style={{
+            background: "var(--nav-bg)",
+            border: "1px solid var(--nav-border)",
+            boxShadow: "0 10px 32px -4px rgba(0,0,0,0.10), inset 0 1px 1px 0 rgba(255,255,255,0.55)",
+          }}
+          title="全局搜索 (Cmd + K / Ctrl + K)"
+          aria-label="全局搜索"
+        >
+          <Search className="w-3.5 h-3.5 text-[#36513B] dark:text-[#7CD090] group-hover:scale-110 transition-transform flex-shrink-0" />
+          <span className="text-xs font-medium text-[#7A736A] dark:text-[#9EB3A4]">搜索...</span>
+          <span className="hidden sm:inline-block text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-black/6 dark:bg-white/12 text-[#7A736A] dark:text-[#9EB3A4] border border-black/5 dark:border-white/5">
+            ⌘K
+          </span>
+        </button>
 
       </div>
     </header>
