@@ -56,12 +56,17 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [items]);
 
-  // Auto scroll active item into view inside TOC container
+  // Auto scroll active item into view inside TOC container (safely handled)
   useEffect(() => {
     if (!activeId) return;
-    const activeEl = document.querySelector(`a[href="#${activeId}"]`);
-    if (activeEl) {
-      activeEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    try {
+      const escapedId = typeof CSS !== "undefined" && CSS.escape ? CSS.escape(activeId) : activeId;
+      const activeEl = document.querySelector(`a[href="#${escapedId}"]`);
+      if (activeEl) {
+        activeEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    } catch {
+      // Safe fallback: ignore selector syntax errors
     }
   }, [activeId]);
 
