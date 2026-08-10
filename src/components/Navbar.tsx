@@ -139,23 +139,22 @@ export default function Navbar() {
 
         </div>
 
-        {/* 2. Standalone Independent Search Pill Container on the Right (独立搜索胶囊) */}
+        {/* 2. Standalone Independent Search Pill Container (独立搜索胶囊 — 极简干净风格) */}
         <button
           type="button"
           onClick={triggerSearch}
-          className="pointer-events-auto cursor-pointer relative inline-flex items-center gap-2 rounded-full px-3.5 py-2 transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-2xl saturate-150 group hover:scale-[1.03] active:scale-95"
+          className="pointer-events-auto cursor-pointer relative inline-flex items-center gap-2 rounded-full p-1.5 px-3.5 transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-2xl saturate-150 group hover:scale-[1.02] active:scale-95 text-xs font-medium"
           style={{
             background: "var(--nav-bg)",
             border: "1px solid var(--nav-border)",
             boxShadow: "0 10px 32px -4px rgba(0,0,0,0.10), inset 0 1px 1px 0 rgba(255,255,255,0.55)",
           }}
-          title="全局搜索 (Cmd + K / Ctrl + K)"
+          title="全局搜索"
           aria-label="全局搜索"
         >
           <Search className="w-3.5 h-3.5 text-[#36513B] dark:text-[#7CD090] group-hover:scale-110 transition-transform flex-shrink-0" />
-          <span className="text-xs font-medium text-[#7A736A] dark:text-[#9EB3A4]">搜索...</span>
-          <span className="hidden sm:inline-block text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-black/6 dark:bg-white/12 text-[#7A736A] dark:text-[#9EB3A4] border border-black/5 dark:border-white/5">
-            ⌘K
+          <span className="text-[#5A5551] dark:text-[#9EB3A4] group-hover:text-[#2D2B2C] dark:group-hover:text-white transition-colors">
+            搜索...
           </span>
         </button>
 
