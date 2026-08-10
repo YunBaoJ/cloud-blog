@@ -387,7 +387,7 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
       {/* Left Floating TOC Sidebar — Follows scroll on the left */}
       <ArticleTOC items={tocItems} />
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 xl:pl-20 pt-28 pb-20 space-y-10">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 space-y-10">
         {/* Top Controls */}
         <div className="flex items-center justify-between">
           <Link
