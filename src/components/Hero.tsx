@@ -147,7 +147,7 @@ export default function Hero() {
               className="hero-anim-item text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-[#F7F8F1] leading-[1.15] drop-shadow-[0_18px_48px_rgba(0,0,0,0.35)]"
             >
               <TextType
-                text={["此间主人", "SoraKasumi", "醉后不知天在水", "满床清梦压星河"]}
+                text={["此间主人", "Kasumi", "醉后不知天在水", "满床清梦压星河"]}
                 typingSpeed={90}
                 deletingSpeed={50}
                 pauseDuration={2500}
