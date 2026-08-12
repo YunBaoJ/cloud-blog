@@ -1,30 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  /* Light mode tokens */
-  --background: #F6F4EC;
-  --foreground: #33483A;
-  --border-line-color: rgba(51, 72, 58, 0.12);
-  --surface: #FFFEF9;
-  --surface-2: #E4E9DD;
-  --muted: #748176;
-  --accent-green: #718F6E;
-  --accent-clay: #D79B7B;
-  --nav-bg: rgba(246, 244, 236, 0.72);
-  --nav-border: rgba(255, 255, 255, 0.76);
+  /* Light mode tokens — Warm Minimalist Editorial (Option A) */
+  --background: #FAFAFA;
+  --foreground: #111827;
+  --border-line-color: rgba(17, 24, 39, 0.08);
+  --surface: #FFFFFF;
+  --surface-2: #F3F4F6;
+  --muted: #6B7280;
+  --accent-green: #111827;
+  --accent-clay: #2563EB;
+  --nav-bg: rgba(255, 255, 255, 0.82);
+  --nav-border: rgba(0, 0, 0, 0.08);
 }
 
 .dark {
-  /* Dark mode tokens — Rich Deep Forest Pine Night Palette */
-  --background: #1A251C;
-  --foreground: #F6F4EC;
-  --surface: #243226;
-  --surface-2: #304334;
-  --muted: #AAB7A9;
-  --accent-green: #A8C39B;
-  --accent-clay: #D79B7B;
-  --border-line-color: rgba(255, 255, 255, 0.09);
-  --nav-bg: rgba(20, 34, 25, 0.82);
+  /* Dark mode tokens — Pure Studio Night Palette */
+  --background: #0F1115;
+  --foreground: #F9FAFB;
+  --surface: #161B22;
+  --surface-2: #21262D;
+  --muted: #9CA3AF;
+  --accent-green: #3B82F6;
+  --accent-clay: #60A5FA;
+  --border-line-color: rgba(255, 255, 255, 0.10);
+  --nav-bg: rgba(15, 17, 21, 0.85);
   --nav-border: rgba(255, 255, 255, 0.12);
   color-scheme: dark;
 }
@@ -60,16 +60,16 @@ body {
 }
 
 .dark .subpage-theme {
-  --background: #16271A;
-  --foreground: #ECF5EB;
-  --surface: rgba(26, 46, 31, 0.88);
-  --surface-2: #203A26;
-  --muted: #A4B9A7;
-  --accent-green: #8BCB96;
-  --accent-clay: #E2A080;
-  --border-line-color: rgba(255, 255, 255, 0.11);
-  --nav-bg: rgba(22, 39, 26, 0.76);
-  --nav-border: rgba(255, 255, 255, 0.14);
+  --background: #0F1115;
+  --foreground: #F9FAFB;
+  --surface: #161B22;
+  --surface-2: #21262D;
+  --muted: #9CA3AF;
+  --accent-green: #3B82F6;
+  --accent-clay: #60A5FA;
+  --border-line-color: rgba(255, 255, 255, 0.10);
+  --nav-bg: rgba(15, 17, 21, 0.85);
+  --nav-border: rgba(255, 255, 255, 0.12);
 }
 
 /* Light theme palette bridge: legacy warm and accent utilities resolve to the same fresh green system. */

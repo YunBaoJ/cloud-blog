@@ -92,7 +92,7 @@ export default function Hero() {
   }, { scope: heroRef });
 
   return (
-    <section ref={heroRef} className="relative isolate min-h-[100dvh] w-full flex flex-col justify-between overflow-hidden bg-[#26352A] px-6 sm:px-12 lg:px-20 pt-32 pb-16 md:pt-36 md:pb-20">
+    <section ref={heroRef} className="relative isolate min-h-[100dvh] w-full flex flex-col justify-between overflow-hidden bg-[#0F1115] px-6 sm:px-12 lg:px-20 pt-32 pb-16 md:pt-36 md:pb-20">
       {/* 1. Full-Bleed High-Res User Background Wallpaper */}
       <div className="absolute inset-0 z-0 w-full h-full">
         <Image
@@ -105,8 +105,8 @@ export default function Hero() {
           className="object-cover object-[center_45%] brightness-[0.95] saturate-[1.08] transition-transform duration-1000 scale-[1.01]"
         />
 
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(38,53,42,0.87)_0%,rgba(38,53,42,0.60)_45%,rgba(38,53,42,0.16)_100%),linear-gradient(180deg,rgba(38,53,42,0.10)_0%,rgba(38,53,42,0.50)_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_35%,rgba(246,244,236,0.16),transparent_35%),radial-gradient(circle_at_78%_22%,rgba(215,155,123,0.18),transparent_28%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(15,17,21,0.85)_0%,rgba(15,17,21,0.58)_45%,rgba(15,17,21,0.18)_100%),linear-gradient(180deg,rgba(15,17,21,0.10)_0%,rgba(15,17,21,0.60)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_35%,rgba(255,255,255,0.12),transparent_35%),radial-gradient(circle_at_78%_22%,rgba(37,99,235,0.12),transparent_28%)]" />
       </div>
 
       {/* Main introduction */}
@@ -234,7 +234,7 @@ export default function Hero() {
       </div>
 
       {/* 4. Natural Soft Ambient Fade Transition */}
-      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent via-[#26352A]/45 to-[#F6F4EC] pointer-events-none z-[2]" />
+      <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-transparent via-[#0F1115]/60 to-[var(--background)] pointer-events-none z-[2]" />
     </section>
   );
 }
