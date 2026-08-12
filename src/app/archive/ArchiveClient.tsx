@@ -66,7 +66,7 @@ export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
   const grouped = years.map((yr) => [yr, notesByYear[yr]] as [string, NoteItem[]]);
 
   return (
-    <main ref={mainRef} className="min-h-screen bg-[radial-gradient(circle_at_20%_20%,rgba(232,240,248,0.75),transparent_60%),radial-gradient(circle_at_80%_80%,rgba(43,76,111,0.06),transparent_50%)] bg-[#FAF8F5] dark:bg-[#142219] text-[var(--foreground)]">
+    <main ref={mainRef} className="min-h-screen bg-[radial-gradient(circle_at_10%_20%,rgba(226,235,228,0.75),transparent_60%),radial-gradient(circle_at_90%_80%,rgba(54,81,59,0.06),transparent_50%)] bg-[#FAF8F4] dark:bg-[#142219] text-[var(--foreground)]">
       {/* Header Section */}
       <section className="relative px-5 pb-9 pt-28 sm:px-8 lg:px-12 lg:pt-32">
         <div className="mx-auto max-w-6xl">
