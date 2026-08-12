@@ -158,9 +158,9 @@ export default function Hero() {
           </defs>
           <g className="wave-parallax">
             <use href="#home-gentle-wave" x="48" y="0" className="wave-layer wave-layer-1" />
-            <use href="#home-gentle-wave" x="48" y="3" className="wave-layer wave-layer-2" />
-            <use href="#home-gentle-wave" x="48" y="5" className="wave-layer wave-layer-3" />
-            <use href="#home-gentle-wave" x="48" y="7" className="wave-layer wave-layer-4" />
+            <use href="#home-gentle-wave" x="48" y="1.5" className="wave-layer wave-layer-2" />
+            <use href="#home-gentle-wave" x="48" y="3" className="wave-layer wave-layer-3" />
+            <use href="#home-gentle-wave" x="48" y="4.5" className="wave-layer wave-layer-4" />
           </g>
         </svg>
       </div>

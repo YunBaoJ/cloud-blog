@@ -333,19 +333,19 @@ body {
 }
 
 .wave-layer-1 {
-  animation-delay: -4s !important;
+  animation-delay: -1.2s !important;
 }
 
 .wave-layer-2 {
-  animation-delay: -3s !important;
+  animation-delay: -0.8s !important;
 }
 
 .wave-layer-3 {
-  animation-delay: -2s !important;
+  animation-delay: -0.4s !important;
 }
 
 .wave-layer-4 {
-  animation-delay: -1s !important;
+  animation-delay: 0s !important;
 }
 
 @keyframes atlas-wave-drift {
