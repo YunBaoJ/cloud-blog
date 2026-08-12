@@ -70,13 +70,14 @@ export default function RootLayout({
       className="scroll-smooth"
       data-scroll-behavior="smooth"
     >
-      <body className="antialiased selection:bg-[#E2EBE4] selection:text-[#36513B] min-h-screen bg-[#FAF8F4] dark:bg-[#142219]">
+      <body className="antialiased selection:bg-[#E2EBE4] selection:text-[#36513B] min-h-screen bg-[linear-gradient(135deg,rgb(236,240,235)_0%,rgb(242,243,237)_40%,rgb(247,245,238)_100%)] dark:bg-[#142219]">
         {/* Global Immersive Fixed Wallpaper Ambient Overlay across ALL pages */}
         <div 
           className="fixed inset-0 pointer-events-none z-0 opacity-[0.12] dark:opacity-[0.18] transition-opacity duration-700 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: "url('/hero-user-final.png')" }}
         />
-        <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_30%,rgba(250,248,244,0.35),rgba(250,248,244,0.82))] dark:bg-[radial-gradient(circle_at_50%_20%,rgba(20,34,25,0.5),rgba(20,34,25,0.95))]" />
+        {/* Dual-tone overlay: pine-green (236,240,235) blended into warm-paper (247,245,238) */}
+        <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(ellipse_at_20%_0%,rgba(236,240,235,0.55),transparent_55%),radial-gradient(ellipse_at_80%_100%,rgba(247,245,238,0.60),transparent_55%),linear-gradient(160deg,rgba(236,240,235,0.30)_0%,rgba(247,245,238,0.45)_100%)] dark:bg-[radial-gradient(circle_at_50%_20%,rgba(20,34,25,0.5),rgba(20,34,25,0.95))]" />
 
         <div className="relative z-10">
           <ThemeProvider>
