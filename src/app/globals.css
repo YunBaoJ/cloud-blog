@@ -328,28 +328,24 @@ body {
 }
 
 .wave-parallax > use {
-  animation: atlas-wave-drift 8s linear infinite;
+  animation: atlas-wave-drift 10s linear infinite;
   will-change: transform;
 }
 
 .wave-layer-1 {
-  animation-delay: -2s !important;
-  animation-duration: 9s !important;
+  animation-delay: -4s !important;
 }
 
 .wave-layer-2 {
   animation-delay: -3s !important;
-  animation-duration: 7.5s !important;
 }
 
 .wave-layer-3 {
-  animation-delay: -4s !important;
-  animation-duration: 6s !important;
+  animation-delay: -2s !important;
 }
 
 .wave-layer-4 {
-  animation-delay: -5s !important;
-  animation-duration: 8s !important;
+  animation-delay: -1s !important;
 }
 
 @keyframes atlas-wave-drift {
