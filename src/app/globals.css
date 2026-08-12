@@ -72,42 +72,7 @@ body {
   --nav-border: rgba(255, 255, 255, 0.12);
 }
 
-/* Light theme palette bridge: legacy warm and accent utilities resolve to the same fresh green system. */
-:not(.dark) [class*="bg-[#FAF7F2]"],
-:not(.dark) [class*="bg-[#F5F0E6]"],
-:not(.dark) [class*="bg-[#F2EDE2]"] {
-  background-color: var(--background) !important;
-}
 
-:not(.dark) [class*="bg-[#E2EBE4]"],
-:not(.dark) [class*="bg-[#F4F1EA]"],
-:not(.dark) [class*="bg-[#FAF0EA]"],
-:not(.dark) [class*="bg-[#FDEEE9]"],
-:not(.dark) [class*="bg-[#E8F0F8]"] {
-  background-color: var(--surface-2) !important;
-}
-
-:not(.dark) [class*="text-[#2D2B2C]"],
-:not(.dark) [class*="text-[#5A5551]"],
-:not(.dark) [class*="text-[#7A736A]"],
-:not(.dark) [class*="text-[#544F49]"],
-:not(.dark) [class*="text-[#2B4C6F]"] {
-  color: var(--foreground) !important;
-}
-
-:not(.dark) [class*="text-[#36513B]"],
-:not(.dark) [class*="text-[#4E7A56]"],
-:not(.dark) [class*="text-[#8C4A31]"],
-:not(.dark) [class*="text-[#C46A4A]"] {
-  color: var(--accent-green) !important;
-}
-
-:not(.dark) [class*="border-[#2D2B2C]"],
-:not(.dark) [class*="border-[#36513B]"],
-:not(.dark) [class*="border-[#8C4A31]"],
-:not(.dark) [class*="border-[#2B4C6F]"] {
-  border-color: var(--border-line-color) !important;
-}
 
 @media (prefers-reduced-motion: reduce) {
   html {
