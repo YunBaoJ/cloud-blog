@@ -279,18 +279,31 @@ body {
   color: var(--muted) !important;
 }
 
-/* 8. Hero Wave Dividers */
+/* 8. Hero Wave Dividers (Light & Dark Theme Matched) */
+.wave-layer-4 {
+  fill: var(--background);
+}
+.wave-layer-3 {
+  fill: rgba(250, 247, 242, 0.75);
+}
+.wave-layer-2 {
+  fill: rgba(250, 247, 242, 0.50);
+}
+.wave-layer-1 {
+  fill: rgba(250, 247, 242, 0.25);
+}
+
 .dark .wave-layer-4 {
   fill: var(--background) !important;
 }
 .dark .wave-layer-3 {
-  fill: rgba(27, 45, 34, 0.75) !important;
+  fill: rgba(20, 34, 25, 0.75) !important;
 }
 .dark .wave-layer-2 {
-  fill: rgba(27, 45, 34, 0.50) !important;
+  fill: rgba(20, 34, 25, 0.50) !important;
 }
 .dark .wave-layer-1 {
-  fill: rgba(27, 45, 34, 0.25) !important;
+  fill: rgba(20, 34, 25, 0.25) !important;
 }
 
 /* 9. Lightbox & Modal Controls */
