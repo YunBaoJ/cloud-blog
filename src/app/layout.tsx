@@ -70,15 +70,24 @@ export default function RootLayout({
       className="scroll-smooth"
       data-scroll-behavior="smooth"
     >
-      <body className="antialiased selection:bg-[#E2EBE4] selection:text-[#36513B]">
-        <ThemeProvider>
-          <RouteTheme>
-            <ReadingProgress />
-            <Navbar />
-            <CommandMenu notes={searchNotes} />
-            {children}
-          </RouteTheme>
-        </ThemeProvider>
+      <body className="antialiased selection:bg-[#E2EBE4] selection:text-[#36513B] min-h-screen bg-[#FAF8F4] dark:bg-[#142219]">
+        {/* Global Immersive Fixed Wallpaper Ambient Overlay across ALL pages */}
+        <div 
+          className="fixed inset-0 pointer-events-none z-0 opacity-[0.12] dark:opacity-[0.18] transition-opacity duration-700 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/hero-user-final.png')" }}
+        />
+        <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_30%,rgba(250,248,244,0.35),rgba(250,248,244,0.82))] dark:bg-[radial-gradient(circle_at_50%_20%,rgba(20,34,25,0.5),rgba(20,34,25,0.95))]" />
+
+        <div className="relative z-10">
+          <ThemeProvider>
+            <RouteTheme>
+              <ReadingProgress />
+              <Navbar />
+              <CommandMenu notes={searchNotes} />
+              {children}
+            </RouteTheme>
+          </ThemeProvider>
+        </div>
       </body>
     </html>
   );

@@ -1,16 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  /* Light mode tokens — Pine & Bamboo Green Paper Palette (#FAF8F4) */
-  --background: #FAF8F4;
+  /* Light mode tokens — Classic Warm Paper Palette */
+  --background: #FAF7F2;
   --foreground: #2D2B2C;
   --border-line-color: rgba(45, 43, 44, 0.08);
   --surface: #FFFFFF;
-  --surface-2: #F2F6F3;
+  --surface-2: #F4F1EA;
   --muted: #7A736A;
   --accent-green: #36513B;
   --accent-clay: #8C4A31;
-  --nav-bg: rgba(250, 248, 244, 0.82);
+  --nav-bg: rgba(250, 247, 242, 0.85);
   --nav-border: rgba(255, 255, 255, 0.6);
 }
 

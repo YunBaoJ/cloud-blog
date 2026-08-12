@@ -25,7 +25,7 @@ export default function PlaygroundTeaser() {
   return (
     <section
       id="playground"
-      className="relative w-full py-20 md:py-28 px-4 bg-[var(--background)] border-t border-[var(--border-line-color)]"
+      className="relative w-full py-20 md:py-28 px-4 bg-transparent"
     >
       <div className="relative z-10 max-w-6xl mx-auto space-y-12">
         {/* Section Header */}

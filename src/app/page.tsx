@@ -11,8 +11,8 @@ export default function Home() {
   const notes = getFeaturedNotes();
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-[#FAF7F2] text-[#2D2B2C] overflow-x-hidden">
-      <main className="flex-grow w-full">
+    <div className="relative min-h-screen w-full flex flex-col overflow-x-hidden">
+      <main className="relative z-10 flex-grow w-full">
         <Hero />
         <HomepageStats />
         <FeaturedNotes initialNotes={notes} />
@@ -20,7 +20,9 @@ export default function Home() {
         <PlaygroundTeaser />
         <NewsletterSection />
       </main>
-      <Footer />
+      <div className="relative z-10">
+        <Footer />
+      </div>
     </div>
   );
 }

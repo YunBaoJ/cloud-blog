@@ -3,7 +3,7 @@ import { CONTACT_EMAIL } from "@/lib/site";
 
 export default function NewsletterSection() {
   return (
-    <section className="relative w-full py-20 px-4 bg-gradient-to-b from-[#FAF7F2] via-[#F2EDE2]/60 to-[#FAF7F2] border-t border-[#2D2B2C]/8">
+    <section className="relative w-full py-20 px-4 bg-transparent">
       <div className="max-w-4xl mx-auto">
         <div className="relative bg-white/90 backdrop-blur-md rounded-3xl p-8 sm:p-12 border border-white/90 shadow-[0_8px_32px_rgba(45,43,44,0.05)] text-center space-y-6 overflow-hidden">
           

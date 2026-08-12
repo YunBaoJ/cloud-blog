@@ -34,9 +34,9 @@ export default function GalleryTeaser() {
     });
   }, { scope: containerRef });
   return (
-    <section ref={containerRef} className="relative w-full py-20 md:py-28 px-4 bg-[var(--background)] border-t border-[var(--border-line-color)] overflow-hidden">
-      {/* Background Subtle Accent */}
-      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-[#8C4A31]/5 blur-3xl rounded-full pointer-events-none" />
+    <section ref={containerRef} className="relative w-full py-20 md:py-28 px-4 bg-transparent overflow-hidden">
+      {/* Background Pine & Bamboo Accent */}
+      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-[#36513B]/8 blur-3xl rounded-full pointer-events-none" />
 
       <div className="relative z-10 max-w-6xl mx-auto space-y-12">
         {/* Header */}

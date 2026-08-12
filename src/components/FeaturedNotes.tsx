@@ -50,9 +50,9 @@ export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
   const sideNotes = featuredNotesList.slice(1, 3);
 
   return (
-    <section ref={sectionRef} id="notes" className="relative w-full py-20 md:py-28 px-4 bg-[#FAF7F2] border-t border-[#2D2B2C]/8">
-      {/* Soft Ambient Background Glow */}
-      <div className="absolute top-1/3 right-10 w-96 h-96 bg-[#FDEEE9]/40 blur-3xl rounded-full pointer-events-none" />
+    <section ref={sectionRef} id="notes" className="relative w-full py-20 md:py-28 px-4 bg-transparent">
+      {/* Soft Pine & Bamboo Ambient Background Glow */}
+      <div className="absolute top-1/3 right-10 w-96 h-96 bg-[#36513B]/10 blur-3xl rounded-full pointer-events-none" />
 
       <div className="relative z-10 max-w-6xl mx-auto space-y-12">
         {/* Section Header */}

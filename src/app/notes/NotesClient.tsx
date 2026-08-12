@@ -51,7 +51,7 @@ export default function NotesClient({ initialNotes }: NotesClientProps) {
   };
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_10%_20%,rgba(226,235,228,0.75),transparent_60%),radial-gradient(circle_at_90%_80%,rgba(54,81,59,0.06),transparent_50%)] bg-[#FAF8F4] dark:bg-[#142219] text-[var(--foreground)]">
+    <main className="min-h-screen bg-transparent text-[var(--foreground)]">
       {/* Page Header */}
       <section className="relative px-5 pb-9 pt-28 sm:px-8 lg:px-12 lg:pt-32">
         <div className="mx-auto max-w-6xl">

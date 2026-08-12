@@ -12,17 +12,18 @@ gsap.registerPlugin(useGSAP);
 
 const STATIC_DESCRIPTION = "凌晨四点，我看见海棠花未眠。";
 
-// Available wallpapers for testing
+// Available wallpapers for Hero (Exact files from user download folder)
 const WALLPAPERS = [
-  { id: "user-final", name: "最新下载壁纸", src: "/hero-user-final.png" },
-  { id: "custom-2", name: "原版山田葵(人物右移无遮挡)", src: "/hero-custom-bg-2.jpg" },
-  { id: "ryo-exact", name: "山田葵 1:1精准重绘版", src: "/hero-ryo-exact.jpg" },
-  { id: "classic", name: "月色花枝", src: "/bg-image.png" },
+  { id: "kimono-golden", name: "🌅 绝美夕阳落日余晖 (和服)", src: "/hero-kimono-golden.png" },
+  { id: "kimono-night", name: "🌙 月夜和风走廊 (和服)", src: "/hero-kimono-night.png" },
+  { id: "ryo-hd", name: "🔷 山田葵·高清苍穹侧颜", src: "/hero-ryo-hd.png" },
+  { id: "user-final", name: "🖼️ 原版山田葵右移", src: "/hero-user-final.png" },
+  { id: "classic", name: "🌸 月色花枝", src: "/bg-image.png" },
 ];
 
 export default function Hero() {
   const heroRef = useRef<HTMLDivElement>(null);
-  const [currentBg, setCurrentBg] = useState<string>("/hero-user-final.png");
+  const [currentBg, setCurrentBg] = useState<string>("/hero-kimono-golden.png");
   const [showPicker, setShowPicker] = useState<boolean>(false);
 
   useEffect(() => {
@@ -48,14 +49,17 @@ export default function Hero() {
   }, { scope: heroRef });
 
   const getObjectPosition = (src: string) => {
-    if (src.includes("hero-user-final")) {
+    if (src.includes("hero-kimono-golden")) {
+      return "object-[right_center]";
+    }
+    if (src.includes("hero-kimono-night")) {
       return "object-[center_center]";
     }
-    if (src.includes("hero-custom-bg-2")) {
+    if (src.includes("hero-ryo-hd")) {
       return "object-[right_center]";
     }
-    if (src.includes("hero-ryo-exact")) {
-      return "object-[right_center]";
+    if (src.includes("hero-user-final")) {
+      return "object-[center_center]";
     }
     if (src.includes("bg-image")) {
       return "object-[62%_center]";

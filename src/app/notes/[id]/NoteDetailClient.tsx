@@ -455,7 +455,7 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
     .filter(Boolean) as { id: string; title: string; level: number }[];
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-300">
+    <div ref={containerRef} className="min-h-screen bg-transparent text-[var(--foreground)] transition-colors duration-300">
       <main className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 space-y-10">
         {/* Left Dynamic Sticky Track for ArticleTOC — 0 impact on main width, moves with page */}
         <div className="hidden 2xl:block absolute -left-64 top-28 bottom-20 w-56 pointer-events-none">
