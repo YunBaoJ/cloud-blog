@@ -105,9 +105,8 @@ export default function Hero() {
           className="object-cover object-[center_45%] brightness-[1.03] saturate-[1.05] transition-transform duration-1000 scale-[1.01]"
         />
 
-        {/* Seamless Morning Light Overlays */}
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(244,240,234,0.92)_0%,rgba(244,240,234,0.70)_50%,rgba(244,240,234,0.25)_100%),linear-gradient(180deg,rgba(244,240,234,0.20)_0%,rgba(244,240,234,0.75)_100%)] dark:bg-[linear-gradient(90deg,rgba(18,22,20,0.92)_0%,rgba(18,22,20,0.72)_50%,rgba(18,22,20,0.30)_100%),linear-gradient(180deg,rgba(18,22,20,0.20)_0%,rgba(18,22,20,0.80)_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_35%,rgba(253,252,249,0.55),transparent_45%),radial-gradient(circle_at_78%_22%,rgba(196,106,74,0.12),transparent_30%)] dark:bg-[radial-gradient(circle_at_25%_35%,rgba(26,32,28,0.40),transparent_45%)]" />
+        {/* Clean Linear Overlays (No Radial Halo Blur) */}
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(250,247,242,0.85)_0%,rgba(250,247,242,0.50)_50%,rgba(250,247,242,0.15)_100%),linear-gradient(180deg,rgba(250,247,242,0.10)_0%,rgba(250,247,242,0.65)_100%)] dark:bg-[linear-gradient(90deg,rgba(20,34,25,0.88)_0%,rgba(20,34,25,0.60)_50%,rgba(20,34,25,0.20)_100%),linear-gradient(180deg,rgba(20,34,25,0.15)_0%,rgba(20,34,25,0.70)_100%)]" />
       </div>
 
       {/* Main introduction */}
