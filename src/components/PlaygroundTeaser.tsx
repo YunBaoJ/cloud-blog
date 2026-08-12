@@ -1,6 +1,6 @@
 "use client";
 
-import { PLAYGROUND_ITEMS, PlaygroundItem } from "@/data/mockData";
+import { PLAYGROUND_ITEMS, PlaygroundItem } from "@/data/siteContent";
 import { Sparkles, Gamepad2, Grid, Bot, ArrowRight, Dices, Award } from "lucide-react";
 import Link from "next/link";
 
@@ -56,7 +56,7 @@ export default function PlaygroundTeaser() {
           {PLAYGROUND_ITEMS.map((item: PlaygroundItem) => (
             <Link
               key={item.id}
-              href="/playground"
+              href={`/playground#${item.id}`}
               className="group bg-white/90 backdrop-blur-xs rounded-3xl p-6 border border-white/90 shadow-[0_4px_24px_rgba(45,43,44,0.04)] hover:-translate-y-1.5 hover:shadow-[0_14px_32px_rgba(45,43,44,0.08)] transition-all duration-300 flex flex-col justify-between"
             >
               <div>

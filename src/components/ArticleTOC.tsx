@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { List, ChevronRight, X, Sparkles } from "lucide-react";
+import { List, ChevronRight, X } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
@@ -19,6 +19,7 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
   const listRef = useRef<HTMLUListElement>(null);
 
   useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (sidebarRef.current) {
       gsap.from(sidebarRef.current, {
         x: -30,

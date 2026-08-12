@@ -3,57 +3,22 @@
 import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Camera, ArrowRight, MapPin, Calendar } from "lucide-react";
+import { ImageIcon, ArrowRight, Calendar } from "lucide-react";
+import { GALLERY_PHOTOS } from "@/data/siteContent";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-interface FeaturedPhoto {
-  id: string;
-  title: string;
-  category: string;
-  location: string;
-  date: string;
-  src: string;
-  rotation: string;
-}
-
-const FEATURED_PHOTOS: FeaturedPhoto[] = [
-  {
-    id: "p1",
-    title: "雨后花枝与透光月色",
-    category: "日常随手拍",
-    location: "植物园温室",
-    date: "2026-07-28",
-    src: "/gallery/nature.jpg",
-    rotation: "-rotate-3",
-  },
-  {
-    id: "p2",
-    title: "日落黄昏时的金黄落叶",
-    category: "风光日落",
-    location: "郊外枫林公园",
-    date: "2026-06-15",
-    src: "/gallery/sunset.jpg",
-    rotation: "rotate-2",
-  },
-  {
-    id: "p3",
-    title: "书房案头与晨光微影",
-    category: "阅读与生活",
-    location: "客房桌前",
-    date: "2026-07-10",
-    src: "/gallery/coffee.jpg",
-    rotation: "-rotate-1",
-  },
-];
+const FEATURED_ARTWORKS = GALLERY_PHOTOS.slice(0, 3);
+const rotations = ["-rotate-3", "rotate-2", "-rotate-1"];
 
 export default function GalleryTeaser() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     gsap.from(".gallery-card-anim", {
       y: 20,
       opacity: 0,
@@ -78,14 +43,14 @@ export default function GalleryTeaser() {
         <div className="gallery-card-anim flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FAF0EA] text-[#8C4A31] text-xs font-semibold tracking-wide shadow-2xs">
-              <Camera className="w-3.5 h-3.5" />
-              <span>光影定格</span>
+              <ImageIcon className="w-3.5 h-3.5" />
+              <span>视觉收藏</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-[#2D2B2C] tracking-tight">
-              胶片相册集锦 (Gallery)
+              作品画廊 (Gallery)
             </h2>
             <p className="text-sm sm:text-base text-[#5A5551] max-w-lg font-normal">
-              用相机捕捉生活中的微光、雨后空气与静谧瞬间。纯白日系拍立得风格陈列。
+              收录插画、动漫与日常灵感；每一张作品都可以从这里展开。
             </p>
           </div>
 
@@ -93,18 +58,18 @@ export default function GalleryTeaser() {
             href="/gallery"
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#8C4A31] hover:text-[#6E3622] transition-colors group"
           >
-            <span>进入独立相册页 (6张)</span>
+            <span>浏览全部作品</span>
             <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
           </Link>
         </div>
 
         {/* Polaroid Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
-          {FEATURED_PHOTOS.map((photo) => (
+          {FEATURED_ARTWORKS.map((photo, index) => (
             <Link
               key={photo.id}
               href="/gallery"
-              className={`gallery-card-anim group relative bg-white p-5 rounded-2xl shadow-[0_8px_30px_rgba(45,43,44,0.06)] hover:shadow-[0_20px_40px_rgba(45,43,44,0.12)] transition-all duration-500 transform ${photo.rotation} hover:rotate-0 hover:-translate-y-2 flex flex-col justify-between`}
+              className={`gallery-card-anim group relative bg-white p-5 rounded-2xl shadow-[0_8px_30px_rgba(45,43,44,0.06)] hover:shadow-[0_20px_40px_rgba(45,43,44,0.12)] transition-all duration-500 transform ${rotations[index]} hover:rotate-0 hover:-translate-y-2 flex flex-col justify-between`}
             >
               {/* Semi-transparent Washi Tape (和纸胶带) */}
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-[#F5E8D3]/85 border border-[#E8D7BE]/70 rotate-[-1deg] backdrop-blur-2xs shadow-2xs z-10 pointer-events-none rounded-xs flex items-center justify-center">
@@ -123,7 +88,7 @@ export default function GalleryTeaser() {
                 />
                 
                 <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/45 backdrop-blur-md text-[10px] font-medium text-white">
-                  {photo.category}
+                  {photo.categoryLabel}
                 </div>
               </div>
 
@@ -134,10 +99,7 @@ export default function GalleryTeaser() {
                 </h3>
                 
                 <div className="flex items-center justify-between text-xs text-[#7A736A] font-medium">
-                  <div className="flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-[#8C4A31]" />
-                    <span>{photo.location}</span>
-                  </div>
+                  <span>{photo.source}</span>
                   <div className="flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5" />
                     <span>{photo.date}</span>

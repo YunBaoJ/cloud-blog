@@ -60,7 +60,7 @@ export default function NotFound() {
               className="group flex flex-col items-center gap-2 p-5 rounded-2xl bg-white border border-[#2D2B2C]/8 hover:border-[#2B4C6F]/25 hover:shadow-[0_8px_24px_rgba(43,76,111,0.10)] transition-all"
             >
               <Camera className="w-5 h-5 text-[#2B4C6F] group-hover:scale-110 transition-transform" />
-              <span className="text-sm font-semibold text-[#2D2B2C]">摄影画廊</span>
+              <span className="text-sm font-semibold text-[#2D2B2C]">作品画廊</span>
             </Link>
           </div>
 

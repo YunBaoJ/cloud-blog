@@ -3,10 +3,9 @@
 import { useState, useRef } from "react";
 import Footer from "@/components/Footer";
 import ArticleTOC from "@/components/ArticleTOC";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Clock, Eye, ChevronRight, ChevronLeft, Copy, Check, Type, Sparkles, Maximize2, Minimize2, ChevronDown, ChevronUp } from "lucide-react";
-import { NoteItem } from "@/data/mockData";
+import type { NoteItem } from "@/lib/notes";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -294,6 +293,21 @@ function ArticleMarkdownRenderer({ content, fontSizeLevel }: { content: string; 
   let codeBuffer: string[] = [];
   let currentLang = "code";
   let headingIndex = 0;
+  let listItems: string[] = [];
+  let orderedList = false;
+
+  const flushList = (key: number) => {
+    if (listItems.length === 0) return;
+    const List = orderedList ? "ol" : "ul";
+    elements.push(
+      <List key={`list-${key}`} className={`space-y-2 pl-6 leading-relaxed ${orderedList ? "list-decimal" : "list-disc"}`}>
+        {listItems.map((item, itemIndex) => (
+          <li key={`${key}-${itemIndex}`}>{renderFormattedInlineText(item)}</li>
+        ))}
+      </List>
+    );
+    listItems = [];
+  };
 
   // Heading sizes tuned to font size control
   const h2Size = fontSizeLevel === "sm"
@@ -317,6 +331,7 @@ function ArticleMarkdownRenderer({ content, fontSizeLevel }: { content: string; 
         codeBuffer = [];
         inCodeBlock = false;
       } else {
+        flushList(idx);
         inCodeBlock = true;
         currentLang = line.replace("```", "").trim() || "code";
       }
@@ -329,9 +344,28 @@ function ArticleMarkdownRenderer({ content, fontSizeLevel }: { content: string; 
     }
 
     const trimmed = line.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      flushList(idx);
+      return;
+    }
 
-    if (trimmed.startsWith("### ")) {
+    const unorderedMatch = trimmed.match(/^[-*]\s+(.+)/);
+    const orderedMatch = trimmed.match(/^\d+\.\s+(.+)/);
+    if (unorderedMatch || orderedMatch) {
+      const nextOrdered = Boolean(orderedMatch);
+      if (listItems.length > 0 && orderedList !== nextOrdered) flushList(idx);
+      orderedList = nextOrdered;
+      listItems.push((orderedMatch || unorderedMatch)?.[1] ?? "");
+      return;
+    }
+
+    flushList(idx);
+
+    if (trimmed.startsWith("# ")) {
+      return;
+    } else if (trimmed === "---") {
+      elements.push(<hr key={idx} className="my-8 border-[#2D2B2C]/10 dark:border-white/10" />);
+    } else if (trimmed.startsWith("### ")) {
       const headingId = slugifyTitle(trimmed, headingIndex++);
       elements.push(
         <h3 id={headingId} key={idx} className={`${h3Size} text-[#2D2B2C] dark:text-[#F0F5F1] pt-6 pb-2 border-b border-[#2D2B2C]/8 dark:border-white/10 scroll-mt-28`}>
@@ -348,7 +382,7 @@ function ArticleMarkdownRenderer({ content, fontSizeLevel }: { content: string; 
       );
     } else if (trimmed.startsWith("> ")) {
       elements.push(
-        <blockquote key={idx} className="my-6 pl-5 py-3.5 border-l-4 border-[#36513B] dark:border-[#7CD090] bg-[#FAF7F2] dark:bg-[#23382C] rounded-r-2xl italic text-[#4A4541] dark:text-[#AEC2B4]">
+        <blockquote key={idx} className="my-6 border-l-2 border-[#36513B]/60 bg-[#FAF7F2] py-3.5 pl-5 italic text-[#4A4541] dark:border-[#7CD090]/60 dark:bg-[#23382C] dark:text-[#AEC2B4]">
           {renderFormattedInlineText(trimmed.replace("> ", ""))}
         </blockquote>
       );
@@ -361,6 +395,11 @@ function ArticleMarkdownRenderer({ content, fontSizeLevel }: { content: string; 
     }
   });
 
+  flushList(lines.length);
+  if (inCodeBlock && codeBuffer.length > 0) {
+    elements.push(<CodeBlock key="code-final" code={codeBuffer.join("\n")} lang={currentLang} />);
+  }
+
   return <div className="space-y-6">{elements}</div>;
 }
 
@@ -369,6 +408,7 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
   const containerRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     // Header items stagger entrance
     gsap.from(".note-header-anim", {
       y: 20,
@@ -510,7 +550,7 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
           </div>
         </div>
 
-        {/* Masterclass Next / Previous Article Navigation Section */}
+        {/* Previous and next article navigation */}
         <div className="space-y-6 pt-6">
           {/* Eyebrow Header */}
           <div className="flex items-center justify-between border-b border-[#2D2B2C]/10 dark:border-white/10 pb-3">

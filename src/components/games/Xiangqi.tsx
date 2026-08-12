@@ -503,7 +503,7 @@ export default function Xiangqi() {
 
   // Check state
   const inCheck = isCheck(board, turn);
-  const [showCheckAlert, setShowCheckAlert] = useState(false);
+  const showCheckAlert = inCheck && status === "playing";
 
   // ── Xiangqi Recorded Audio Sample Effects ──────────────────────────
   // 1. Move Sound (真实实木象棋叩击棋盘声)
@@ -574,20 +574,13 @@ export default function Xiangqi() {
     }
   }, []);
 
-  // Trigger giant check banner & sound effect whenever check occurs
+  // Play the check warning when the checked side changes.
   useEffect(() => {
-    if (inCheck && status === "playing") {
-      setShowCheckAlert(true);
-      playCheckSound();
-      const timer = setTimeout(() => setShowCheckAlert(false), 1600);
-      return () => clearTimeout(timer);
-    } else {
-      setShowCheckAlert(false);
-    }
-  }, [inCheck, status, turn, playCheckSound]);
+    if (showCheckAlert) playCheckSound();
+  }, [playCheckSound, showCheckAlert, turn]);
 
   // Reset Game
-  const resetGame = useCallback((chosenMode?: "pve" | "pvp" | "eve", side: Side = "red") => {
+  const resetGame = useCallback((chosenMode?: "pve" | "pvp" | "eve") => {
     const newBoard = createInitialBoard();
     setBoard(newBoard);
     setTurn("red");
@@ -604,7 +597,7 @@ export default function Xiangqi() {
 
   const startPveGame = useCallback((side: Side) => {
     setUserSide(side);
-    resetGame("pve", side);
+    resetGame("pve");
   }, [resetGame]);
 
   // Check Game Winner
@@ -674,14 +667,13 @@ export default function Xiangqi() {
   // Handle AI turn trigger for PvE or EvE auto play
   useEffect(() => {
     if (status !== "playing" || !mode) return;
+    let timer: NodeJS.Timeout | undefined;
     if (mode === "pve" && turn !== userSide) {
-      triggerAiMove();
+      timer = setTimeout(triggerAiMove, 0);
     } else if (mode === "eve" && autoPlayEve) {
-      const timer = setTimeout(() => {
-        triggerAiMove();
-      }, 600);
-      return () => clearTimeout(timer);
+      timer = setTimeout(triggerAiMove, 600);
     }
+    return () => { if (timer) clearTimeout(timer); };
   }, [mode, turn, userSide, status, autoPlayEve, triggerAiMove]);
 
   // Player click handler: In EvE mode, player can manually move BOTH Red and Black pieces!
@@ -851,7 +843,7 @@ export default function Xiangqi() {
           </span>
 
           {inCheck && status === "playing" && (
-            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white font-black text-xs animate-bounce shadow-md border border-red-400">
+            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white font-black text-xs animate-pulse shadow-md border border-red-400">
               <AlertTriangle className="w-4 h-4 text-yellow-300 animate-pulse" />
               <span className="tracking-wider">⚠️ 將軍！</span>
             </span>
@@ -998,7 +990,7 @@ export default function Xiangqi() {
         {/* Center Giant Check Banner Overlay */}
         {showCheckAlert && (
           <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none animate-in zoom-in-75 fade-in duration-200">
-            <div className="bg-red-600/95 text-white px-8 py-3.5 rounded-3xl shadow-[0_10px_40px_rgba(220,38,38,0.6)] border-2 border-red-300 flex items-center gap-3 animate-bounce">
+            <div className="bg-red-600/95 text-white px-8 py-3.5 rounded-3xl shadow-[0_10px_40px_rgba(220,38,38,0.6)] border-2 border-red-300 flex items-center gap-3 animate-pulse">
               <AlertTriangle className="w-8 h-8 text-yellow-300 animate-pulse" />
               <span className="text-2xl sm:text-3xl font-black tracking-widest drop-shadow-md">
                 {turn === "red" ? "帥 被 將 軍 ！" : "將 被 將 軍 ！"}

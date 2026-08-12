@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { MessageSquare, Send, Sparkles, Heart, ShieldCheck } from "lucide-react";
 
 interface GuestbookEntry {
@@ -48,34 +48,56 @@ const PRESET_MESSAGES: GuestbookEntry[] = [
 ];
 
 const AVATAR_OPTIONS = ["📚", "📷", "🌿", "📖", "🎨", "🌙", "🍵", "🕯️", "🪵"];
+const STORAGE_KEY = "cloud_blog_guestbook";
+const STORAGE_EVENT = "cloud-guestbook-change";
+
+function subscribe(callback: () => void) {
+  window.addEventListener("storage", callback);
+  window.addEventListener(STORAGE_EVENT, callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener(STORAGE_EVENT, callback);
+  };
+}
+
+function getEntriesSnapshot() {
+  return localStorage.getItem(STORAGE_KEY);
+}
+
+function parseEntries(value: string | null): GuestbookEntry[] {
+  if (!value) return PRESET_MESSAGES;
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : PRESET_MESSAGES;
+  } catch {
+    return PRESET_MESSAGES;
+  }
+}
+
+function createEntry(name: string, avatar: string, message: string): GuestbookEntry {
+  const now = new Date();
+  return {
+    id: `user-${now.getTime()}`,
+    name,
+    avatar,
+    message,
+    date: now.toISOString().split("T")[0],
+    likes: 0,
+  };
+}
 
 export default function GuestbookClient() {
-  const [entries, setEntries] = useState<GuestbookEntry[]>(PRESET_MESSAGES);
+  const entries = parseEntries(useSyncExternalStore(subscribe, getEntriesSnapshot, () => null));
   const [name, setName] = useState("");
   const [avatar, setAvatar] = useState("☕");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Load persistent user entries from LocalStorage
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("cloud_blog_guestbook");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setEntries(parsed);
-        }
-      }
-    } catch {
-      // Fallback to presets
-    }
-  }, []);
-
   // Save to LocalStorage
   const saveEntries = (newEntries: GuestbookEntry[]) => {
-    setEntries(newEntries);
     try {
-      localStorage.setItem("cloud_blog_guestbook", JSON.stringify(newEntries));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newEntries));
+      window.dispatchEvent(new Event(STORAGE_EVENT));
     } catch {
       // Ignore quota limits
     }
@@ -87,14 +109,7 @@ export default function GuestbookClient() {
 
     setSubmitting(true);
 
-    const newEntry: GuestbookEntry = {
-      id: `user-${Date.now()}`,
-      name: name.trim(),
-      avatar,
-      message: message.trim(),
-      date: new Date().toISOString().split("T")[0],
-      likes: 0,
-    };
+    const newEntry = createEntry(name.trim(), avatar, message.trim());
 
     const updated = [newEntry, ...entries];
     saveEntries(updated);
@@ -114,19 +129,20 @@ export default function GuestbookClient() {
   };
 
   return (
-    <main className="min-h-screen pt-32 pb-24 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-12">
+    <main className="min-h-[100dvh] max-w-6xl mx-auto px-5 pb-24 pt-28 sm:px-8 lg:px-12 lg:pt-32 space-y-12">
       {/* Header */}
-      <div className="text-center space-y-4">
-        <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FDEEE9] dark:bg-[#38231C] text-[#8C4A31] dark:text-[#E5987D] text-xs font-semibold tracking-wide">
-          <Sparkles className="w-3.5 h-3.5" />
+      <div className="max-w-3xl">
+        <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">
+          <Sparkles className="size-4" strokeWidth={1.8} />
           <span>时光留言墙</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-bold text-[#2D2B2C] dark:text-[#F0F5F1] tracking-tight">
-          数字小屋留言板 (Guestbook)
+        <h1 className="break-words text-4xl font-light tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
+          留言板
         </h1>
-        <p className="text-sm sm:text-base text-[#5A5551] dark:text-[#9EB3A4] max-w-lg mx-auto leading-relaxed">
-          写下一句问候，留下你此刻的想法。愿文字如春风般平实温润。
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
+          写下一句问候，留下你此刻的想法。内容仅保存在当前设备，不会公开同步。
         </p>
+        <div className="mt-12 border-t border-[var(--border-line-color)] pt-4 text-xs text-[var(--muted)]">共 {entries.length} 条时光留言</div>
       </div>
 
       {/* Input Card Form */}

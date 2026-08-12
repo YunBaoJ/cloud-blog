@@ -1,47 +1,27 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import CommandMenu from "@/components/CommandMenu";
 import Navbar from "@/components/Navbar";
 import ReadingProgress from "@/components/ReadingProgress";
-import AgentationDevTool from "@/components/AgentationDevTool";
+import RouteTheme from "@/components/RouteTheme";
 import { getAllNotes } from "@/lib/notes";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
-// Load official HarmonyOS Sans SC (Regular 400 + Bold 700)
-const harmonyOSFont = localFont({
-  src: [
-    {
-      path: "../../public/fonts/HarmonyOS_Sans_SC_Regular.ttf",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../../public/fonts/HarmonyOS_Sans_SC_Bold.ttf",
-      weight: "700",
-      style: "normal",
-    },
-  ],
-  variable: "--font-custom-sans",
-  display: "swap",
-});
-
-const BASE_URL = "https://cloud.example.com";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(BASE_URL),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Cloud 的数字小屋 | 极简 Web 工程与生活美学",
     template: "%s | Cloud 的数字小屋",
   },
   description: "记录写给机器的代码，也记录留给生活的诗意与摄影。一个前端工程师的数字客房，关于 Web 工程、胶片摄影与深度阅读。",
   keywords: ["前端工程师", "博客", "摄影", "Web开发", "Next.js", "胶片", "阅读思考"],
-  authors: [{ name: "云归何处", url: BASE_URL }],
+  authors: [{ name: "云归何处", url: SITE_URL }],
   creator: "云归何处",
   openGraph: {
     type: "website",
     locale: "zh_CN",
-    url: BASE_URL,
+    url: SITE_URL,
     siteName: "Cloud 的数字小屋",
     title: "Cloud 的数字小屋 | 代码、诗意与生活",
     description: "记录写给机器的代码，也记录留给生活的诗意与摄影。",
@@ -76,21 +56,28 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const allNotes = getAllNotes();
+  const searchNotes = getAllNotes().map(({ id, title, summary, category, tags }) => ({
+    id,
+    title,
+    summary,
+    category,
+    tags,
+  }));
 
   return (
     <html
       lang="zh-CN"
-      className={`${harmonyOSFont.variable} scroll-smooth`}
+      className="scroll-smooth"
       data-scroll-behavior="smooth"
     >
       <body className="antialiased selection:bg-[#E2EBE4] selection:text-[#36513B]">
         <ThemeProvider>
-          <ReadingProgress />
-          <Navbar />
-          <CommandMenu notes={allNotes} />
-          <AgentationDevTool />
-          {children}
+          <RouteTheme>
+            <ReadingProgress />
+            <Navbar />
+            <CommandMenu notes={searchNotes} />
+            {children}
+          </RouteTheme>
         </ThemeProvider>
       </body>
     </html>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Footer from "@/components/Footer";
@@ -12,6 +12,7 @@ import Xiangqi from "@/components/games/Xiangqi";
 import { X, Play, Gamepad2 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { useMounted } from "@/lib/useMounted";
 
 gsap.registerPlugin(useGSAP);
 
@@ -30,7 +31,7 @@ const GAMES: {
     id: "snake",
     name: "贪吃蛇",
     nameEn: "Snake",
-    cover: "/game-snake-v6.jpg",
+    cover: "/game-snake.jpg",
     desc: "操控蛇身不断成长，别撞上自己的尾巴。",
     tip: "方向键 / WASD · 触摸滑动",
     tag: "经典",
@@ -66,12 +67,26 @@ const GAMES: {
     id: "xiangqi",
     name: "中国象棋",
     nameEn: "Xiangqi AI",
-    cover: "/game-xiangqi-v2.jpg",
+    cover: "/game-xiangqi.jpg",
     desc: "楚河汉界，运筹帷幄，支持单人 AI 博弈与 AI 军师步进。",
     tip: "单人 AI / 步进模式可选",
     tag: "博弈",
   },
 ];
+
+function subscribeToHash(callback: () => void) {
+  window.addEventListener("hashchange", callback);
+  window.addEventListener("popstate", callback);
+  return () => {
+    window.removeEventListener("hashchange", callback);
+    window.removeEventListener("popstate", callback);
+  };
+}
+
+function getGameFromHash(): GameId | null {
+  const id = window.location.hash.slice(1);
+  return GAMES.some((game) => game.id === id) ? id as GameId : null;
+}
 
 // ── Game Modal — rendered via portal to document.body ──────────────
 function GameModal({
@@ -105,6 +120,7 @@ function GameModal({
         style={{
           position: "relative",
           width: "100%",
+          minWidth: 0,
           maxWidth: "720px",
           maxHeight: "90dvh",
           display: "flex",
@@ -137,7 +153,7 @@ function GameModal({
         </div>
 
         {/* Game content */}
-        <div className="p-4 sm:p-5 overflow-y-auto" key={activeGame}>
+        <div className="min-w-0 overflow-y-auto p-2 sm:p-5" key={activeGame}>
           {activeGame === "snake"   && <SnakeGame />}
           {activeGame === "2048"    && <Game2048 />}
           {activeGame === "puzzle"  && <SlidePuzzle />}
@@ -159,13 +175,12 @@ function GameModal({
 
 // ── Main page ──────────────────────────────────────────────────────
 export default function PlaygroundClient() {
-  const [activeGame, setActiveGame] = useState<GameId | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const activeGame = useSyncExternalStore(subscribeToHash, getGameFromHash, () => null);
+  const mounted = useMounted();
   const gridRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { setMounted(true); }, []);
-
   useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     gsap.from(".game-card-anim", {
       y: 25,
       opacity: 0,
@@ -177,7 +192,14 @@ export default function PlaygroundClient() {
     });
   }, { scope: gridRef });
 
-  const close = useCallback(() => setActiveGame(null), []);
+  const openGame = useCallback((id: GameId) => {
+    window.location.hash = id;
+  }, []);
+
+  const close = useCallback(() => {
+    history.replaceState(null, "", window.location.pathname);
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
+  }, []);
 
   // Escape key
   useEffect(() => {
@@ -199,19 +221,22 @@ export default function PlaygroundClient() {
       <main className="min-h-screen bg-[#FAF7F2] dark:bg-[#142219] text-[#2D2B2C] dark:text-[#F0F5F1]">
 
         {/* Header Section */}
-        <section className="pt-32 pb-14 px-6 sm:px-12 lg:px-20 border-b border-[#2D2B2C]/8 dark:border-white/8 bg-gradient-to-b from-[#E2EBE4]/35 via-[#FAF7F2] to-[#FAF7F2] dark:from-[#23382C]/30 dark:to-transparent">
-          <div className="max-w-6xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#E2EBE4] dark:bg-[#23382C] text-[#36513B] dark:text-[#7CD090] text-xs font-mono font-semibold border border-[#36513B]/15 shadow-2xs">
-              <Gamepad2 className="w-4 h-4" />
+        <section className="px-5 pb-9 pt-28 sm:px-8 lg:px-12 lg:pt-32">
+          <div className="mx-auto max-w-6xl">
+            <div className="max-w-3xl">
+            <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">
+              <Gamepad2 className="size-4" strokeWidth={1.8} />
               <span>复古街机 &amp; 经典小游戏实验室</span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#2D2B2C] dark:text-[#F0F5F1]">
-              摸鱼游乐场 (Playground Arcade)
+            <h1 className="break-words text-4xl font-light tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
+              游乐场
             </h1>
-            <p className="text-base sm:text-lg text-[#7A736A] dark:text-[#9EB3A4] max-w-2xl font-normal leading-relaxed">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
               工作余暇的放松驿站。提供贪吃蛇、2048、数字华容道、五子棋 AI 与中国象棋 AI 等 5 款精巧小游戏，支持键盘与移动端触摸操控。
             </p>
+            </div>
+            <div className="mt-12 border-t border-[var(--border-line-color)] pt-4 text-xs text-[var(--muted)]">共 {GAMES.length} 款小游戏</div>
           </div>
         </section>
 
@@ -221,7 +246,7 @@ export default function PlaygroundClient() {
             {GAMES.map((game) => (
               <div
                 key={game.id}
-                onClick={() => setActiveGame(game.id)}
+                onClick={() => openGame(game.id)}
                 className="game-card-anim group relative bg-white dark:bg-[#1E2721]/90 rounded-3xl overflow-hidden border border-[#2D2B2C]/8 dark:border-white/10 shadow-[0_8px_30px_rgba(45,43,44,0.05)] hover:shadow-[0_20px_45px_rgba(45,43,44,0.14)] dark:hover:shadow-[0_20px_45px_rgba(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-2 flex flex-col justify-between cursor-pointer"
               >
                 {/* Cover Image Box — 16:10 Wide Aspect Ratio */}

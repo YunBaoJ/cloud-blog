@@ -10,8 +10,6 @@ import {
   SkipForward,
   Music,
   Disc,
-  ListMusic,
-  Sparkles,
   Heart,
 } from "lucide-react";
 

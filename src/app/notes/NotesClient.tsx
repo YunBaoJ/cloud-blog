@@ -1,17 +1,17 @@
 "use client";
 
 import Footer from "@/components/Footer";
-import { FEATURED_NOTES, NoteItem } from "@/data/mockData";
+import type { NoteItem } from "@/lib/notes";
 import { useState } from "react";
 import Link from "next/link";
-import { BookOpen, Search, Code2, Camera, Sparkles, Calendar, Clock, Eye, Heart, Tag, ArrowRight } from "lucide-react";
+import { BookOpen, Search, Code2, Camera, Sparkles, Calendar, Clock, Heart, Tag, ArrowRight } from "lucide-react";
 
 interface NotesClientProps {
-  initialNotes?: NoteItem[];
+  initialNotes: NoteItem[];
 }
 
 export default function NotesClient({ initialNotes }: NotesClientProps) {
-  const notesList = initialNotes || FEATURED_NOTES;
+  const notesList = initialNotes;
   const [selectedCategory, setSelectedCategory] = useState("全部");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -53,22 +53,24 @@ export default function NotesClient({ initialNotes }: NotesClientProps) {
   return (
     <main className="min-h-screen bg-[#FAF7F2] text-[#2D2B2C]">
       {/* Page Header */}
-      <section className="relative pt-32 pb-16 px-6 sm:px-12 lg:px-20 border-b border-[#2D2B2C]/8 bg-gradient-to-b from-[#E2EBE4]/35 via-[#FAF7F2] to-[#FAF7F2]">
-        <div className="max-w-6xl mx-auto space-y-5">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#E2EBE4] text-[#36513B] text-xs font-semibold shadow-2xs">
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>随笔笔记与长文 ({FEATURED_NOTES.length} 篇)</span>
-          </div>
+      <section className="relative px-5 pb-9 pt-28 sm:px-8 lg:px-12 lg:pt-32">
+        <div className="mx-auto max-w-6xl">
+          <div className="max-w-3xl">
+            <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">
+              <BookOpen className="size-4" strokeWidth={1.8} />
+            <span>随笔笔记与长文 ({notesList.length} 篇)</span>
+            </div>
           
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#2D2B2C]">
-            随笔笔记 (Notes &amp; Essays)
+          <h1 className="break-words text-4xl font-light tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
+            随笔笔记
           </h1>
-          <p className="text-base sm:text-lg text-[#5A5551] dark:text-[#9EB3A4] max-w-2xl leading-relaxed">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
             记录针对前端技术架构、并发模型思考、深度阅读与生活光影的长文与随手笔记。点击可进入专属文章页面阅读。
           </p>
+          </div>
 
           {/* Search & Filter Bar */}
-          <div className="pt-6 space-y-4">
+          <div className="mt-12 border-t border-[var(--border-line-color)] pt-4 space-y-4">
             <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
               {/* Category Tabs */}
               <div className="flex flex-wrap items-center gap-2">

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Feather, Sparkles, BookOpen, User, Camera, Archive, MessageSquare, Search } from "lucide-react";
+import { Feather, Sparkles, BookOpen, User, ImageIcon, Archive, MessageSquare, Search } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import AmbientPlayer from "./AmbientPlayer";
 
@@ -25,8 +25,8 @@ export default function Navbar() {
       {/* Centered Floating Nav Container */}
       <div className="max-w-6xl mx-auto flex items-center justify-center">
         
-        {/* Apple Acrylic Liquid Glass Floating Pill Bar */}
-        <div className="pointer-events-auto relative inline-flex items-center gap-1 sm:gap-1.5 rounded-full p-1.5 transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-2xl saturate-150"
+        {/* Floating navigation */}
+        <div className="pointer-events-auto relative inline-flex max-w-full items-center gap-1 sm:gap-1.5 overflow-hidden rounded-full p-1.5 transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-2xl saturate-150"
           style={{
             background: "var(--nav-bg)",
             border: "1px solid var(--nav-border)",
@@ -46,7 +46,8 @@ export default function Navbar() {
             <div className="w-5 h-5 rounded-full bg-[#E2EBE4] border border-[#D2DFD5] flex items-center justify-center text-[#36513B] group-hover/home:rotate-12 transition-transform">
               <Feather className="w-3 h-3" />
             </div>
-            <span className="tracking-tight font-bold">小屋主页</span>
+            <span className="hidden sm:inline tracking-tight font-bold">小屋主页</span>
+            <span className="sm:hidden tracking-tight font-bold">小屋</span>
           </Link>
 
           {/* 2. 随笔笔记 */}
@@ -63,17 +64,17 @@ export default function Navbar() {
             <span className="sm:hidden">笔记</span>
           </Link>
 
-          {/* 3. 摄影画廊 */}
+          {/* 3. 作品画廊 */}
           <Link
             href="/gallery"
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+            className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
               isActive("/gallery")
                 ? "bg-white text-[#2D2B2C] shadow-2xs font-semibold"
                 : "text-[#5A5551] hover:text-[#2D2B2C] hover:bg-white/70"
             }`}
           >
-            <Camera className="w-3.5 h-3.5 text-[#8C4A31]" />
-            <span className="hidden md:inline">摄影画廊</span>
+            <ImageIcon className="w-3.5 h-3.5 text-[#8C4A31]" />
+            <span className="hidden md:inline">作品画廊</span>
           </Link>
 
           {/* 4. 灵感游乐场 */}
@@ -89,10 +90,10 @@ export default function Navbar() {
             <span className="hidden sm:inline">游乐场</span>
           </Link>
 
-          {/* 5. 留言板 (新增) */}
+          {/* 5. 留言板 */}
           <Link
             href="/guestbook"
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+            className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
               isActive("/guestbook")
                 ? "bg-white text-[#2D2B2C] shadow-2xs font-semibold"
                 : "text-[#5A5551] hover:text-[#2D2B2C] hover:bg-white/70"
@@ -105,7 +106,7 @@ export default function Navbar() {
           {/* 6. 文章归档 */}
           <Link
             href="/archive"
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+            className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
               isActive("/archive")
                 ? "bg-white text-[#2D2B2C] shadow-2xs font-semibold"
                 : "text-[#5A5551] hover:text-[#2D2B2C] hover:bg-white/70"
@@ -118,7 +119,7 @@ export default function Navbar() {
           {/* 7. 关于小屋 */}
           <Link
             href="/about"
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+            className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
               isActive("/about")
                 ? "bg-white text-[#2D2B2C] shadow-2xs font-semibold"
                 : "text-[#5A5551] hover:text-[#2D2B2C] hover:bg-white/70"
@@ -132,7 +133,9 @@ export default function Navbar() {
           <div className="h-4 w-px bg-[#2D2B2C]/10 dark:bg-[#EDE9E4]/10 mx-0.5" />
 
           {/* Ambient Player (白噪音播放器) */}
-          <AmbientPlayer />
+          <div className="hidden lg:block">
+            <AmbientPlayer />
+          </div>
 
           {/* Theme toggle (夜间模式切换) */}
           <ThemeToggle />
@@ -141,12 +144,12 @@ export default function Navbar() {
           <button
             type="button"
             onClick={triggerSearch}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium text-[#2D2B2C] dark:text-[#E2EBE4] bg-black/4 dark:bg-white/10 border border-[#2D2B2C]/20 dark:border-white/25 hover:border-[#36513B]/50 dark:hover:border-[#7CD090]/50 hover:bg-white dark:hover:bg-[#1E2721] transition-all shadow-2xs group"
+            className="flex items-center gap-1.5 p-2 lg:px-3 lg:py-1 rounded-full text-xs font-medium text-[#2D2B2C] dark:text-[#E2EBE4] bg-black/4 dark:bg-white/10 border border-[#2D2B2C]/20 dark:border-white/25 hover:border-[#36513B]/50 dark:hover:border-[#7CD090]/50 hover:bg-white dark:hover:bg-[#1E2721] transition-all shadow-2xs group"
             title="全局搜索"
             aria-label="全局搜索"
           >
             <Search className="w-3.5 h-3.5 text-[#36513B] dark:text-[#7CD090] group-hover:scale-110 transition-transform flex-shrink-0" />
-            <span className="text-[#333031] dark:text-[#E2EBE4] font-semibold transition-colors">
+            <span className="hidden lg:inline text-[#333031] dark:text-[#E2EBE4] font-semibold transition-colors">
               搜索...
             </span>
           </button>

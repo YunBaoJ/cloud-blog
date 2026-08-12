@@ -2,8 +2,8 @@
 
 import { useState, useRef } from "react";
 import Footer from "@/components/Footer";
-import { FEATURED_NOTES, NoteItem } from "@/data/mockData";
-import { Archive, Search, Tag, Calendar, Clock, ArrowUpRight, ArrowRight, FolderOpen, Filter } from "lucide-react";
+import type { NoteItem } from "@/lib/notes";
+import { Archive, Search, Tag, Calendar, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -11,17 +11,18 @@ import { useGSAP } from "@gsap/react";
 gsap.registerPlugin(useGSAP);
 
 interface ArchiveClientProps {
-  initialNotes?: NoteItem[];
+  initialNotes: NoteItem[];
 }
 
 export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
-  const notesList = initialNotes || FEATURED_NOTES;
+  const notesList = initialNotes;
   const [selectedCategory, setSelectedCategory] = useState("全部");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const mainRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     gsap.from(".archive-card-anim", {
       y: 20,
       opacity: 0,
@@ -67,21 +68,23 @@ export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
   return (
     <main ref={mainRef} className="min-h-screen bg-[#FAF7F2] text-[#2D2B2C]">
       {/* Header Section */}
-      <section className="relative pt-32 pb-16 px-6 sm:px-12 lg:px-20 border-b border-[#2D2B2C]/8 bg-gradient-to-b from-[#E2EBE4]/30 to-transparent">
-        <div className="max-w-6xl mx-auto space-y-5">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#E2EBE4] text-[#2B4C6F] text-xs font-semibold shadow-2xs border border-[#2B4C6F]/10">
-            <Archive className="w-3.5 h-3.5" />
+      <section className="relative px-5 pb-9 pt-28 sm:px-8 lg:px-12 lg:pt-32">
+        <div className="mx-auto max-w-6xl">
+          <div className="max-w-3xl">
+            <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">
+            <Archive className="size-4" strokeWidth={1.8} />
             <span>按年份 · 标签 · 分类归档</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#2D2B2C]">
+            </div>
+          <h1 className="text-4xl font-light tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
             文章归档
           </h1>
-          <p className="text-base sm:text-lg text-[#5A5551] max-w-2xl font-normal leading-relaxed">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
             全部 {notesList.length} 篇文章按时间轴与分类脉络梳理，点击卡片直达阅读。
           </p>
+          </div>
 
           {/* Search Bar */}
-          <div className="relative max-w-lg">
+          <div className="relative mt-12 max-w-lg border-t border-[var(--border-line-color)] pt-4">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7A736A]" />
             <input
               type="text"

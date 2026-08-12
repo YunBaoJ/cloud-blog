@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState, createElement, useMemo, useCallback, ElementType, ComponentPropsWithoutRef } from 'react';
+import { useEffect, useRef, useState, useMemo, useCallback, HTMLAttributes } from 'react';
 import { gsap } from 'gsap';
+import { useReducedMotion } from '@/lib/useReducedMotion';
 import './TextType.css';
 
-export interface TextTypeProps extends ComponentPropsWithoutRef<ElementType> {
+export interface TextTypeProps extends HTMLAttributes<HTMLHeadingElement> {
   text: string | string[];
-  as?: ElementType;
   typingSpeed?: number;
   initialDelay?: number;
   pauseDuration?: number;
@@ -21,13 +21,11 @@ export interface TextTypeProps extends ComponentPropsWithoutRef<ElementType> {
   textColors?: string[];
   variableSpeed?: { min: number; max: number };
   onSentenceComplete?: (sentence: string, index: number) => void;
-  startOnVisible?: boolean;
   reverseMode?: boolean;
 }
 
 export default function TextType({
   text,
-  as: Component = 'div',
   typingSpeed = 50,
   initialDelay = 0,
   pauseDuration = 2000,
@@ -42,17 +40,15 @@ export default function TextType({
   textColors = [],
   variableSpeed,
   onSentenceComplete,
-  startOnVisible = false,
   reverseMode = false,
   ...props
 }: TextTypeProps) {
+  const reducedMotion = useReducedMotion();
   const [displayedText, setDisplayedText] = useState('');
   const [currentCharIndex, setCurrentCharIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(!startOnVisible);
   const cursorRef = useRef<HTMLSpanElement>(null);
-  const containerRef = useRef<HTMLElement>(null);
 
   const textArray = useMemo(() => (Array.isArray(text) ? text : [text]), [text]);
 
@@ -68,25 +64,7 @@ export default function TextType({
   };
 
   useEffect(() => {
-    if (!startOnVisible || !containerRef.current) return;
-
-    const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, [startOnVisible]);
-
-  useEffect(() => {
-    if (showCursor && cursorRef.current) {
+    if (!reducedMotion && showCursor && cursorRef.current) {
       gsap.set(cursorRef.current, { opacity: 1 });
       const tween = gsap.to(cursorRef.current, {
         opacity: 0,
@@ -99,11 +77,10 @@ export default function TextType({
         tween.kill();
       };
     }
-  }, [showCursor, cursorBlinkDuration]);
+  }, [reducedMotion, showCursor, cursorBlinkDuration]);
 
   useEffect(() => {
-    if (!isVisible) return;
-
+    if (reducedMotion) return;
     let timeout: NodeJS.Timeout;
     const currentText = textArray[currentTextIndex];
     const processedText = reverseMode ? currentText.split('').reverse().join('') : currentText;
@@ -164,33 +141,29 @@ export default function TextType({
     currentTextIndex,
     loop,
     initialDelay,
-    isVisible,
     reverseMode,
     variableSpeed,
     onSentenceComplete,
-    getRandomSpeed
+    getRandomSpeed,
+    reducedMotion,
   ]);
 
   const shouldHideCursor =
     hideCursorWhileTyping && (currentCharIndex < textArray[currentTextIndex].length || isDeleting);
 
-  return createElement(
-    Component,
-    {
-      ref: containerRef,
-      className: `text-type ${className}`,
-      ...props
-    },
-    <span className="text-type__content" style={{ color: getCurrentTextColor() || 'inherit' }}>
-      {displayedText}
-    </span>,
-    showCursor && (
-      <span
-        ref={cursorRef}
-        className={`text-type__cursor ${cursorClassName} ${shouldHideCursor ? 'text-type__cursor--hidden' : ''}`}
-      >
-        {cursorCharacter}
+  return (
+    <h1 className={`text-type ${className}`} {...props}>
+      <span className="text-type__content" style={{ color: getCurrentTextColor() || 'inherit' }}>
+        {reducedMotion ? textArray[0] : displayedText}
       </span>
-    )
+      {!reducedMotion && showCursor && (
+        <span
+          ref={cursorRef}
+          className={`text-type__cursor ${cursorClassName} ${shouldHideCursor ? 'text-type__cursor--hidden' : ''}`}
+        >
+          {cursorCharacter}
+        </span>
+      )}
+    </h1>
   );
 }

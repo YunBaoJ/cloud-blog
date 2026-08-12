@@ -17,9 +17,34 @@ interface SlidePuzzleProps {
   initialSize?: GridSize;
 }
 
+function createBoard(gridSize: GridSize) {
+  const numTiles = gridSize * gridSize;
+  const board = Array.from({ length: numTiles }, (_, i) => i + 1);
+  board[numTiles - 1] = 0;
+
+  let emptyIdx = numTiles - 1;
+  let lastSwappedIdx = -1;
+  for (let move = 0; move < gridSize * gridSize * 15; move++) {
+    const row = Math.floor(emptyIdx / gridSize);
+    const col = emptyIdx % gridSize;
+    const neighbors: number[] = [];
+    if (row > 0) neighbors.push(emptyIdx - gridSize);
+    if (row < gridSize - 1) neighbors.push(emptyIdx + gridSize);
+    if (col > 0) neighbors.push(emptyIdx - 1);
+    if (col < gridSize - 1) neighbors.push(emptyIdx + 1);
+    const candidates = neighbors.filter((index) => index !== lastSwappedIdx);
+    const nextIdx = (candidates.length ? candidates : neighbors)[Math.floor(Math.random() * (candidates.length || neighbors.length))];
+    [board[emptyIdx], board[nextIdx]] = [board[nextIdx], board[emptyIdx]];
+    lastSwappedIdx = emptyIdx;
+    emptyIdx = nextIdx;
+  }
+
+  return board;
+}
+
 export default function SlidePuzzle({ initialSize = 4 }: SlidePuzzleProps) {
   const [size, setSize] = useState<GridSize>(initialSize);
-  const [tiles, setTiles] = useState<number[]>([]);
+  const [tiles, setTiles] = useState<number[]>(() => createBoard(initialSize));
   const [isStarted, setIsStarted] = useState(false);
   const [isWon, setIsWon] = useState(false);
   const [steps, setSteps] = useState(0);
@@ -27,45 +52,12 @@ export default function SlidePuzzle({ initialSize = 4 }: SlidePuzzleProps) {
 
   // Initialize board with 100% guaranteed solvability (Reverse random moves)
   const initBoard = useCallback((gridSize: GridSize) => {
-    const numTiles = gridSize * gridSize;
-    const board = Array.from({ length: numTiles }, (_, i) => i + 1);
-    board[numTiles - 1] = 0; // 0 is empty
-
-    let emptyIdx = numTiles - 1;
-    let lastSwappedIdx = -1;
-    const movesCount = gridSize * gridSize * 15; // 60-240 random moves
-
-    for (let m = 0; m < movesCount; m++) {
-      const eRow = Math.floor(emptyIdx / gridSize);
-      const eCol = emptyIdx % gridSize;
-
-      const validNeighbors: number[] = [];
-      if (eRow > 0) validNeighbors.push(emptyIdx - gridSize);
-      if (eRow < gridSize - 1) validNeighbors.push(emptyIdx + gridSize);
-      if (eCol > 0) validNeighbors.push(emptyIdx - 1);
-      if (eCol < gridSize - 1) validNeighbors.push(emptyIdx + 1);
-
-      // Prefer not undoing immediate previous move for better dispersal
-      const candidates = validNeighbors.filter(n => n !== lastSwappedIdx);
-      const nextIdx = candidates.length > 0
-        ? candidates[Math.floor(Math.random() * candidates.length)]
-        : validNeighbors[Math.floor(Math.random() * validNeighbors.length)];
-
-      [board[emptyIdx], board[nextIdx]] = [board[nextIdx], board[emptyIdx]];
-      lastSwappedIdx = emptyIdx;
-      emptyIdx = nextIdx;
-    }
-
-    setTiles(board);
+    setTiles(createBoard(gridSize));
     setSteps(0);
     setTime(0);
     setIsStarted(false);
     setIsWon(false);
   }, []);
-
-  useEffect(() => {
-    initBoard(size);
-  }, [size, initBoard]);
 
   // Timer
   useEffect(() => {
@@ -153,7 +145,11 @@ export default function SlidePuzzle({ initialSize = 4 }: SlidePuzzleProps) {
         <div className="flex items-center space-x-2">
           <select
             value={size}
-            onChange={(e) => setSize(Number(e.target.value) as GridSize)}
+            onChange={(e) => {
+              const nextSize = Number(e.target.value) as GridSize;
+              setSize(nextSize);
+              initBoard(nextSize);
+            }}
             className="bg-[#FAF7F2] dark:bg-[#2D2B2C] text-[#36513B] dark:text-[#E2EBE4] rounded-lg px-2 py-1 text-sm outline-none border-none cursor-pointer focus:ring-2 focus:ring-[#8C4A31]"
           >
             <option value={3}>3x3</option>

@@ -6,12 +6,13 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   Code2, Heart, BookOpen, Mail, Globe,
-  Camera, Layers, Cpu, Palette,
+  Camera, ImageIcon, Layers, Cpu, Palette,
   MapPin, ArrowUpRight,
 } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { CONTACT_EMAIL } from "@/lib/site";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -54,6 +55,7 @@ export default function AboutClient() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     // Desk photo parallax
     gsap.from(".about-desk-img", {
       scale: 1.08,
@@ -93,30 +95,29 @@ export default function AboutClient() {
   return (
     <main ref={containerRef} className="min-h-screen bg-[#FAF7F2] text-[#2D2B2C]">
       {/* — Asymmetric Split Header — */}
-      <section className="pt-28 pb-0 px-6 sm:px-12 lg:px-20 border-b border-[#2D2B2C]/8 bg-gradient-to-b from-[#E2EBE4]/25 to-transparent">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-end">
+      <section className="px-5 pb-9 pt-28 sm:px-8 lg:px-12 lg:pt-32">
+        <div className="max-w-6xl mx-auto">
 
           {/* Left: bio copy */}
-          <div className="pb-14 space-y-6">
-            <p className="text-xs font-mono text-[#4E7A56] uppercase tracking-widest">
+          <div className="max-w-3xl space-y-0">
+            <p className="mb-3 flex items-center gap-2 text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">
               Frontend Engineer &amp; Designer
             </p>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#2D2B2C] leading-[1.05]">
-              Cloud<br />
-              <span className="text-[#36513B]">云归何处</span>
+            <h1 className="text-4xl font-light tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
+              关于我
             </h1>
-            <p className="text-base text-[#5A5551] leading-relaxed max-w-md">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
               这里是我的数字客房与生活实验场地。在白天书写极致性能的现代 Web 应用，在夜晚静心读书、拍胶片、记录岁月的诗意。
             </p>
-            <div className="flex flex-wrap items-center gap-3 text-xs font-medium pt-2">
+            <div className="mt-12 flex flex-wrap items-center gap-3 border-t border-[var(--border-line-color)] pt-4 text-xs font-medium">
               <div className="flex items-center gap-1.5 text-[#7A736A]">
                 <MapPin className="w-3.5 h-3.5 text-[#8C4A31]" />
                 <span>杭州 · 中国</span>
               </div>
               <span className="w-px h-3 bg-[#2D2B2C]/15" />
               <Link href="/gallery" className="flex items-center gap-1 text-[#36513B] hover:underline underline-offset-2 transition-colors">
-                <Camera className="w-3.5 h-3.5" />
-                <span>摄影画廊</span>
+                <ImageIcon className="w-3.5 h-3.5" />
+                <span>作品画廊</span>
                 <ArrowUpRight className="w-3 h-3" />
               </Link>
               <Link href="/notes" className="flex items-center gap-1 text-[#36513B] hover:underline underline-offset-2 transition-colors">
@@ -128,7 +129,7 @@ export default function AboutClient() {
           </div>
 
           {/* Right: hero photograph */}
-          <div className="relative h-[340px] sm:h-[400px] lg:h-[480px] rounded-t-3xl overflow-hidden self-end">
+          <div className="relative mt-8 h-[280px] overflow-hidden rounded-2xl sm:h-[360px] lg:h-[440px]">
             <Image
               src="/about-desk.jpg"
               alt="Cloud 的工作台与日常"
@@ -220,11 +221,11 @@ export default function AboutClient() {
 
           <div className="flex flex-wrap items-center gap-3 text-xs font-semibold">
             <a
-              href="mailto:cloud@example.com"
+              href={`mailto:${CONTACT_EMAIL}`}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/15 hover:bg-white/25 transition-all text-white border border-white/20 hover:scale-105"
             >
               <Mail className="w-4 h-4" />
-              <span>cloud@example.com</span>
+              <span>{CONTACT_EMAIL}</span>
             </a>
             <a
               href="https://github.com"
@@ -239,8 +240,8 @@ export default function AboutClient() {
               href="/gallery"
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/15 hover:bg-white/25 transition-all text-white border border-white/20 hover:scale-105"
             >
-              <Camera className="w-4 h-4" />
-              <span>摄影画廊</span>
+              <ImageIcon className="w-4 h-4" />
+              <span>作品画廊</span>
             </Link>
           </div>
         </div>

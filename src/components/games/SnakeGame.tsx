@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { Play, RotateCcw, Zap } from "lucide-react";
+import { Play, RotateCcw } from "lucide-react";
+import { usePersistentNumber } from "@/lib/usePersistentNumber";
 
 type GameState = "idle" | "playing" | "paused" | "dead";
 type Direction = "UP" | "DOWN" | "LEFT" | "RIGHT";
@@ -34,7 +35,7 @@ export default function SnakeGame() {
   const [gameState, setGameState] = useState<GameState>("idle");
   const [difficulty, setDifficulty] = useState<Difficulty>("normal");
   const [score, setScore] = useState(0);
-  const [highScore, setHighScore] = useState(0);
+  const [highScore, setHighScore] = usePersistentNumber("snakeHighScore");
 
   const snakeRef = useRef<Point[]>([...INITIAL_SNAKE]);
   const directionRef = useRef<Direction>("RIGHT");
@@ -44,7 +45,7 @@ export default function SnakeGame() {
   const isAcceleratingRef = useRef(false); // 是否处于长按加速状态
   const gameLoopRef = useRef<NodeJS.Timeout | null>(null);
   const canvasSizeRef = useRef({ width: 0, height: 400 });
-  const showDeathTextRef = useRef(false);
+  const gameStepRef = useRef<() => void>(() => {});
 
   // Touch control reference
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -119,22 +120,13 @@ export default function SnakeGame() {
     } catch {}
   }, []);
 
-  // Persistence
-  useEffect(() => {
-    const savedHighScore = localStorage.getItem("snakeHighScore");
-    if (savedHighScore) {
-      setHighScore(parseInt(savedHighScore, 10));
-    }
-  }, []);
-
   const updateHighScore = useCallback(
     (newScore: number) => {
       if (newScore > highScore) {
         setHighScore(newScore);
-        localStorage.setItem("snakeHighScore", newScore.toString());
       }
     },
-    [highScore]
+    [highScore, setHighScore]
   );
 
   const generateFood = useCallback((snake: Point[], width: number, height: number): Point => {
@@ -257,36 +249,21 @@ export default function SnakeGame() {
       ctx.restore();
     }
 
-    // 5. Draw "撞了" text on death
-    if (showDeathTextRef.current) {
-      ctx.fillStyle = "#8C4A31";
-      ctx.font = 'bold 44px "HarmonyOS Sans SC", sans-serif';
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("撞了！", width / 2, height / 2);
-    }
   }, []);
 
   const gameOver = useCallback(() => {
     setGameState("dead");
-    showDeathTextRef.current = true;
     isAcceleratingRef.current = false;
     playCrashSound();
     updateHighScore(score);
-    draw();
-
-    setTimeout(() => {
-      showDeathTextRef.current = false;
-      setGameState((prev) => prev);
-    }, 800);
-  }, [score, updateHighScore, draw, playCrashSound]);
+  }, [score, updateHighScore, playCrashSound]);
 
   const gameStep = useCallback(() => {
     if (gameState !== "playing") return;
 
     directionRef.current = nextDirectionRef.current;
     const head = snakeRef.current[0];
-    let newHead = { ...head };
+    const newHead = { ...head };
 
     switch (directionRef.current) {
       case "UP":
@@ -347,8 +324,12 @@ export default function SnakeGame() {
       ? Math.max(MIN_BOOST_SPEED, Math.floor(currentBaseSpeed * 0.35))
       : currentBaseSpeed;
 
-    gameLoopRef.current = setTimeout(gameStep, nextInterval);
+    gameLoopRef.current = setTimeout(() => gameStepRef.current(), nextInterval);
   }, [gameState, difficulty, gameOver, draw, generateFood, playEatSound]);
+
+  useEffect(() => {
+    gameStepRef.current = gameStep;
+  }, [gameStep]);
 
   useEffect(() => {
     if (gameState === "playing") {
@@ -356,7 +337,7 @@ export default function SnakeGame() {
       const nextInterval = isAcceleratingRef.current
         ? Math.max(MIN_BOOST_SPEED, Math.floor(currentBaseSpeed * 0.35))
         : currentBaseSpeed;
-      gameLoopRef.current = setTimeout(gameStep, nextInterval);
+      gameLoopRef.current = setTimeout(() => gameStepRef.current(), nextInterval);
     }
     return () => {
       if (gameLoopRef.current) clearTimeout(gameLoopRef.current);
@@ -383,7 +364,6 @@ export default function SnakeGame() {
       setScore(0);
       speedRef.current = DIFFICULTY_CONFIG[targetDiff].initialSpeed;
       isAcceleratingRef.current = false;
-      showDeathTextRef.current = false;
 
       foodRef.current = generateFood(snakeRef.current, width || 400, height || 400);
       setGameState("playing");
@@ -501,7 +481,7 @@ export default function SnakeGame() {
   };
 
   return (
-    <div className="bg-white dark:bg-[#1E2721]/50 rounded-3xl p-6 border border-[#2D2B2C]/6 dark:border-white/8 shadow-[0_4px_24px_rgba(45,43,44,0.05)] space-y-4">
+    <div className="min-w-0 space-y-4 rounded-3xl border border-[#2D2B2C]/6 bg-white p-3 shadow-[0_4px_24px_rgba(45,43,44,0.05)] dark:border-white/8 dark:bg-[#1E2721]/50 sm:p-6">
       {/* Top Header & Mode Switcher */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#2D2B2C]/8 dark:border-white/10">
         {/* Scores */}
@@ -515,10 +495,10 @@ export default function SnakeGame() {
         </div>
 
         {/* Mode Switch Buttons (点击直接切换模式并强制重开一局) */}
-        <div className="flex items-center gap-1 bg-[#FAF7F2] dark:bg-[#24221F] p-1 rounded-2xl border border-[#2D2B2C]/6 dark:border-white/10 text-xs font-semibold">
+        <div className="grid w-full grid-cols-3 items-center gap-1 rounded-2xl border border-[#2D2B2C]/6 bg-[#FAF7F2] p-1 text-xs font-semibold dark:border-white/10 dark:bg-[#24221F] sm:w-auto">
           <button
             onClick={() => startNewGameWithDifficulty("easy")}
-            className={`px-3 py-1 rounded-xl transition-all ${
+            className={`min-w-0 px-2 py-1 rounded-xl transition-all ${
               difficulty === "easy"
                 ? "bg-[#36513B] text-white shadow-2xs font-bold"
                 : "text-[#7A736A] hover:text-[#2D2B2C] dark:hover:text-white"
@@ -528,7 +508,7 @@ export default function SnakeGame() {
           </button>
           <button
             onClick={() => startNewGameWithDifficulty("normal")}
-            className={`px-3 py-1 rounded-xl transition-all ${
+            className={`min-w-0 px-2 py-1 rounded-xl transition-all ${
               difficulty === "normal"
                 ? "bg-[#36513B] text-white shadow-2xs font-bold"
                 : "text-[#7A736A] hover:text-[#2D2B2C] dark:hover:text-white"
@@ -538,7 +518,7 @@ export default function SnakeGame() {
           </button>
           <button
             onClick={() => startNewGameWithDifficulty("hard")}
-            className={`px-3 py-1 rounded-xl transition-all ${
+            className={`min-w-0 px-2 py-1 rounded-xl transition-all ${
               difficulty === "hard"
                 ? "bg-[#8C4A31] text-white shadow-2xs font-bold"
                 : "text-[#7A736A] hover:text-[#2D2B2C] dark:hover:text-white"
@@ -576,7 +556,7 @@ export default function SnakeGame() {
         )}
 
         {/* GameOver Overlay */}
-        {gameState === "dead" && !showDeathTextRef.current && (
+        {gameState === "dead" && (
           <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center space-y-4 animate-in fade-in duration-200">
             <h3 className="text-2xl font-bold text-white">游戏结束！</h3>
             <p className="text-sm text-gray-300">

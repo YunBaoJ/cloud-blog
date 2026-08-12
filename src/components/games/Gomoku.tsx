@@ -452,7 +452,7 @@ export default function Gomoku() {
       }
       setAiThinking(false);
     });
-  }, [board, turn, winner, aiThinking, place]);
+  }, [board, turn, winner, aiThinking, place, playVictorySound]);
 
   const startPveGame = useCallback((chosenColor: "black" | "white") => {
     const centerIdx = Math.floor(SIZE / 2) * SIZE + Math.floor(SIZE / 2);
@@ -595,7 +595,7 @@ export default function Gomoku() {
       setBoard(boardWithMove);
       setTurn(nextTurn);
     }
-  }, [mode, board, winner, aiThinking, turn, place, history, playerColor, aiColor]);
+  }, [mode, board, winner, aiThinking, turn, place, history, playerColor, aiColor, playVictorySound]);
 
   // Last Move Index
   const lastMoveIdx = history.length > 0 ? history[history.length - 1] : null;

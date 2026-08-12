@@ -1,20 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, BookOpen, Camera, Sparkles, User, Archive, X, CornerDownLeft, Gamepad2, Compass } from "lucide-react";
-import { FEATURED_NOTES, GALLERY_PHOTOS, NoteItem } from "@/data/mockData";
+import { Search, BookOpen, ImageIcon, Sparkles, User, Archive, X, CornerDownLeft, Gamepad2, Compass } from "lucide-react";
+import { GALLERY_PHOTOS } from "@/data/siteContent";
+import type { NoteItem } from "@/lib/notes";
+
+type SearchNote = Pick<NoteItem, "id" | "title" | "summary" | "category" | "tags">;
 
 interface CommandMenuProps {
-  notes?: NoteItem[];
+  notes: SearchNote[];
 }
 
 const GAMES_SEARCH_DATA = [
-  { id: "snake", title: "贪吃蛇小游戏", path: "/playground?game=snake", category: "游乐场 · 游戏", icon: Gamepad2 },
-  { id: "2048", title: "2048 数字合并", path: "/playground?game=2048", category: "游乐场 · 游戏", icon: Gamepad2 },
-  { id: "puzzle", title: "数字华容道拼图", path: "/playground?game=puzzle", category: "游乐场 · 游戏", icon: Gamepad2 },
-  { id: "gomoku", title: "五子棋单人/双人对弈", path: "/playground?game=gomoku", category: "游乐场 · 游戏", icon: Gamepad2 },
-  { id: "xiangqi", title: "中国象棋 AI 博弈", path: "/playground?game=xiangqi", category: "游乐场 · 游戏", icon: Gamepad2 },
+  { id: "snake", title: "贪吃蛇小游戏", path: "/playground#snake", category: "游乐场 · 游戏", icon: Gamepad2 },
+  { id: "2048", title: "2048 数字合并", path: "/playground#2048", category: "游乐场 · 游戏", icon: Gamepad2 },
+  { id: "puzzle", title: "数字华容道拼图", path: "/playground#puzzle", category: "游乐场 · 游戏", icon: Gamepad2 },
+  { id: "gomoku", title: "五子棋单人/双人对弈", path: "/playground#gomoku", category: "游乐场 · 游戏", icon: Gamepad2 },
+  { id: "xiangqi", title: "中国象棋 AI 博弈", path: "/playground#xiangqi", category: "游乐场 · 游戏", icon: Gamepad2 },
 ];
 
 export default function CommandMenu({ notes }: CommandMenuProps) {
@@ -23,30 +26,35 @@ export default function CommandMenu({ notes }: CommandMenuProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const router = useRouter();
 
-  const activeNotes = notes || FEATURED_NOTES;
+  const activeNotes = notes;
+  const closeMenu = useCallback(() => {
+    setIsOpen(false);
+    setQuery("");
+    setSelectedIndex(0);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        setIsOpen((prev) => !prev);
+        if (isOpen) closeMenu();
+        else setIsOpen(true);
       }
       if (e.key === "Escape") {
-        setIsOpen(false);
+        closeMenu();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [closeMenu, isOpen]);
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
-      setQuery("");
-      setSelectedIndex(0);
     }
+    return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
   const q = query.toLowerCase().trim();
@@ -54,7 +62,7 @@ export default function CommandMenu({ notes }: CommandMenuProps) {
   const navResults = [
     { title: "小屋主页", path: "/", category: "页面导航", icon: Compass },
     { title: "随笔笔记列表", path: "/notes", category: "页面导航", icon: BookOpen },
-    { title: "摄影画廊", path: "/gallery", category: "页面导航", icon: Camera },
+    { title: "作品画廊", path: "/gallery", category: "页面导航", icon: ImageIcon },
     { title: "摸鱼游乐场", path: "/playground", category: "页面导航", icon: Sparkles },
     { title: "文章归档时间轴", path: "/archive", category: "页面导航", icon: Archive },
     { title: "关于 Cloud", path: "/about", category: "页面导航", icon: User },
@@ -70,8 +78,7 @@ export default function CommandMenu({ notes }: CommandMenuProps) {
         !q ||
         n.title.toLowerCase().includes(q) ||
         n.summary.toLowerCase().includes(q) ||
-        (n.tags && n.tags.some((t) => t.toLowerCase().includes(q))) ||
-        (n.content && n.content.toLowerCase().includes(q))
+        n.tags.some((t) => t.toLowerCase().includes(q))
     )
     .map((n) => ({
       title: n.title,
@@ -84,19 +91,19 @@ export default function CommandMenu({ notes }: CommandMenuProps) {
     (p) =>
       !q ||
       p.title.toLowerCase().includes(q) ||
-      p.location.toLowerCase().includes(q) ||
+      p.source.toLowerCase().includes(q) ||
       p.story.toLowerCase().includes(q)
   ).map((p) => ({
     title: p.title,
     path: "/gallery",
-    category: `摄影 · ${p.location}`,
-    icon: Camera,
+    category: `作品 · ${p.source}`,
+    icon: ImageIcon,
   }));
 
   const allResults = [...navResults, ...gameResults, ...noteResults, ...photoResults];
 
   const handleSelect = (path: string) => {
-    setIsOpen(false);
+    closeMenu();
     router.push(path);
   };
 
@@ -118,7 +125,7 @@ export default function CommandMenu({ notes }: CommandMenuProps) {
   return (
     <div
       className="fixed inset-0 z-[100] flex items-start justify-center pt-24 px-4 bg-black/50 backdrop-blur-md animate-in fade-in duration-150"
-      onClick={() => setIsOpen(false)}
+      onClick={closeMenu}
     >
       <div
         className="w-full max-w-xl bg-white dark:bg-[#1C1A17] rounded-3xl border border-[#2D2B2C]/10 dark:border-white/10 shadow-[0_16px_48px_rgba(0,0,0,0.22)] overflow-hidden space-y-0"
@@ -130,7 +137,7 @@ export default function CommandMenu({ notes }: CommandMenuProps) {
           <input
             type="text"
             autoFocus
-            placeholder="搜索 Markdown 文章、小游戏、胶片相册或页面... (ESC 退出)"
+            placeholder="搜索文章、作品、小游戏或页面... (ESC 退出)"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -140,7 +147,7 @@ export default function CommandMenu({ notes }: CommandMenuProps) {
             className="w-full bg-transparent text-sm font-medium text-[#2D2B2C] dark:text-[#F0F5F1] placeholder-[#7A736A] dark:placeholder-[#9EB3A4] focus:outline-none"
           />
           <button
-            onClick={() => setIsOpen(false)}
+            onClick={closeMenu}
             className="p-1 rounded-lg text-[#7A736A] hover:bg-[#2D2B2C]/5 dark:hover:bg-white/10"
           >
             <X className="w-4 h-4" />

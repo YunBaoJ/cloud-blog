@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Feather, Heart, Mail, Globe, ArrowUp } from "lucide-react";
+import { CONTACT_EMAIL } from "@/lib/site";
 
 const INSPIRATIONS = [
   { text: "代码是写给未来的自己与同行的情书，愿它干净、清澈、余音绕梁。", author: "Cloud · 代码探索" },
@@ -99,18 +101,18 @@ export default function Footer() {
 
           {/* Nav Links & Actions */}
           <div className="flex flex-wrap items-center justify-center gap-6 text-xs font-semibold text-[#5A5551]">
-            <a href="/notes" className="hover:text-[#36513B] transition-colors">
+            <Link href="/notes" className="hover:text-[#36513B] transition-colors">
               随笔笔记
-            </a>
-            <a href="/gallery" className="hover:text-[#36513B] transition-colors">
-              摄影画廊
-            </a>
-            <a href="/playground" className="hover:text-[#36513B] transition-colors">
+            </Link>
+            <Link href="/gallery" className="hover:text-[#36513B] transition-colors">
+              作品画廊
+            </Link>
+            <Link href="/playground" className="hover:text-[#36513B] transition-colors">
               灵感游乐场
-            </a>
-            <a href="/about" className="hover:text-[#36513B] transition-colors">
+            </Link>
+            <Link href="/about" className="hover:text-[#36513B] transition-colors">
               关于小屋
-            </a>
+            </Link>
             <button
               onClick={scrollToTop}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white border border-[#2D2B2C]/10 text-[#2D2B2C] hover:bg-[#36513B] hover:text-white transition-all shadow-2xs hover:scale-105 active:scale-95"
@@ -125,9 +127,9 @@ export default function Footer() {
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#7A736A]">
           <div className="flex items-center gap-4">
             <a
-              href="mailto:cloud@example.com"
+              href={`mailto:${CONTACT_EMAIL}`}
               className="p-2.5 rounded-full bg-white border border-[#2D2B2C]/8 hover:text-[#36513B] hover:border-[#36513B]/30 hover:scale-110 transition-all"
-              aria-label="Email Cloud"
+              aria-label={`发送邮件至 ${CONTACT_EMAIL}`}
             >
               <Mail className="w-4 h-4" />
             </a>

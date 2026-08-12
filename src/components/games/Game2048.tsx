@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { usePersistentNumber } from '@/lib/usePersistentNumber';
 
 type GameState = 'playing' | 'won' | 'over';
 type Grid = number[][];
@@ -131,15 +132,10 @@ const checkGameOver = (grid: Grid): boolean => {
 export default function Game2048() {
   const [grid, setGrid] = useState<Grid>(() => addRandomTile(addRandomTile(createEmptyGrid())));
   const [score, setScore] = useState(0);
-  const [bestScore, setBestScore] = useState(0);
+  const [bestScore, setBestScore] = usePersistentNumber('2048-best-score');
   const [gameState, setGameState] = useState<GameState>('playing');
   const [continued, setContinued] = useState(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
-
-  useEffect(() => {
-    const savedBest = localStorage.getItem('2048-best-score');
-    if (savedBest) setBestScore(parseInt(savedBest, 10));
-  }, []);
 
   const resetGame = () => {
     setGrid(addRandomTile(addRandomTile(createEmptyGrid())));
@@ -151,33 +147,21 @@ export default function Game2048() {
   const handleMove = useCallback((direction: 'UP' | 'RIGHT' | 'DOWN' | 'LEFT') => {
     if (gameState === 'over' || (gameState === 'won' && !continued)) return;
 
-    setGrid(prev => {
-      const { newGrid, scoreIncrease, moved } = move(prev, direction);
-      if (!moved) return prev;
+    const { newGrid, scoreIncrease, moved } = move(grid, direction);
+    if (!moved) return;
 
-      const nextGrid = addRandomTile(newGrid);
-      
-      setScore(s => {
-        const nextScore = s + scoreIncrease;
-        setBestScore(b => {
-          if (nextScore > b) {
-            localStorage.setItem('2048-best-score', nextScore.toString());
-            return nextScore;
-          }
-          return b;
-        });
-        return nextScore;
-      });
+    const nextGrid = addRandomTile(newGrid);
+    const nextScore = score + scoreIncrease;
+    setGrid(nextGrid);
+    setScore(nextScore);
+    if (nextScore > bestScore) setBestScore(nextScore);
 
-      if (nextGrid.some(row => row.includes(2048)) && gameState !== 'won' && !continued) {
-        setGameState('won');
-      } else if (checkGameOver(nextGrid)) {
-        setGameState('over');
-      }
-
-      return nextGrid;
-    });
-  }, [gameState, continued]);
+    if (nextGrid.some(row => row.includes(2048)) && gameState !== 'won' && !continued) {
+      setGameState('won');
+    } else if (checkGameOver(nextGrid)) {
+      setGameState('over');
+    }
+  }, [bestScore, continued, gameState, grid, score, setBestScore]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

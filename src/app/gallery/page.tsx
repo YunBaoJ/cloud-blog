@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import GalleryClient from "./GalleryClient";
 
 export const metadata: Metadata = {
-  title: "摄影画廊",
-  description: "用胶片记录光影与时间，每一张照片都是一首无声的诗。",
+  title: "作品画廊",
+  description: "收录插画、动漫与日常灵感，让喜欢的画面安静留在这里。",
   openGraph: {
-    title: "摄影画廊 | Cloud 的数字小屋",
-    description: "用胶片记录光影与时间，每一张照片都是一首无声的诗。",
+    title: "作品画廊 | Cloud 的数字小屋",
+    description: "收录插画、动漫与日常灵感，让喜欢的画面安静留在这里。",
   },
 };
 
