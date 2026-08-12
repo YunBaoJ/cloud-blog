@@ -1,30 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  /* Light mode tokens — Wabi-Sabi Oat & Sand (Option B) */
-  --background: #F4F0EA;
-  --foreground: #2C2B2A;
-  --border-line-color: rgba(44, 43, 42, 0.09);
-  --surface: #FDFCF9;
-  --surface-2: #EAE5DC;
-  --muted: #78726A;
-  --accent-green: #384E3F;
-  --accent-clay: #C46A4A;
-  --nav-bg: rgba(244, 240, 234, 0.85);
-  --nav-border: rgba(255, 255, 255, 0.75);
+  /* Light mode tokens — Classic 9a2380c Warm Cottage Palette */
+  --background: #FAF7F2;
+  --foreground: #2D2B2C;
+  --border-line-color: rgba(45, 43, 44, 0.08);
+  --surface: #FFFFFF;
+  --surface-2: #F4F1EA;
+  --muted: #7A736A;
+  --accent-green: #36513B;
+  --accent-clay: #8C4A31;
+  --nav-bg: rgba(250, 247, 242, 0.75);
+  --nav-border: rgba(255, 255, 255, 0.6);
 }
 
 .dark {
-  /* Dark mode tokens — Wabi-Sabi Night Residence */
-  --background: #121614;
-  --foreground: #EAE6E1;
-  --surface: #1A201C;
-  --surface-2: #242C27;
-  --muted: #9E988E;
-  --accent-green: #7DA186;
-  --accent-clay: #E29878;
-  --border-line-color: rgba(255, 255, 255, 0.10);
-  --nav-bg: rgba(18, 22, 20, 0.85);
+  /* Dark mode tokens — Deep Forest Pine Night Palette */
+  --background: #142219;
+  --foreground: #F0F5F1;
+  --surface: #1B2D22;
+  --surface-2: #23382C;
+  --muted: #9EB3A4;
+  --accent-green: #7CD090;
+  --accent-clay: #E5987D;
+  --border-line-color: rgba(255, 255, 255, 0.09);
+  --nav-bg: rgba(20, 34, 25, 0.82);
   --nav-border: rgba(255, 255, 255, 0.12);
   color-scheme: dark;
 }
@@ -60,15 +60,15 @@ body {
 }
 
 .dark .subpage-theme {
-  --background: #121614;
-  --foreground: #EAE6E1;
-  --surface: #1A201C;
-  --surface-2: #242C27;
-  --muted: #9E988E;
-  --accent-green: #7DA186;
-  --accent-clay: #E29878;
-  --border-line-color: rgba(255, 255, 255, 0.10);
-  --nav-bg: rgba(18, 22, 20, 0.85);
+  --background: #142219;
+  --foreground: #F0F5F1;
+  --surface: #1B2D22;
+  --surface-2: #23382C;
+  --muted: #9EB3A4;
+  --accent-green: #7CD090;
+  --accent-clay: #E5987D;
+  --border-line-color: rgba(255, 255, 255, 0.09);
+  --nav-bg: rgba(20, 34, 25, 0.82);
   --nav-border: rgba(255, 255, 255, 0.12);
 }
 
