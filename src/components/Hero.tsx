@@ -28,7 +28,7 @@ export default function Hero() {
   }, { scope: heroRef });
 
   return (
-    <section ref={heroRef} className="relative isolate min-h-[100dvh] w-full flex flex-col justify-between overflow-hidden bg-[#17211B] px-6 sm:px-12 lg:px-20 pt-32 pb-24 md:pt-36 md:pb-28 transition-colors duration-300">
+    <section ref={heroRef} className="relative isolate min-h-[100dvh] w-full flex flex-col justify-between overflow-hidden bg-[#17211B] px-6 sm:px-12 lg:px-20 pt-28 pb-16 md:pt-32 md:pb-20 transition-colors duration-300">
       {/* 1. Full-Bleed High-Res SpringBlog Official Background Wallpaper */}
       <div className="absolute inset-0 z-0 w-full h-full overflow-hidden">
         <Image
@@ -76,10 +76,10 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Large Hero Title with Typing Animation */}
-          <div className="space-y-5">
+          {/* Hero Title with Typing Animation */}
+          <div className="space-y-4">
             <h1
-              className="hero-anim-item text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold tracking-tight text-[#F7F8F1] leading-[0.98] drop-shadow-[0_20px_50px_rgba(0,0,0,0.40)]"
+              className="hero-anim-item text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-[#F7F8F1] leading-[1.12] drop-shadow-[0_12px_32px_rgba(0,0,0,0.35)]"
             >
               <TextType
                 text={["此间主人", "Kasumi", "醉后不知天在水", "满床清梦压星河"]}
@@ -88,12 +88,12 @@ export default function Hero() {
                 pauseDuration={2500}
                 showCursor={true}
                 cursorCharacter="_"
-                cursorClassName="text-[#D79B7B] ml-1.5 font-bold"
+                cursorClassName="text-[#D79B7B] ml-1 font-bold"
                 as="span"
               />
             </h1>
             
-            <p className="hero-anim-item text-lg sm:text-2xl text-[#F7F8F1]/85 leading-relaxed max-w-2xl font-normal pt-2">
+            <p className="hero-anim-item text-base sm:text-xl text-[#F7F8F1]/85 leading-relaxed max-w-xl font-normal pt-1">
               {STATIC_DESCRIPTION}
             </p>
           </div>
