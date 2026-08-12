@@ -43,7 +43,7 @@ export default function HomepageStats() {
   ];
 
   return (
-    <section className="w-full bg-[#FAF7F2] py-10 border-b border-[#2D2B2C]/8">
+    <section className="w-full bg-[var(--background)] py-10 border-b border-[var(--border-line-color)]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
         
         {/* Status Pill Indicator */}

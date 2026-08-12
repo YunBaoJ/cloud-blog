@@ -93,7 +93,7 @@ export default function AboutClient() {
     });
   }, { scope: containerRef });
   return (
-    <main ref={containerRef} className="min-h-screen bg-[#FAF7F2] text-[#2D2B2C]">
+    <main ref={containerRef} className="min-h-screen bg-[radial-gradient(circle_at_10%_20%,rgba(244,241,234,0.85),transparent_60%),radial-gradient(circle_at_90%_80%,rgba(90,85,81,0.06),transparent_50%)] bg-[#FAF7F2] dark:bg-[#142219] text-[var(--foreground)]">
       {/* — Asymmetric Split Header — */}
       <section className="px-5 pb-9 pt-28 sm:px-8 lg:px-12 lg:pt-32">
         <div className="max-w-6xl mx-auto">

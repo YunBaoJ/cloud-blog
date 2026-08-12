@@ -218,7 +218,7 @@ export default function PlaygroundClient() {
 
   return (
     <>
-      <main className="min-h-screen bg-[#FAF7F2] dark:bg-[#142219] text-[#2D2B2C] dark:text-[#F0F5F1]">
+      <main className="min-h-screen bg-[radial-gradient(circle_at_25%_15%,rgba(253,238,233,0.75),transparent_60%),radial-gradient(circle_at_75%_85%,rgba(196,106,74,0.06),transparent_50%)] bg-[#FAF6F3] dark:bg-[#142219] text-[var(--foreground)]">
 
         {/* Header Section */}
         <section className="px-5 pb-9 pt-28 sm:px-8 lg:px-12 lg:pt-32">

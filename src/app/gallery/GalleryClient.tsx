@@ -99,7 +99,7 @@ export default function GalleryClient() {
 
   return (
     <>
-      <main className="min-h-[100dvh] bg-[var(--background)] text-[var(--foreground)]">
+      <main className="min-h-[100dvh] bg-[radial-gradient(circle_at_15%_15%,rgba(250,240,234,0.75),transparent_60%),radial-gradient(circle_at_85%_85%,rgba(140,74,49,0.06),transparent_50%)] bg-[#FAF6F2] dark:bg-[#142219] text-[var(--foreground)]">
         <section className="px-5 pb-9 pt-28 sm:px-8 lg:px-12 lg:pt-32">
           <div className="mx-auto max-w-6xl">
             <div className="max-w-3xl">
