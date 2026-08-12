@@ -79,7 +79,7 @@ export default function Hero() {
           {/* Hero Title with Typing Animation */}
           <div className="space-y-4">
             <h1
-              className="hero-anim-item text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-[#F7F8F1] leading-[1.12] drop-shadow-[0_12px_32px_rgba(0,0,0,0.35)]"
+              className="hero-anim-item text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-[#F7F8F1] leading-[1.10] drop-shadow-[0_14px_36px_rgba(0,0,0,0.35)]"
             >
               <TextType
                 text={["此间主人", "Kasumi", "醉后不知天在水", "满床清梦压星河"]}
@@ -98,22 +98,22 @@ export default function Hero() {
             </p>
           </div>
 
-          {/* Action Capsule Buttons */}
-          <div className="hero-anim-item flex flex-wrap items-center gap-4 pt-3">
+          {/* Action Capsule Buttons (Shrunk to refined size) */}
+          <div className="hero-anim-item flex flex-wrap items-center gap-3.5 pt-2">
             <Link
               href="/notes"
-              className="inline-flex items-center justify-center gap-3 px-8 py-4 sm:px-9 sm:py-4.5 rounded-full bg-[#FAF7F2] hover:bg-white text-[#26352A] font-semibold text-base transition-all duration-200 shadow-[0_16px_40px_-12px_rgba(0,0,0,0.4)] hover:-translate-y-1 active:translate-y-0 group/btn"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-[#FAF7F2] hover:bg-white text-[#26352A] font-semibold text-xs sm:text-sm transition-all duration-200 shadow-[0_10px_28px_-10px_rgba(0,0,0,0.35)] hover:-translate-y-0.5 active:translate-y-0 group/btn"
             >
-              <BookOpen className="w-5 h-5 text-[#506A50]" />
+              <BookOpen className="w-4 h-4 text-[#506A50]" />
               <span>随笔笔记</span>
-              <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover/btn:translate-x-1" />
+              <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
             </Link>
 
             <Link
               href="/playground"
-              className="inline-flex items-center justify-center gap-3 px-8 py-4 sm:px-9 sm:py-4.5 rounded-full bg-white/16 hover:bg-white/25 text-[#FAF7F2] border border-white/35 backdrop-blur-xl font-semibold text-base transition-all duration-200 hover:-translate-y-1 active:translate-y-0 shadow-xl group/btn2"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-white/16 hover:bg-white/25 text-[#FAF7F2] border border-white/35 backdrop-blur-xl font-semibold text-xs sm:text-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 shadow-md group/btn2"
             >
-              <Gamepad2 className="w-5 h-5 text-[#D79B7B]" />
+              <Gamepad2 className="w-4 h-4 text-[#D79B7B]" />
               <span>灵感游乐场</span>
             </Link>
           </div>

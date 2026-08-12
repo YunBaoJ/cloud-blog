@@ -350,7 +350,7 @@ body {
 
 /* SpringBlog Parallax Wave Divider Styles */
 .home-hero-wave {
-  height: clamp(4.5rem, 9vw, 7rem);
+  height: clamp(2.5rem, 5.5vw, 4.2rem);
   transform: translateY(1px);
 }
 
