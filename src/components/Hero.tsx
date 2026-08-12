@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useRef } from "react";
 import { BookOpen, Gamepad2, ArrowRight, RefreshCw, Copy, Check, Loader2, Sparkles, Quote } from "lucide-react";
+import TextType from "@/components/ui/TextType";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
@@ -143,12 +144,21 @@ export default function Hero() {
           {/* Main Title & Description */}
           <div className="space-y-4 pt-1">
             <h1
-              className="hero-anim-item text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-[#FAF7F2] leading-[1.15] drop-shadow-[0_4px_18px_rgba(0,0,0,0.25)]"
+              className="hero-anim-item text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-[#F7F8F1] leading-[1.15] drop-shadow-[0_18px_48px_rgba(0,0,0,0.35)]"
             >
-              醉后不知天在水
+              <TextType
+                text={["此间主人", "SoraKasumi", "醉后不知天在水", "满床清梦压星河"]}
+                typingSpeed={90}
+                deletingSpeed={50}
+                pauseDuration={2500}
+                showCursor={true}
+                cursorCharacter="|"
+                cursorClassName="text-[#D79B7B] ml-1.5"
+                as="span"
+              />
             </h1>
             
-            <p className="hero-anim-item text-lg sm:text-xl text-[#FAF7F2]/90 leading-relaxed max-w-xl font-normal">
+            <p className="hero-anim-item text-lg sm:text-xl text-[#F7F8F1]/82 leading-relaxed max-w-xl font-normal">
               {STATIC_DESCRIPTION}
             </p>
           </div>
