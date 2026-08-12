@@ -94,7 +94,7 @@ export default function Hero() {
   return (
     <section ref={heroRef} className="relative isolate min-h-[100dvh] w-full flex flex-col justify-between overflow-hidden bg-[var(--background)] px-6 sm:px-12 lg:px-20 pt-32 pb-16 md:pt-36 md:pb-20 transition-colors duration-300">
       {/* 1. Full-Bleed High-Res User Background Wallpaper */}
-      <div className="absolute inset-0 z-0 w-full h-full">
+      <div className="absolute inset-0 z-0 w-full h-full overflow-hidden">
         <Image
           src="/hero-ai-bg.jpg"
           alt="Cloud的数字小屋 诗意晨曦背景壁纸"
@@ -102,11 +102,12 @@ export default function Hero() {
           priority
           unoptimized
           sizes="100vw"
-          className="object-cover object-[center_45%] brightness-[1.03] saturate-[1.05] transition-transform duration-1000 scale-[1.01]"
+          className="object-cover object-[center_45%] brightness-[0.98] saturate-[1.12] transition-transform duration-1000 scale-[1.01]"
         />
 
-        {/* Clean Linear Overlays (No Radial Halo Blur) */}
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(250,247,242,0.85)_0%,rgba(250,247,242,0.50)_50%,rgba(250,247,242,0.15)_100%),linear-gradient(180deg,rgba(250,247,242,0.10)_0%,rgba(250,247,242,0.65)_100%)] dark:bg-[linear-gradient(90deg,rgba(20,34,25,0.88)_0%,rgba(20,34,25,0.60)_50%,rgba(20,34,25,0.20)_100%),linear-gradient(180deg,rgba(20,34,25,0.15)_0%,rgba(20,34,25,0.70)_100%)]" />
+        {/* 2. SpringBlog Backdrop Filter & Dual-Stage Scrim Veil */}
+        <div className="absolute inset-0 backdrop-blur-[10px] backdrop-saturate-[140%] bg-[linear-gradient(90deg,rgba(250,247,242,0.88)_0%,rgba(250,247,242,0.60)_45%,rgba(250,247,242,0.20)_100%),linear-gradient(180deg,rgba(250,247,242,0.10)_0%,rgba(250,247,242,0.70)_100%)] dark:bg-[linear-gradient(90deg,rgba(20,34,25,0.90)_0%,rgba(20,34,25,0.68)_45%,rgba(20,34,25,0.30)_100%),linear-gradient(180deg,rgba(20,34,25,0.15)_0%,rgba(20,34,25,0.85)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_70%,var(--background)_100%)] pointer-events-none" />
       </div>
 
       {/* Main introduction */}
