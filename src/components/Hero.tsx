@@ -154,6 +154,7 @@ export default function Hero() {
                 showCursor={true}
                 cursorCharacter="|"
                 cursorClassName="text-[#D79B7B] ml-1.5"
+                className="underline decoration-[#D79B7B]/80 underline-offset-[10px] decoration-4"
                 as="span"
               />
             </h1>
