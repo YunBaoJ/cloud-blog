@@ -152,9 +152,8 @@ export default function Hero() {
                 deletingSpeed={50}
                 pauseDuration={2500}
                 showCursor={true}
-                cursorCharacter="|"
-                cursorClassName="text-[#D79B7B] ml-1.5"
-                className="underline decoration-[#D79B7B]/80 underline-offset-[10px] decoration-4"
+                cursorCharacter="_"
+                cursorClassName="text-[#D79B7B] ml-1 font-bold"
                 as="span"
               />
             </h1>
