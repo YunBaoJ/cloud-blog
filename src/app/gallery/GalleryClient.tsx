@@ -133,14 +133,17 @@ export default function GalleryClient() {
                     {column.map(({ photo, index }) => {
                       const hasFailed = failedImageIds.has(photo.id);
                       return (
-                        <article key={photo.id} className="gallery-artwork">
+                        <article
+                          key={photo.id}
+                          className="gallery-artwork rounded-2xl bg-[var(--surface)]/85 p-2.5 shadow-[0_12px_30px_rgba(51,72,58,0.10)] ring-1 ring-white/70 backdrop-blur-[6px] sm:p-3 dark:ring-[var(--border-line-color)]"
+                        >
                           <button
                             type="button"
                             onClick={() => setSelectedPhoto(photo)}
                             className="group block w-full text-left outline-none"
                             aria-label={`查看作品：${photo.title}`}
                           >
-                            <div className="relative overflow-hidden bg-[var(--surface-2)] shadow-[0_4px_18px_rgba(45,43,44,0.06)] dark:shadow-none">
+                            <div className="relative overflow-hidden rounded-xl bg-[var(--surface-2)] shadow-[0_4px_18px_rgba(51,72,58,0.08)] dark:shadow-none">
                               {hasFailed ? (
                                 <div className="flex aspect-[4/3] items-center justify-center px-6 text-center text-sm leading-6 text-[var(--muted)]">
                                   图片暂时无法载入，请检查文件路径。
@@ -156,7 +159,7 @@ export default function GalleryClient() {
                                 />
                               )}
                             </div>
-                            <div className="pt-4">
+                            <div className="px-1 pb-1 pt-4">
                               <div className="relative h-px bg-[var(--border-line-color)]">
                                 <div className="absolute inset-y-0 left-0 w-0 bg-[var(--accent-green)] transition-[width] duration-500 group-hover:w-full group-focus-visible:w-full" />
                               </div>
