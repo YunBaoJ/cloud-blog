@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Feather, Sparkles, BookOpen, User, Camera, Archive, MessageSquare, Search } from "lucide-react";
+import { Feather, Sparkles, BookOpen, User, Camera, Archive, Clock3, Search } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import AmbientPlayer from "./AmbientPlayer";
 
@@ -89,17 +89,17 @@ export default function Navbar() {
             <span className="hidden sm:inline">游乐场</span>
           </Link>
 
-          {/* 5. 留言板 */}
+          {/* 5. 近况 */}
           <Link
-            href="/guestbook"
+            href="/now"
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-              isActive("/guestbook")
+              isActive("/now")
                 ? "bg-white text-[#2D2B2C] shadow-2xs font-semibold"
                 : "text-[#5A5551] hover:text-[#2D2B2C] hover:bg-white/70"
             }`}
           >
-            <MessageSquare className="w-3.5 h-3.5 text-[#8C4A31]" />
-            <span className="hidden md:inline">留言板</span>
+            <Clock3 className="w-3.5 h-3.5 text-[var(--accent-clay)]" />
+            <span className="hidden md:inline">近况</span>
           </Link>
 
           {/* 6. 文章归档 */}
