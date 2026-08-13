@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { playGameSound } from '@/lib/gameSounds';
 import { usePersistentNumber } from '@/lib/usePersistentNumber';
 
 type GameState = 'playing' | 'won' | 'over';
@@ -156,9 +157,16 @@ export default function Game2048() {
     setScore(nextScore);
     if (nextScore > bestScore) setBestScore(nextScore);
 
-    if (nextGrid.some(row => row.includes(2048)) && gameState !== 'won' && !continued) {
+    const won = nextGrid.some((row) => row.includes(2048)) && gameState !== 'won' && !continued;
+    const over = !won && checkGameOver(nextGrid);
+
+    if (won) playGameSound('2048-win');
+    else if (over) playGameSound('2048-over');
+    else playGameSound(scoreIncrease > 0 ? '2048-merge' : '2048-move');
+
+    if (won) {
       setGameState('won');
-    } else if (checkGameOver(nextGrid)) {
+    } else if (over) {
       setGameState('over');
     }
   }, [bestScore, continued, gameState, grid, score, setBestScore]);

@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { RotateCcw, User, Bot, Users, Undo2, Play, Pause, Sparkles } from "lucide-react";
+import { playGameSound } from "@/lib/gameSounds";
 
 type Stone = "black" | "white" | null;
 type Mode = "pvp" | "pve" | "eve_step";
@@ -310,120 +311,12 @@ export default function Gomoku() {
 
   const aiColor = playerColor === "black" ? "white" : "black";
 
-  // ── 100% Identical Sound Engine from gomoku.com ─────────────────────
-  // 模拟棋子敲击木质棋盘: 6ms 尖锐瞬间 + 600-720Hz 噪波木响 + 320->140Hz 下滑扫频
-  const playStoneSound = useCallback((color: "black" | "white" = "black") => {
-    try {
-      const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (!AC) return;
-      const c = new AC();
-      if (c.state === "suspended") { c.resume(); }
-
-      const now = c.currentTime;
-      const isBlack = color === "black";
-      const vary = 0.94 + Math.random() * 0.12;                        // ±6% 音高微变, 避免机械感
-      const force = (isBlack ? 1.0 : 0.82) * (0.85 + Math.random() * 0.3); // 黑子稍重 + 力道微变
-
-      const master = c.createGain();
-      const peak = Math.min(0.6, 0.5 * force);
-      master.gain.setValueAtTime(peak, now);
-      master.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
-      master.connect(c.destination);
-
-      // A) 接触瞬间: 6ms 尖锐噪音(高通感, 亮而干)
-      const nDur = 0.006;
-      const nBuf = c.createBuffer(1, Math.ceil(c.sampleRate * nDur), c.sampleRate);
-      const nd = nBuf.getChannelData(0);
-      for (let i = 0; i < nd.length; i++) {
-        nd[i] = (Math.random() * 2 - 1) * (1 - i / nd.length);
-      }
-      const noise = c.createBufferSource();
-      noise.buffer = nBuf;
-      const bp = c.createBiquadFilter();
-      bp.type = "bandpass";
-      bp.frequency.value = (isBlack ? 3600 : 4300) * vary;
-      bp.Q.value = 0.7; // 宽频带 → 干净的“嗒”而非哨音
-      const nGain = c.createGain();
-      nGain.gain.value = 1.0;
-      noise.connect(bp);
-      bp.connect(nGain);
-      nGain.connect(master);
-      noise.start(now);
-      noise.stop(now + nDur);
-
-      // B) 木板敲击体: 中低频噪音爆发——实心音质来源
-      const bDur = 0.035;
-      const bBuf = c.createBuffer(1, Math.ceil(c.sampleRate * bDur), c.sampleRate);
-      const bData = bBuf.getChannelData(0);
-      for (let j = 0; j < bData.length; j++) {
-        bData[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / bData.length, 1.6);
-      }
-      const body = c.createBufferSource();
-      body.buffer = bBuf;
-      const bodyBp = c.createBiquadFilter();
-      bodyBp.type = "bandpass";
-      bodyBp.frequency.value = (isBlack ? 600 : 720) * vary;
-      bodyBp.Q.value = 1.0;
-      const bodyG = c.createGain();
-      bodyG.gain.value = 0.95;
-      body.connect(bodyBp);
-      bodyBp.connect(bodyG);
-      bodyG.connect(master);
-      body.start(now);
-      body.stop(now + bDur);
-
-      // C) 实体重量感: 下滑扫频 (320->140Hz 瞬间下坠 = 实体木块撞击音, 35ms 即收)
-      const th = c.createOscillator();
-      th.type = "sine";
-      const f0 = (isBlack ? 320 : 360) * vary;
-      const f1 = (isBlack ? 140 : 170) * vary;
-      th.frequency.setValueAtTime(f0, now);
-      th.frequency.exponentialRampToValueAtTime(f1, now + 0.025);
-      const thG = c.createGain();
-      thG.gain.setValueAtTime(isBlack ? 0.5 : 0.36, now);
-      thG.gain.exponentialRampToValueAtTime(0.0001, now + 0.035);
-      th.connect(thG);
-      thG.connect(master);
-      th.start(now);
-      th.stop(now + 0.06);
-
-      setTimeout(() => {
-        try { master.disconnect(); } catch {}
-      }, 300);
-    } catch {}
-  }, []);
-
-  // 2. Victory Arpeggio Chime (连五胜出欢快和弦)
-  const playVictorySound = useCallback(() => {
-    try {
-      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-      const now = ctx.currentTime;
-      const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
-
-      notes.forEach((freq, i) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(freq, now + i * 0.1);
-        gain.gain.setValueAtTime(0, now + i * 0.1);
-        gain.gain.linearRampToValueAtTime(0.2, now + i * 0.1 + 0.03);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.5);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now + i * 0.1);
-        osc.stop(now + i * 0.1 + 0.55);
-      });
-    } catch {
-      // Audio fallback
-    }
-  }, []);
-
   const place = useCallback((idx: number, b: Stone[], t: "black" | "white"): Stone[] => {
     const next = [...b];
     next[idx] = t;
-    playStoneSound(t);
+    playGameSound(t === "black" ? "gomoku-black" : "gomoku-white");
     return next;
-  }, [playStoneSound]);
+  }, []);
 
   // ─── AI Step Execution (触发 AI 替下一步) ──────────────────────────
   const executeAIMove = useCallback(() => {
@@ -443,7 +336,7 @@ export default function Gomoku() {
         if (won) {
           setWinLine(getWinLine(nextBoard, currentTurn, aiIdx));
           setWinner(currentTurn);
-          playVictorySound();
+          playGameSound("gomoku-victory");
           setScores(s => ({ ...s, [currentTurn]: s[currentTurn] + 1 }));
           setIsAutoPlay(false);
         } else {
@@ -452,7 +345,7 @@ export default function Gomoku() {
       }
       setAiThinking(false);
     });
-  }, [board, turn, winner, aiThinking, place, playVictorySound]);
+  }, [board, turn, winner, aiThinking, place]);
 
   const startPveGame = useCallback((chosenColor: "black" | "white") => {
     const centerIdx = Math.floor(SIZE / 2) * SIZE + Math.floor(SIZE / 2);
@@ -558,7 +451,7 @@ export default function Gomoku() {
       setBoard(boardWithMove);
       setWinLine(getWinLine(boardWithMove, currentTurn, idx));
       setWinner(currentTurn);
-      playVictorySound();
+      playGameSound("gomoku-victory");
       setScores(s => ({ ...s, [currentTurn]: s[currentTurn] + 1 }));
       setAiThinking(false);
       setIsAutoPlay(false);
@@ -582,7 +475,7 @@ export default function Gomoku() {
             setBoard(boardWithAI);
             setWinLine(getWinLine(boardWithAI, aiColor, aiIdx));
             setWinner(aiColor);
-            playVictorySound();
+            playGameSound("gomoku-victory");
             setScores(s => ({ ...s, [aiColor]: s[aiColor] + 1 }));
           } else {
             setTurn(playerColor);
@@ -595,7 +488,7 @@ export default function Gomoku() {
       setBoard(boardWithMove);
       setTurn(nextTurn);
     }
-  }, [mode, board, winner, aiThinking, turn, place, history, playerColor, aiColor, playVictorySound]);
+  }, [mode, board, winner, aiThinking, turn, place, history, playerColor, aiColor]);
 
   // Last Move Index
   const lastMoveIdx = history.length > 0 ? history[history.length - 1] : null;
