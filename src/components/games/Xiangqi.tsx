@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { RefreshCw, RotateCcw, User, Bot, Award, Sparkles, Play, Pause, AlertTriangle } from "lucide-react";
+import { playGameSound } from "@/lib/gameSounds";
 
 // --- Xiangqi Types & Constants ---
 type PieceType = "r" | "n" | "b" | "a" | "k" | "c" | "p"; // rook(车), knight(马), bishop(象/相), advisor(士/仕), king(将/帅), cannon(炮), pawn(卒/兵)
@@ -505,79 +506,10 @@ export default function Xiangqi() {
   const inCheck = isCheck(board, turn);
   const showCheckAlert = inCheck && status === "playing";
 
-  // ── Xiangqi Recorded Audio Sample Effects ──────────────────────────
-  // 1. Move Sound (真实实木象棋叩击棋盘声)
-  const playMoveSound = useCallback(() => {
-    try {
-      const audio = new Audio("/sounds/move.wav");
-      audio.volume = 0.85;
-      audio.play().catch(() => {});
-    } catch {
-      // Audio fallback
-    }
-  }, []);
-
-  // 2. Capture Sound (两块实木棋子强烈相撞+砸落重响)
-  const playCaptureSound = useCallback(() => {
-    try {
-      const audio = new Audio("/sounds/capture.wav");
-      audio.volume = 0.9;
-      audio.play().catch(() => {});
-    } catch {
-      // Audio fallback
-    }
-  }, []);
-
-  // 3. Play Check Sound (将军警报)
-  const playCheckSound = useCallback(() => {
-    try {
-      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-      const now = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sawtooth";
-      osc.frequency.setValueAtTime(580, now);
-      osc.frequency.exponentialRampToValueAtTime(220, now + 0.22);
-      gain.gain.setValueAtTime(0.45, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.23);
-    } catch {
-      // Audio fallback
-    }
-  }, []);
-
-  // 4. Victory Fanfare (绝杀胜出三重音)
-  const playVictorySound = useCallback(() => {
-    try {
-      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-      const now = ctx.currentTime;
-      const notes = [392, 523.25, 659.25, 783.99]; // G4, C5, E5, G5
-
-      notes.forEach((freq, i) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = "triangle";
-        osc.frequency.setValueAtTime(freq, now + i * 0.12);
-        gain.gain.setValueAtTime(0, now + i * 0.12);
-        gain.gain.linearRampToValueAtTime(0.25, now + i * 0.12 + 0.03);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.6);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now + i * 0.12);
-        osc.stop(now + i * 0.12 + 0.65);
-      });
-    } catch {
-      // Audio fallback
-    }
-  }, []);
-
   // Play the check warning when the checked side changes.
   useEffect(() => {
-    if (showCheckAlert) playCheckSound();
-  }, [playCheckSound, showCheckAlert, turn]);
+    if (showCheckAlert) playGameSound("xiangqi-check");
+  }, [showCheckAlert, turn]);
 
   // Reset Game
   const resetGame = useCallback((chosenMode?: "pve" | "pvp" | "eve") => {
@@ -627,25 +559,20 @@ export default function Xiangqi() {
       setSelectedPos(null);
       setValidMoves([]);
 
-      // Play Move or Capture sound according to logic
-      if (move.captured) {
-        playCaptureSound();
-      } else {
-        playMoveSound();
-      }
+      playGameSound(move.captured ? "xiangqi-capture" : "xiangqi-move");
 
       const nextTurn: Side = turn === "red" ? "black" : "red";
       const nextStatus = checkWinner(nextBoard, nextTurn);
 
       if (nextStatus !== "playing") {
         setStatus(nextStatus);
-        playVictorySound();
+        playGameSound("xiangqi-victory");
         return;
       }
 
       setTurn(nextTurn);
     },
-    [board, turn, lastMove, playMoveSound, playCaptureSound, playVictorySound]
+    [board, turn, lastMove]
   );
 
   // Trigger AI Move
