@@ -26,7 +26,7 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto flex items-center justify-center">
         
         {/* Apple Acrylic Liquid Glass Floating Pill Bar */}
-        <div className="pointer-events-auto relative inline-flex items-center gap-1 sm:gap-1.5 rounded-full p-1.5 transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-2xl saturate-150"
+        <div className="pointer-events-auto relative inline-flex max-w-[calc(100vw-2rem)] items-center gap-1 overflow-x-auto whitespace-nowrap rounded-full p-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-2xl saturate-150 transition-all duration-300 [scrollbar-width:none] [&>*]:shrink-0 [&::-webkit-scrollbar]:hidden sm:gap-1.5"
           style={{
             background: "var(--nav-bg)",
             border: "1px solid var(--nav-border)",
