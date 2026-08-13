@@ -55,7 +55,7 @@ export default function AboutContent() {
               <p className="max-w-[24ch] text-2xl font-medium leading-snug tracking-[-0.035em] sm:text-3xl">
                 你好，我是 Cloud。这是我保存文字、图像与小实验的地方。
               </p>
-              <p className="mt-6 max-w-[56ch] text-sm leading-7 text-[var(--muted)] sm:text-base">
+              <p className="mt-6 max-w-[56ch] text-sm leading-7 text-[var(--foreground)] sm:text-base">
                 我在这里整理正在学习的技术，也留下阅读、创作和日常生活中的灵感。比起展示一份履历，我更希望这间小屋能慢慢长成真实的个人记录。
               </p>
             </div>
@@ -80,7 +80,7 @@ export default function AboutContent() {
             <h2 className="text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
               这间小屋
             </h2>
-            <p className="mt-3 text-sm leading-7 text-[var(--muted)] sm:text-base">
+            <p className="mt-3 text-sm leading-7 text-[var(--foreground)] sm:text-base">
               内容没有严格边界，但始终围绕三件事展开。
             </p>
           </div>
@@ -99,7 +99,7 @@ export default function AboutContent() {
                     <Icon className="size-5 text-[var(--accent-green)]" strokeWidth={1.7} aria-hidden="true" />
                     <h3 className="text-lg font-semibold">{room.title}</h3>
                   </div>
-                  <p className="text-sm leading-6 text-[var(--muted)]">{room.description}</p>
+                  <p className="text-sm leading-6 text-[var(--foreground)]">{room.description}</p>
                   <span className="inline-flex min-h-11 items-center gap-1.5 justify-self-start text-sm font-semibold md:justify-self-end">
                     {room.action}
                     <ArrowUpRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 motion-reduce:transition-none" strokeWidth={1.8} aria-hidden="true" />
@@ -113,14 +113,16 @@ export default function AboutContent() {
 
       <section className="px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
         <div className="mx-auto max-w-6xl rounded-[1.5rem] bg-[var(--surface)] p-7 ring-1 ring-[var(--border-line-color)] sm:p-10 lg:p-14">
-          <div className="max-w-3xl">
-            <h2 className="text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
-              正在做的事
-            </h2>
-            <p className="mt-6 text-2xl font-medium leading-snug tracking-[-0.035em] sm:text-4xl">
-              把学到的东西写清楚，把喜欢的东西留下来。
-            </p>
-            <p className="mt-6 max-w-[62ch] text-sm leading-7 text-[var(--muted)] sm:text-base">
+          <div className="grid gap-8 lg:grid-cols-2 lg:gap-14">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
+                正在做的事
+              </h2>
+              <p className="mt-6 text-2xl font-medium leading-snug tracking-[-0.035em] sm:text-4xl">
+                把学到的东西写清楚，把喜欢的东西留下来。
+              </p>
+            </div>
+            <p className="max-w-[62ch] text-sm leading-7 text-[var(--foreground)] sm:text-base lg:self-end">
               目前主要在持续整理技术笔记、维护这间小屋，也尝试把一些想法做成能够直接打开和体验的网页作品。
             </p>
           </div>
