@@ -23,10 +23,14 @@ const players = new Map<GameSound, HTMLAudioElement>();
 export function playGameSound(sound: GameSound): void {
   if (typeof Audio === "undefined") return;
 
-  const [path, volume] = GAME_SOUNDS[sound];
-  const audio = players.get(sound) ?? new Audio(path);
-  audio.volume = volume;
-  audio.currentTime = 0;
-  players.set(sound, audio);
-  void audio.play().catch(() => {});
+  try {
+    const [path, volume] = GAME_SOUNDS[sound];
+    const audio = players.get(sound) ?? new Audio(path);
+    audio.volume = volume;
+    audio.currentTime = 0;
+    players.set(sound, audio);
+    void audio.play().catch(() => {});
+  } catch {
+    // Audio playback is optional and must not interrupt game input.
+  }
 }
