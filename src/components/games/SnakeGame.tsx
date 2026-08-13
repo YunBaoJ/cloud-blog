@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Play, RotateCcw } from "lucide-react";
+import { playGameSound } from "@/lib/gameSounds";
 import { usePersistentNumber } from "@/lib/usePersistentNumber";
 
 type GameState = "idle" | "playing" | "paused" | "dead";
@@ -49,76 +50,6 @@ export default function SnakeGame() {
 
   // Touch control reference
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
-
-  // ── Web Audio Sound Effects ──────────────────────────────────────
-  const playEatSound = useCallback(() => {
-    try {
-      const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (!AC) return;
-      const ctx = new AC();
-      const now = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(520, now);
-      osc.frequency.exponentialRampToValueAtTime(1040, now + 0.08);
-
-      gain.gain.setValueAtTime(0.3, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.1);
-    } catch {}
-  }, []);
-
-  const playCrashSound = useCallback(() => {
-    try {
-      const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (!AC) return;
-      const ctx = new AC();
-      const now = ctx.currentTime;
-
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sawtooth";
-      osc.frequency.setValueAtTime(240, now);
-      osc.frequency.exponentialRampToValueAtTime(50, now + 0.2);
-
-      gain.gain.setValueAtTime(0.5, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.23);
-    } catch {}
-  }, []);
-
-  const playTurnSound = useCallback(() => {
-    try {
-      const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (!AC) return;
-      const ctx = new AC();
-      const now = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(800, now);
-      osc.frequency.exponentialRampToValueAtTime(400, now + 0.02);
-
-      gain.gain.setValueAtTime(0.15, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.03);
-    } catch {}
-  }, []);
 
   const updateHighScore = useCallback(
     (newScore: number) => {
@@ -254,9 +185,9 @@ export default function SnakeGame() {
   const gameOver = useCallback(() => {
     setGameState("dead");
     isAcceleratingRef.current = false;
-    playCrashSound();
+    playGameSound("snake-crash");
     updateHighScore(score);
-  }, [score, updateHighScore, playCrashSound]);
+  }, [score, updateHighScore]);
 
   const gameStep = useCallback(() => {
     if (gameState !== "playing") return;
@@ -308,7 +239,7 @@ export default function SnakeGame() {
     // Food collision
     if (newHead.x === foodRef.current.x && newHead.y === foodRef.current.y) {
       setScore((s) => s + 1);
-      playEatSound();
+      playGameSound("snake-eat");
       speedRef.current = Math.max(config.minSpeed, speedRef.current - 1.5);
       foodRef.current = generateFood(newSnake, width, height);
     } else {
@@ -325,7 +256,7 @@ export default function SnakeGame() {
       : currentBaseSpeed;
 
     gameLoopRef.current = setTimeout(() => gameStepRef.current(), nextInterval);
-  }, [gameState, difficulty, gameOver, draw, generateFood, playEatSound]);
+  }, [gameState, difficulty, gameOver, draw, generateFood]);
 
   useEffect(() => {
     gameStepRef.current = gameStep;
@@ -405,23 +336,15 @@ export default function SnakeGame() {
       isAcceleratingRef.current = true;
 
       const current = directionRef.current;
-      let turned = false;
-
       if ((e.code === "KeyW" || e.code === "ArrowUp") && current !== "DOWN") {
         nextDirectionRef.current = "UP";
-        turned = true;
       } else if ((e.code === "KeyS" || e.code === "ArrowDown") && current !== "UP") {
         nextDirectionRef.current = "DOWN";
-        turned = true;
       } else if ((e.code === "KeyA" || e.code === "ArrowLeft") && current !== "RIGHT") {
         nextDirectionRef.current = "LEFT";
-        turned = true;
       } else if ((e.code === "KeyD" || e.code === "ArrowRight") && current !== "LEFT") {
         nextDirectionRef.current = "RIGHT";
-        turned = true;
       }
-
-      if (turned) playTurnSound();
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
@@ -436,7 +359,7 @@ export default function SnakeGame() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [gameState, playTurnSound]);
+  }, [gameState]);
 
   // Touch Swipe Controls
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -457,27 +380,19 @@ export default function SnakeGame() {
     if (Math.abs(dx) < 15 && Math.abs(dy) < 15) return;
 
     const current = directionRef.current;
-    let turned = false;
-
     if (Math.abs(dx) > Math.abs(dy)) {
       if (dx > 0 && current !== "LEFT") {
         nextDirectionRef.current = "RIGHT";
-        turned = true;
       } else if (dx < 0 && current !== "RIGHT") {
         nextDirectionRef.current = "LEFT";
-        turned = true;
       }
     } else {
       if (dy > 0 && current !== "UP") {
         nextDirectionRef.current = "DOWN";
-        turned = true;
       } else if (dy < 0 && current !== "DOWN") {
         nextDirectionRef.current = "UP";
-        turned = true;
       }
     }
-
-    if (turned) playTurnSound();
   };
 
   return (

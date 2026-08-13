@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { playGameSound } from '@/lib/gameSounds';
 
 // Wabi-sabi theme colors
 // background: #FAF7F2
@@ -99,12 +100,12 @@ export default function SlidePuzzle({ initialSize = 4 }: SlidePuzzleProps) {
 
       const newTiles = [...tiles];
       [newTiles[index], newTiles[emptyIndex]] = [newTiles[emptyIndex], newTiles[index]];
+      const solved = isSolved(newTiles);
       setTiles(newTiles);
       setSteps((s) => s + 1);
 
-      if (isSolved(newTiles)) {
-        setIsWon(true);
-      }
+      playGameSound(solved ? 'puzzle-win' : 'puzzle-move');
+      if (solved) setIsWon(true);
     }
   };
 
