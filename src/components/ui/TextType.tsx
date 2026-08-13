@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo, useCallback, ElementType, ReactNode } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback, HTMLAttributes, ReactNode } from "react";
 import { gsap } from "gsap";
 import "./TextType.css";
 
-export interface TextTypeProps {
+export interface TextTypeProps extends HTMLAttributes<HTMLSpanElement> {
   text: string | string[];
-  as?: ElementType;
   typingSpeed?: number;
   initialDelay?: number;
   pauseDuration?: number;
@@ -23,12 +22,10 @@ export interface TextTypeProps {
   onSentenceComplete?: (sentence: string, index: number) => void;
   startOnVisible?: boolean;
   reverseMode?: boolean;
-  [key: string]: any;
 }
 
 const TextType = ({
   text,
-  as: Component = "span",
   typingSpeed = 90,
   initialDelay = 0,
   pauseDuration = 2500,
@@ -53,7 +50,7 @@ const TextType = ({
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(!startOnVisible);
   const cursorRef = useRef<HTMLSpanElement>(null);
-  const containerRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLSpanElement>(null);
 
   const textArray = useMemo(() => (Array.isArray(text) ? text : [text]), [text]);
 
@@ -175,10 +172,8 @@ const TextType = ({
   const shouldHideCursor =
     hideCursorWhileTyping && (currentCharIndex < (textArray[currentTextIndex] || "").length || isDeleting);
 
-  const CustomComponent = Component as any;
-
   return (
-    <CustomComponent
+    <span
       ref={containerRef}
       className={`text-type ${className}`}
       {...props}
@@ -194,7 +189,7 @@ const TextType = ({
           {cursorCharacter}
         </span>
       )}
-    </CustomComponent>
+    </span>
   );
 };
 
