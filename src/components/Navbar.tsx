@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Feather, Sparkles, BookOpen, User, Camera, Archive, MessageSquare, Search } from "lucide-react";
+import { Feather, Sparkles, BookOpen, User, Camera, Archive, Clock3, Search } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import AmbientPlayer from "./AmbientPlayer";
 
@@ -26,7 +26,7 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto flex items-center justify-center">
         
         {/* Apple Acrylic Liquid Glass Floating Pill Bar */}
-        <div className="pointer-events-auto relative inline-flex items-center gap-1 sm:gap-1.5 rounded-full p-1.5 transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-2xl saturate-150"
+        <div className="pointer-events-auto relative inline-flex max-w-[calc(100vw-2rem)] items-center gap-1 overflow-x-auto whitespace-nowrap rounded-full p-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-2xl saturate-150 transition-all duration-300 [scrollbar-width:none] [&>*]:shrink-0 [&::-webkit-scrollbar]:hidden sm:gap-1.5"
           style={{
             background: "var(--nav-bg)",
             border: "1px solid var(--nav-border)",
@@ -89,17 +89,17 @@ export default function Navbar() {
             <span className="hidden sm:inline">游乐场</span>
           </Link>
 
-          {/* 5. 留言板 */}
+          {/* 5. 近况 */}
           <Link
-            href="/guestbook"
+            href="/now"
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-              isActive("/guestbook")
+              isActive("/now")
                 ? "bg-white text-[#2D2B2C] shadow-2xs font-semibold"
                 : "text-[#5A5551] hover:text-[#2D2B2C] hover:bg-white/70"
             }`}
           >
-            <MessageSquare className="w-3.5 h-3.5 text-[#8C4A31]" />
-            <span className="hidden md:inline">留言板</span>
+            <Clock3 className="w-3.5 h-3.5 text-[var(--accent-clay)]" />
+            <span className="hidden md:inline">近况</span>
           </Link>
 
           {/* 6. 文章归档 */}

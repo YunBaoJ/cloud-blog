@@ -48,7 +48,7 @@ Markdown files in `content/notes` are the only source of article bodies. Shared 
 | `/gallery` | Visual archive | Staggered artwork stream and light detail dialog |
 | `/playground` | Experiments | Small game and interaction launch area |
 | `/archive` | Article archive | Chronological and metadata-driven overview |
-| `/guestbook` | Visitor messages | Local guestbook interaction |
+| `/now` | Recent activity | Cross-content activity stream |
 | `/about` | Personal context | Short profile and site introduction |
 
 ## 4. Shared Interface Architecture

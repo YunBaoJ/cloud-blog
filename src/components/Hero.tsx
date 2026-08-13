@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import { BookOpen, Gamepad2, ArrowRight, ArrowDown, Feather, Sparkles, Image as ImageIcon, Check } from "lucide-react";
 import TextType from "@/components/ui/TextType";
 import gsap from "gsap";
@@ -11,6 +11,9 @@ import { useGSAP } from "@gsap/react";
 gsap.registerPlugin(useGSAP);
 
 const STATIC_DESCRIPTION = "凌晨四点，我看见海棠花未眠。";
+const DEFAULT_WALLPAPER = "/hero-kimono-golden.png";
+const WALLPAPER_STORAGE_KEY = "sora_hero_bg";
+const WALLPAPER_EVENT = "sora-hero-background-change";
 
 // Available wallpapers for Hero (Exact files from user download folder)
 const WALLPAPERS = [
@@ -21,19 +24,31 @@ const WALLPAPERS = [
   { id: "classic", name: "🌸 月色花枝", src: "/bg-image.png" },
 ];
 
+function subscribeToWallpaper(callback: () => void) {
+  window.addEventListener("storage", callback);
+  window.addEventListener(WALLPAPER_EVENT, callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener(WALLPAPER_EVENT, callback);
+  };
+}
+
+function getWallpaperSnapshot() {
+  return localStorage.getItem(WALLPAPER_STORAGE_KEY) ?? DEFAULT_WALLPAPER;
+}
+
 export default function Hero() {
   const heroRef = useRef<HTMLDivElement>(null);
-  const [currentBg, setCurrentBg] = useState<string>("/hero-kimono-golden.png");
+  const currentBg = useSyncExternalStore(
+    subscribeToWallpaper,
+    getWallpaperSnapshot,
+    () => DEFAULT_WALLPAPER,
+  );
   const [showPicker, setShowPicker] = useState<boolean>(false);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("sora_hero_bg");
-    if (saved) setCurrentBg(saved);
-  }, []);
-
   const handleSelectBg = (src: string) => {
-    setCurrentBg(src);
-    localStorage.setItem("sora_hero_bg", src);
+    localStorage.setItem(WALLPAPER_STORAGE_KEY, src);
+    window.dispatchEvent(new Event(WALLPAPER_EVENT));
   };
 
   useGSAP(() => {
@@ -169,7 +184,6 @@ export default function Hero() {
                 showCursor={true}
                 cursorCharacter="_"
                 cursorClassName="text-[#D79B7B] ml-1.5 font-bold"
-                as="span"
               />
             </h1>
             

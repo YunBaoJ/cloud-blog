@@ -12,6 +12,8 @@ export interface GalleryPhoto {
   category: "collection" | "daily" | "scenery";
   categoryLabel: string;
   src: string;
+  width: number;
+  height: number;
   source: string;
   date: string;
   story: string;
@@ -24,6 +26,8 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
     category: "collection",
     categoryLabel: "动漫作品",
     src: "/gallery/user-wallpaper-2.jpg",
+    width: 2880,
+    height: 1800,
     source: "用户壁纸精选",
     date: "2026-08-12",
     story: "深蓝发梢与清冷眼神，留在微阴天幕下最安静的旋律瞬间。",
@@ -34,6 +38,8 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
     category: "scenery",
     categoryLabel: "黑夜与氛围",
     src: "/gallery/user-wallpaper-1.jpg",
+    width: 2320,
+    height: 1732,
     source: "用户壁纸精选",
     date: "2026-08-10",
     story: "雨后城市的静谧暗影，在远方的天际线里留下一缕漫射的光。",
@@ -44,6 +50,8 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
     category: "daily",
     categoryLabel: "日常光线",
     src: "/gallery/user-wallpaper-3.jpg",
+    width: 1280,
+    height: 800,
     source: "用户壁纸精选",
     date: "2026-08-05",
     story: "从晨曦到暮色，镜头记录下那些普通但值得长久回味的日常。",
@@ -54,6 +62,8 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
     category: "collection",
     categoryLabel: "作品收藏",
     src: "/gallery/user-wallpaper-4.png",
+    width: 5120,
+    height: 2880,
     source: "用户壁纸精选",
     date: "2026-07-28",
     story: "细腻的手绘线条与柔和色调，构成沉浸感十足的幻想世界。",
@@ -64,6 +74,8 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
     category: "scenery",
     categoryLabel: "自然与天空",
     src: "/gallery/user-wallpaper-5.jpg",
+    width: 4568,
+    height: 2855,
     source: "用户壁纸精选",
     date: "2026-07-20",
     story: "地平线尽头的霞光收拢，将大地与风带入宁静的夜曲。",
@@ -74,6 +86,8 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
     category: "daily",
     categoryLabel: "思考角落",
     src: "/gallery/user-wallpaper-6.jpg",
+    width: 2729,
+    height: 1536,
     source: "用户壁纸精选",
     date: "2026-07-15",
     story: "在喧嚣城市中留出一角安安静静的空间，属于思考与发呆。",
@@ -84,6 +98,8 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
     category: "collection",
     categoryLabel: "作品收藏",
     src: "/gallery/【哲风壁纸】剪影-壁纸-天空.png",
+    width: 2732,
+    height: 1534,
     source: "个人收藏",
     date: "2026-06-28",
     story: "木质书桌、翻开的书页与障子窗外透进来的漫射光，营造出和质静谧氛围。",
@@ -94,6 +110,8 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
     category: "collection",
     categoryLabel: "作品收藏",
     src: "/gallery/【哲风壁纸】发丝-手绘少女.png",
+    width: 3840,
+    height: 2160,
     source: "Spring Blogs 图库",
     date: "2025-11-08",
     story: "细腻的线条描绘出风吹过发丝的瞬间，画面保留了轻柔安静的留白。",
@@ -104,6 +122,8 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
     category: "scenery",
     categoryLabel: "自然与空间",
     src: "/gallery/【哲风壁纸】围墙白花-夜空-晨曦.png",
+    width: 4200,
+    height: 2800,
     source: "Spring Blogs 图库",
     date: "2025-10-14",
     story: "深蓝天幕前的白花在晨曦里静静展开，冷暖之间留住短暂的交界。",
@@ -114,6 +134,8 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
     category: "scenery",
     categoryLabel: "自然与空间",
     src: "/gallery/【哲风壁纸】图片-夜晚-好看.png",
+    width: 2732,
+    height: 1534,
     source: "Spring Blogs 图库",
     date: "2025-09-02",
     story: "繁星与薄雾覆盖林地，深蓝色调让画面像一段安静的夜间散步。",
