@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Search, BookOpen, ImageIcon, Sparkles, User, Archive, X, CornerDownLeft, Gamepad2, Compass } from "lucide-react";
 import { GALLERY_PHOTOS } from "@/data/siteContent";
 import type { NoteItem } from "@/lib/notes";
+import { getGalleryWorkHref } from "@/lib/galleryUrl.mts";
 
 type SearchNote = Pick<NoteItem, "id" | "title" | "summary" | "category" | "tags">;
 
@@ -95,7 +96,7 @@ export default function CommandMenu({ notes }: CommandMenuProps) {
       p.story.toLowerCase().includes(q)
   ).map((p) => ({
     title: p.title,
-    path: "/gallery",
+    path: getGalleryWorkHref(p.id),
     category: `作品 · ${p.source}`,
     icon: ImageIcon,
   }));

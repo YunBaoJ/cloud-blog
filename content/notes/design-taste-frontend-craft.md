@@ -7,6 +7,8 @@ readTime: "7 min read"
 category: "前端与设计"
 tags: ["前端设计", "UI/UX", "GSAP 动效", "反套路"]
 iconName: "Sparkles"
+coverImage: "/gallery/reading.jpg"
+coverAlt: "日光下安静的书桌与阅读空间"
 featured: false
 ---
 

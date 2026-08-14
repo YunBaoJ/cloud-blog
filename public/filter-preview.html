@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hero 滤镜预览 · Cloud的数字小屋</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, 'PingFang SC', sans-serif;
+    background: rgb(236, 240, 235);
+    color: #2D2B2C;
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 28px 40px 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    background: rgba(242,243,237,0.92);
+    backdrop-filter: blur(12px);
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; gap: 16px;
+  }
+  header h1 { font-size: 15px; font-weight: 600; color: #36513B; }
+  header p { font-size: 12px; color: #7A736A; }
+
+  .filter-tabs {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    padding: 20px 40px;
+    background: rgba(247,245,238,0.7);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+
+  .tab-btn {
+    padding: 7px 16px; border-radius: 999px;
+    border: 1.5px solid rgba(54,81,59,0.2);
+    background: white; cursor: pointer;
+    font-size: 12px; font-weight: 500; color: #36513B;
+    transition: all 0.18s ease;
+  }
+  .tab-btn:hover { background: #E2EBE4; border-color: #36513B; }
+  .tab-btn.active {
+    background: #36513B; color: white;
+    border-color: #36513B;
+    box-shadow: 0 4px 14px -4px rgba(54,81,59,0.4);
+  }
+
+  /* Wallpaper selector */
+  .wall-tabs {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    padding: 14px 40px 10px;
+    background: rgba(242,243,237,0.5);
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+  }
+  .wall-btn {
+    padding: 5px 12px; border-radius: 6px;
+    border: 1px solid rgba(0,0,0,0.12);
+    background: white; cursor: pointer;
+    font-size: 11px; color: #7A736A;
+    transition: all 0.15s;
+  }
+  .wall-btn:hover { border-color: #36513B; color: #36513B; }
+  .wall-btn.active { border-color: #36513B; background: #F0F5F0; color: #36513B; font-weight: 600; }
+
+  .preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 24px;
+    padding: 28px 40px 40px;
+  }
+
+  .preview-card {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px -6px rgba(0,0,0,0.14);
+    border: 1px solid rgba(255,255,255,0.8);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .preview-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 36px -8px rgba(0,0,0,0.22);
+  }
+  .preview-card.selected {
+    outline: 3px solid #36513B;
+    outline-offset: 2px;
+  }
+
+  .card-hero {
+    position: relative;
+    height: 240px;
+    overflow: hidden;
+  }
+
+  .card-hero img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    display: block;
+  }
+
+  /* === 各滤镜层叠样式 === */
+
+  /* 0. 无滤镜 (原图) */
+  .filter-none img { filter: none; }
+
+  /* 1. 轻柔压暗 — 现有方案 */
+  .filter-soft img { filter: brightness(0.88); }
+  .filter-soft .scrim {
+    background: linear-gradient(180deg,
+      rgba(0,0,0,0.08) 0%,
+      rgba(0,0,0,0.04) 50%,
+      rgba(0,0,0,0.22) 100%
+    );
+  }
+
+  /* 2. 电影感 — 左重暗角 + 底部晕开 */
+  .filter-cinema img { filter: brightness(0.82) contrast(1.05) saturate(0.92); }
+  .filter-cinema .scrim {
+    background:
+      linear-gradient(90deg, rgba(15,20,18,0.72) 0%, rgba(15,20,18,0.35) 45%, rgba(15,20,18,0.08) 80%),
+      linear-gradient(180deg, rgba(15,20,18,0.18) 0%, transparent 40%, rgba(15,20,18,0.55) 100%);
+  }
+
+  /* 3. 晨雾冷白 — 整体偏白朦胧 */
+  .filter-mist img { filter: brightness(0.92) saturate(0.78) hue-rotate(-8deg); }
+  .filter-mist .scrim {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(236,240,235,0.45) 0%, transparent 60%),
+      linear-gradient(180deg, rgba(236,240,235,0.15) 0%, transparent 45%, rgba(20,26,24,0.45) 100%);
+  }
+
+  /* 4. 夕阳暖光 — 暖橙色调晕染 */
+  .filter-sunset img { filter: brightness(0.86) saturate(1.18) sepia(0.12); }
+  .filter-sunset .scrim {
+    background:
+      radial-gradient(ellipse at 30% 60%, rgba(217,134,95,0.32) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(247,210,155,0.22) 0%, transparent 45%),
+      linear-gradient(180deg, rgba(27,20,14,0.12) 0%, transparent 40%, rgba(27,20,14,0.50) 100%);
+  }
+
+  /* 5. 深夜蓝 — 冷蓝深压 */
+  .filter-night img { filter: brightness(0.72) saturate(1.08) hue-rotate(10deg); }
+  .filter-night .scrim {
+    background:
+      radial-gradient(ellipse at 25% 40%, rgba(41,62,98,0.45) 0%, transparent 55%),
+      linear-gradient(180deg, rgba(12,18,34,0.28) 0%, transparent 35%, rgba(12,18,34,0.70) 100%);
+  }
+
+  /* 6. 松针清透 — 极轻绿意漫射 */
+  .filter-pine img { filter: brightness(0.90) saturate(0.88) hue-rotate(-15deg); }
+  .filter-pine .scrim {
+    background:
+      radial-gradient(ellipse at 20% 30%, rgba(54,81,59,0.25) 0%, transparent 50%),
+      radial-gradient(ellipse at 75% 80%, rgba(236,240,235,0.35) 0%, transparent 45%),
+      linear-gradient(180deg, rgba(20,34,25,0.10) 0%, transparent 40%, rgba(20,34,25,0.48) 100%);
+  }
+
+  /* 7. 白昼极简 — 几乎无遮罩 只加底部字幕条 */
+  .filter-day img { filter: brightness(0.95) saturate(0.95); }
+  .filter-day .scrim {
+    background: linear-gradient(180deg, transparent 0%, transparent 60%, rgba(0,0,0,0.35) 100%);
+  }
+
+  .scrim {
+    position: absolute; inset: 0;
+    pointer-events: none;
+  }
+
+  /* 模拟文字内容 */
+  .card-content {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 20px 22px 18px;
+    z-index: 2;
+  }
+
+  .mock-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 10px; color: rgba(255,255,255,0.9);
+    margin-bottom: 8px;
+  }
+  .mock-title {
+    font-size: 22px; font-weight: 800;
+    color: #F7F8F1;
+    line-height: 1.15;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    margin-bottom: 10px;
+  }
+  .mock-btns {
+    display: flex; gap: 8px;
+  }
+  .mock-btn {
+    padding: 5px 14px; border-radius: 999px;
+    font-size: 10px; font-weight: 600;
+  }
+  .mock-btn.primary {
+    background: #FAF7F2; color: #26352A;
+  }
+  .mock-btn.secondary {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.9);
+  }
+
+  /* 标签 */
+  .card-meta {
+    padding: 14px 18px;
+    background: white;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .filter-name { font-size: 13px; font-weight: 600; color: #2D2B2C; }
+  .filter-desc { font-size: 11px; color: #7A736A; margin-top: 2px; }
+  .select-btn {
+    padding: 5px 14px; border-radius: 999px;
+    border: 1.5px solid #36513B;
+    background: transparent;
+    font-size: 11px; font-weight: 600; color: #36513B;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .select-btn:hover, .preview-card.selected .select-btn {
+    background: #36513B; color: white;
+  }
+
+  .apply-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    padding: 16px 40px;
+    background: rgba(242,243,237,0.95);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(0,0,0,0.08);
+    display: flex; align-items: center; justify-content: space-between;
+    z-index: 200;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+  }
+  .apply-bar.visible { transform: translateY(0); }
+  .apply-bar-text { font-size: 13px; color: #2D2B2C; }
+  .apply-bar-text strong { color: #36513B; }
+  .apply-code {
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-size: 11px; color: #7A736A;
+    background: rgba(0,0,0,0.05);
+    padding: 4px 10px; border-radius: 6px;
+    margin-top: 4px;
+  }
+  .copy-btn {
+    padding: 9px 22px; border-radius: 999px;
+    background: #36513B; color: white;
+    border: none; cursor: pointer;
+    font-size: 13px; font-weight: 600;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { background: #264030; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🎨 Hero 滤镜预览 · Cloud 的数字小屋</h1>
+    <p>点击任意方案查看效果 · 选中后底部弹出代码 · 可切换不同壁纸预览</p>
+  </div>
+</header>
+
+<!-- 壁纸选择 -->
+<div class="wall-tabs">
+  <span style="font-size:11px;color:#7A736A;align-self:center;margin-right:4px;">壁纸：</span>
+  <button class="wall-btn active" onclick="switchWall(this, '/hero-kimono-golden.png', 'right center')">🌅 夕阳和服</button>
+  <button class="wall-btn" onclick="switchWall(this, '/hero-kimono-night.png', 'center center')">🌙 月夜和服</button>
+  <button class="wall-btn" onclick="switchWall(this, '/hero-ryo-hd.png', 'right center')">🔷 山田葵 HD</button>
+  <button class="wall-btn" onclick="switchWall(this, '/hero-user-final.png', 'center center')">🖼️ 山田葵原版</button>
+  <button class="wall-btn" onclick="switchWall(this, '/bg-image.png', '62% center')">🌸 月色花枝</button>
+</div>
+
+<!-- 滤镜标签切换 -->
+<div class="filter-tabs">
+  <span style="font-size:11px;color:#7A736A;align-self:center;margin-right:4px;">方案：</span>
+  <button class="tab-btn" onclick="highlightFilter('all')">全部对比</button>
+  <button class="tab-btn active" onclick="highlightFilter('filter-soft')">① 当前</button>
+  <button class="tab-btn" onclick="highlightFilter('filter-cinema')">② 电影</button>
+  <button class="tab-btn" onclick="highlightFilter('filter-mist')">③ 晨雾</button>
+  <button class="tab-btn" onclick="highlightFilter('filter-sunset')">④ 夕阳暖</button>
+  <button class="tab-btn" onclick="highlightFilter('filter-night')">⑤ 深夜蓝</button>
+  <button class="tab-btn" onclick="highlightFilter('filter-pine')">⑥ 松针清透</button>
+  <button class="tab-btn" onclick="highlightFilter('filter-day')">⑦ 白昼极简</button>
+</div>
+
+<div class="preview-grid" id="grid">
+
+  <!-- 0. 无滤镜 -->
+  <div class="preview-card filter-none" onclick="selectFilter(this, '无滤镜 (原图)', 'className: `object-cover transition-all duration-700`')">
+    <div class="card-hero">
+      <img class="wall-img" src="/hero-kimono-golden.png" alt="">
+      <div class="scrim"></div>
+      <div class="card-content">
+        <div class="mock-badge">● Sora · 数字客房</div>
+        <div class="mock-title">凌晨四点，<br>我看见海棠花未眠。</div>
+        <div class="mock-btns">
+          <div class="mock-btn primary">随笔笔记</div>
+          <div class="mock-btn secondary">浅酌故友</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-meta">
+      <div>
+        <div class="filter-name">无滤镜 · 原图直出</div>
+        <div class="filter-desc">完全原色，无任何处理</div>
+      </div>
+      <button class="select-btn">选用</button>
+    </div>
+  </div>
+
+  <!-- 1. 当前方案 -->
+  <div class="preview-card filter-soft" onclick="selectFilter(this, '① 轻柔压暗 (当前)', 'brightness-[0.88] + 底部黑色渐变 0.08→0.04→0.22')">
+    <div class="card-hero">
+      <img class="wall-img" src="/hero-kimono-golden.png" alt="">
+      <div class="scrim"></div>
+      <div class="card-content">
+        <div class="mock-badge">● Sora · 数字客房</div>
+        <div class="mock-title">凌晨四点，<br>我看见海棠花未眠。</div>
+        <div class="mock-btns">
+          <div class="mock-btn primary">随笔笔记</div>
+          <div class="mock-btn secondary">浅酌故友</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-meta">
+      <div>
+        <div class="filter-name">① 轻柔压暗 <span style="font-size:10px;background:#E2EBE4;color:#36513B;padding:1px 6px;border-radius:4px;margin-left:4px;">当前</span></div>
+        <div class="filter-desc">brightness 88% + 底部轻晕</div>
+      </div>
+      <button class="select-btn">选用</button>
+    </div>
+  </div>
+
+  <!-- 2. 电影感 -->
+  <div class="preview-card filter-cinema" onclick="selectFilter(this, '② 电影感暗角', 'brightness-[0.82] contrast-[1.05] saturate-[0.92] + 左重暗角 + 底部晕')">
+    <div class="card-hero">
+      <img class="wall-img" src="/hero-kimono-golden.png" alt="">
+      <div class="scrim"></div>
+      <div class="card-content">
+        <div class="mock-badge">● Sora · 数字客房</div>
+        <div class="mock-title">凌晨四点，<br>我看见海棠花未眠。</div>
+        <div class="mock-btns">
+          <div class="mock-btn primary">随笔笔记</div>
+          <div class="mock-btn secondary">浅酌故友</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-meta">
+      <div>
+        <div class="filter-name">② 电影感暗角</div>
+        <div class="filter-desc">左重暗角 + 底部渐入 + 去饱和</div>
+      </div>
+      <button class="select-btn">选用</button>
+    </div>
+  </div>
+
+  <!-- 3. 晨雾 -->
+  <div class="preview-card filter-mist" onclick="selectFilter(this, '③ 晨雾冷白', 'brightness-[0.92] saturate-[0.78] hue-rotate-[-8deg] + 顶部白雾 + 底部暗')">
+    <div class="card-hero">
+      <img class="wall-img" src="/hero-kimono-golden.png" alt="">
+      <div class="scrim"></div>
+      <div class="card-content">
+        <div class="mock-badge">● Sora · 数字客房</div>
+        <div class="mock-title">凌晨四点，<br>我看见海棠花未眠。</div>
+        <div class="mock-btns">
+          <div class="mock-btn primary">随笔笔记</div>
+          <div class="mock-btn secondary">浅酌故友</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-meta">
+      <div>
+        <div class="filter-name">③ 晨雾冷白</div>
+        <div class="filter-desc">去饱和 + 偏冷 + 顶部白雾漫射</div>
+      </div>
+      <button class="select-btn">选用</button>
+    </div>
+  </div>
+
+  <!-- 4. 夕阳暖光 -->
+  <div class="preview-card filter-sunset" onclick="selectFilter(this, '④ 夕阳暖光', 'brightness-[0.86] saturate-[1.18] sepia-[0.12] + 橙色光晕 + 琥珀高光')">
+    <div class="card-hero">
+      <img class="wall-img" src="/hero-kimono-golden.png" alt="">
+      <div class="scrim"></div>
+      <div class="card-content">
+        <div class="mock-badge">● Sora · 数字客房</div>
+        <div class="mock-title">凌晨四点，<br>我看见海棠花未眠。</div>
+        <div class="mock-btns">
+          <div class="mock-btn primary">随笔笔记</div>
+          <div class="mock-btn secondary">浅酌故友</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-meta">
+      <div>
+        <div class="filter-name">④ 夕阳暖光</div>
+        <div class="filter-desc">增饱和 + 微黄 + 橙色与琥珀双晕</div>
+      </div>
+      <button class="select-btn">选用</button>
+    </div>
+  </div>
+
+  <!-- 5. 深夜蓝 -->
+  <div class="preview-card filter-night" onclick="selectFilter(this, '⑤ 深夜蓝', 'brightness-[0.72] saturate-[1.08] hue-rotate-[10deg] + 深蓝光晕 + 底部暗压')">
+    <div class="card-hero">
+      <img class="wall-img" src="/hero-kimono-golden.png" alt="">
+      <div class="scrim"></div>
+      <div class="card-content">
+        <div class="mock-badge">● Sora · 数字客房</div>
+        <div class="mock-title">凌晨四点，<br>我看见海棠花未眠。</div>
+        <div class="mock-btns">
+          <div class="mock-btn primary">随笔笔记</div>
+          <div class="mock-btn secondary">浅酌故友</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-meta">
+      <div>
+        <div class="filter-name">⑤ 深夜蓝</div>
+        <div class="filter-desc">大幅压暗 + 偏蓝调 + 深夜氛围</div>
+      </div>
+      <button class="select-btn">选用</button>
+    </div>
+  </div>
+
+  <!-- 6. 松针清透 -->
+  <div class="preview-card filter-pine" onclick="selectFilter(this, '⑥ 松针清透', 'brightness-[0.90] saturate-[0.88] hue-rotate-[-15deg] + 绿意漫射 + 底部林间暗')">
+    <div class="card-hero">
+      <img class="wall-img" src="/hero-kimono-golden.png" alt="">
+      <div class="scrim"></div>
+      <div class="card-content">
+        <div class="mock-badge">● Sora · 数字客房</div>
+        <div class="mock-title">凌晨四点，<br>我看见海棠花未眠。</div>
+        <div class="mock-btns">
+          <div class="mock-btn primary">随笔笔记</div>
+          <div class="mock-btn secondary">浅酌故友</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-meta">
+      <div>
+        <div class="filter-name">⑥ 松针清透</div>
+        <div class="filter-desc">去饱和 + 松针绿漫射 + 温和底晕</div>
+      </div>
+      <button class="select-btn">选用</button>
+    </div>
+  </div>
+
+  <!-- 7. 白昼极简 -->
+  <div class="preview-card filter-day" onclick="selectFilter(this, '⑦ 白昼极简', 'brightness-[0.95] saturate-[0.95] + 仅底部字幕条渐变 0.35')">
+    <div class="card-hero">
+      <img class="wall-img" src="/hero-kimono-golden.png" alt="">
+      <div class="scrim"></div>
+      <div class="card-content">
+        <div class="mock-badge">● Sora · 数字客房</div>
+        <div class="mock-title">凌晨四点，<br>我看见海棠花未眠。</div>
+        <div class="mock-btns">
+          <div class="mock-btn primary">随笔笔记</div>
+          <div class="mock-btn secondary">浅酌故友</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-meta">
+      <div>
+        <div class="filter-name">⑦ 白昼极简</div>
+        <div class="filter-desc">近乎原图 · 只加底部字幕安全区渐变</div>
+      </div>
+      <button class="select-btn">选用</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- 底部应用栏 -->
+<div class="apply-bar" id="applyBar">
+  <div>
+    <div class="apply-bar-text">已选方案：<strong id="selectedName">—</strong></div>
+    <div class="apply-code" id="selectedCode">—</div>
+  </div>
+  <button class="copy-btn" onclick="copyCode()">📋 复制代码 · 告诉 Agent 应用</button>
+</div>
+
+<div style="height:80px"></div>
+
+<script>
+let currentWall = '/hero-kimono-golden.png';
+let currentPos = 'right center';
+let selectedCode = '';
+
+function switchWall(btn, src, pos) {
+  document.querySelectorAll('.wall-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentWall = src;
+  currentPos = pos;
+  document.querySelectorAll('.wall-img').forEach(img => {
+    img.src = src;
+    img.style.objectPosition = pos;
+  });
+}
+
+function highlightFilter(cls) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  const cards = document.querySelectorAll('.preview-card');
+  if (cls === 'all') {
+    cards.forEach(c => { c.style.opacity = '1'; c.style.transform = ''; });
+  } else {
+    cards.forEach(c => {
+      if (c.classList.contains(cls)) {
+        c.style.opacity = '1';
+        c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        c.style.opacity = '0.35';
+      }
+    });
+  }
+}
+
+function selectFilter(card, name, code) {
+  document.querySelectorAll('.preview-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+
+  document.getElementById('selectedName').textContent = name;
+  document.getElementById('selectedCode').textContent = code;
+  selectedCode = `方案：${name}\n效果：${code}`;
+
+  const bar = document.getElementById('applyBar');
+  bar.classList.add('visible');
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(selectedCode).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✅ 已复制！直接告诉 Agent 你想用哪个';
+    setTimeout(() => { btn.textContent = '📋 复制代码 · 告诉 Agent 应用'; }, 2500);
+  });
+}
+</script>
+
+</body>
+</html>

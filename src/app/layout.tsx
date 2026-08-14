@@ -18,6 +18,11 @@ export const metadata: Metadata = {
   keywords: ["前端工程师", "博客", "摄影", "Web开发", "Next.js", "胶片", "阅读思考"],
   authors: [{ name: "云归何处", url: SITE_URL }],
   creator: "云归何处",
+  alternates: {
+    types: {
+      "application/rss+xml": "/feed.xml",
+    },
+  },
   openGraph: {
     type: "website",
     locale: "zh_CN",
@@ -79,7 +84,7 @@ export default function RootLayout({
         {/* Dual-tone overlay: pine-green (236,240,235) blended into warm-paper (247,245,238) */}
         <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(ellipse_at_20%_0%,rgba(236,240,235,0.55),transparent_55%),radial-gradient(ellipse_at_80%_100%,rgba(247,245,238,0.60),transparent_55%),linear-gradient(160deg,rgba(236,240,235,0.30)_0%,rgba(247,245,238,0.45)_100%)] dark:bg-[radial-gradient(circle_at_50%_20%,rgba(20,34,25,0.5),rgba(20,34,25,0.95))]" />
 
-        <div className="relative z-10">
+        <div id="site-root" className="relative z-10">
           <ThemeProvider>
             <RouteTheme>
               <ReadingProgress />

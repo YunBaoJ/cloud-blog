@@ -1,26 +1,38 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, ImageIcon, X } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Footer from "@/components/Footer";
 import { GALLERY_PHOTOS, type GalleryPhoto } from "@/data/siteContent";
 import { useMounted } from "@/lib/useMounted";
+import { GALLERY_WORK_PARAM, getGalleryWorkHref } from "@/lib/galleryUrl.mts";
 
 gsap.registerPlugin(useGSAP);
 
 const PAGE_SIZE = 12;
 
 export default function GalleryClient() {
-  const [selectedPhoto, setSelectedPhoto] = useState<GalleryPhoto | null>(null);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(() => new Set());
   const mounted = useMounted();
   const modalContentRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
+  const openedFromGalleryRef = useRef(false);
+  const previousPhotoIdRef = useRef<string | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const filteredPhotos = GALLERY_PHOTOS;
+  const selectedPhotoId = searchParams.get(GALLERY_WORK_PARAM);
+  const selectedPhoto = selectedPhotoId
+    ? filteredPhotos.find((photo) => photo.id === selectedPhotoId) ?? null
+    : null;
   const visiblePhotos = filteredPhotos.slice(0, visibleCount);
   const galleryColumns: Array<Array<{ photo: GalleryPhoto; index: number }>> = [[], [], []];
   visiblePhotos.forEach((photo, index) => {
@@ -44,10 +56,39 @@ export default function GalleryClient() {
     { dependencies: [selectedPhoto], revertOnUpdate: true },
   );
 
+  const openPhoto = useCallback((photo: GalleryPhoto) => {
+    triggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    openedFromGalleryRef.current = true;
+    router.push(getGalleryWorkHref(photo.id), { scroll: false });
+  }, [router]);
+
+  const replacePhoto = useCallback((photo: GalleryPhoto) => {
+    router.replace(getGalleryWorkHref(photo.id), { scroll: false });
+  }, [router]);
+
+  const closePhoto = useCallback(() => {
+    if (openedFromGalleryRef.current) {
+      openedFromGalleryRef.current = false;
+      router.back();
+      return;
+    }
+    router.replace(pathname, { scroll: false });
+  }, [pathname, router]);
+
   useEffect(() => {
+    const siteRoot = document.getElementById("site-root");
     document.body.style.overflow = selectedPhoto ? "hidden" : "";
+    if (selectedPhoto) {
+      siteRoot?.setAttribute("inert", "");
+      window.requestAnimationFrame(() => closeButtonRef.current?.focus());
+    } else {
+      siteRoot?.removeAttribute("inert");
+      if (previousPhotoIdRef.current) triggerRef.current?.focus();
+    }
+    previousPhotoIdRef.current = selectedPhoto?.id ?? null;
     return () => {
       document.body.style.overflow = "";
+      siteRoot?.removeAttribute("inert");
     };
   }, [selectedPhoto]);
 
@@ -55,46 +96,50 @@ export default function GalleryClient() {
     if (!selectedPhoto) return;
 
     const showPrevious = () => {
-      if (currentIndex > 0) setSelectedPhoto(filteredPhotos[currentIndex - 1]);
+      if (currentIndex > 0) replacePhoto(filteredPhotos[currentIndex - 1]);
     };
     const showNext = () => {
-      if (currentIndex < filteredPhotos.length - 1) setSelectedPhoto(filteredPhotos[currentIndex + 1]);
+      if (currentIndex < filteredPhotos.length - 1) replacePhoto(filteredPhotos[currentIndex + 1]);
     };
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setSelectedPhoto(null);
+      if (event.key === "Escape") closePhoto();
       if (event.key === "ArrowLeft") showPrevious();
       if (event.key === "ArrowRight") showNext();
-    };
-    let wheelLocked = false;
-    const handleWheel = (event: WheelEvent) => {
-      event.preventDefault();
-      if (wheelLocked) return;
-      if (event.deltaY > 0) showNext();
-      if (event.deltaY < 0) showPrevious();
-      wheelLocked = true;
-      window.setTimeout(() => {
-        wheelLocked = false;
-      }, 250);
+      if (event.key !== "Tab" || !modalContentRef.current) return;
+
+      const focusable = Array.from(
+        modalContentRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("wheel", handleWheel, { passive: false });
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("wheel", handleWheel);
     };
-  }, [currentIndex, filteredPhotos, selectedPhoto]);
+  }, [closePhoto, currentIndex, filteredPhotos, replacePhoto, selectedPhoto]);
 
   const markImageFailed = (id: string) => {
     setFailedImageIds((current) => new Set(current).add(id));
   };
 
   const showPrevious = () => {
-    if (currentIndex > 0) setSelectedPhoto(filteredPhotos[currentIndex - 1]);
+    if (currentIndex > 0) replacePhoto(filteredPhotos[currentIndex - 1]);
   };
 
   const showNext = () => {
-    if (currentIndex < filteredPhotos.length - 1) setSelectedPhoto(filteredPhotos[currentIndex + 1]);
+    if (currentIndex < filteredPhotos.length - 1) replacePhoto(filteredPhotos[currentIndex + 1]);
   };
 
   return (
@@ -111,7 +156,7 @@ export default function GalleryClient() {
                 作品画廊
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
-                收录自己的插画、动漫作品与日常灵感。选择分类，点开作品即可查看大图。
+                收录自己的插画、动漫作品与日常灵感，点开作品即可查看大图。
               </p>
             </div>
 
@@ -139,7 +184,7 @@ export default function GalleryClient() {
                         >
                           <button
                             type="button"
-                            onClick={() => setSelectedPhoto(photo)}
+                            onClick={() => openPhoto(photo)}
                             className="group block w-full text-left outline-none"
                             aria-label={`查看作品：${photo.title}`}
                           >
@@ -207,7 +252,7 @@ export default function GalleryClient() {
         <div
           className="fixed inset-0 z-[60] flex items-center justify-center bg-[var(--background)]/90 p-4 backdrop-blur-md sm:p-6 lg:p-10"
           onClick={(event) => {
-            if (event.target === event.currentTarget) setSelectedPhoto(null);
+            if (event.target === event.currentTarget) closePhoto();
           }}
         >
           <div
@@ -237,8 +282,9 @@ export default function GalleryClient() {
               <div className="flex items-center justify-between gap-4 border-b border-[var(--border-line-color)] pb-4 text-[10px] font-mono tracking-[0.14em] text-[var(--muted)]">
                 <span>DEV SHEET // STATIC</span>
                 <button
+                  ref={closeButtonRef}
                   type="button"
-                  onClick={() => setSelectedPhoto(null)}
+                  onClick={closePhoto}
                   className="rounded-full p-2 text-[var(--muted)] ring-1 ring-[var(--border-line-color)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--foreground)] active:scale-[0.98]"
                   aria-label="关闭作品预览"
                 >

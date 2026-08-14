@@ -13,6 +13,8 @@ export interface NoteItem {
   date: string;
   readTime: string;
   iconName: string;
+  coverImage?: string;
+  coverAlt?: string;
   tags: string[];
   content: string;
   views: number;
@@ -48,6 +50,8 @@ export function getAllNotes(): NoteItem[] {
         date: data.date || "2026-08-01",
         readTime: data.readTime || "5 min read",
         iconName: data.iconName || "Code2",
+        coverImage: data.coverImage,
+        coverAlt: data.coverAlt,
         tags: data.tags || [],
         content: content || "",
         views: data.views ?? deterministicMetric(id, 200, 800),

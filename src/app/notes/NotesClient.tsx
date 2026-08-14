@@ -2,223 +2,192 @@
 
 import Footer from "@/components/Footer";
 import type { NoteItem } from "@/lib/notes";
-import { useState } from "react";
+import { ArrowRight, BookOpen, Clock, Search } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { BookOpen, Search, Code2, Camera, Sparkles, Calendar, Clock, Heart, Tag, ArrowRight } from "lucide-react";
+import { useState } from "react";
 
 interface NotesClientProps {
   initialNotes: NoteItem[];
 }
 
+const categories = [
+  { label: "全部", value: "全部" },
+  { label: "代码", value: "代码与思考" },
+  { label: "生活", value: "生活与摄影" },
+  { label: "设计", value: "前端与设计" },
+];
+
 export default function NotesClient({ initialNotes }: NotesClientProps) {
-  const notesList = initialNotes;
   const [selectedCategory, setSelectedCategory] = useState("全部");
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [likedNotes, setLikedNotes] = useState<Record<string, boolean>>({});
 
-  const categories = ["全部", "代码与思考", "生活与摄影", "前端与设计"];
-
-  // Collect all unique tags
-  const allTags = Array.from(
-    new Set(notesList.flatMap((note) => note.tags || []))
-  );
-
-  const filteredNotes = notesList.filter((note: NoteItem) => {
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filteredNotes = initialNotes.filter((note) => {
     const matchesCategory = selectedCategory === "全部" || note.category === selectedCategory;
-    const matchesTag = !selectedTag || (note.tags && note.tags.includes(selectedTag));
     const matchesSearch =
-      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      note.summary.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesTag && matchesSearch;
+      normalizedQuery.length === 0 ||
+      note.title.toLowerCase().includes(normalizedQuery) ||
+      note.summary.toLowerCase().includes(normalizedQuery);
+
+    return matchesCategory && matchesSearch;
   });
-
-  const getIcon = (iconName: string) => {
-    switch (iconName) {
-      case "Code2":
-        return <Code2 className="w-5 h-5 text-[#36513B]" />;
-      case "Camera":
-        return <Camera className="w-5 h-5 text-[#8C4A31]" />;
-      default:
-        return <Sparkles className="w-5 h-5 text-[#2A5270]" />;
-    }
-  };
-
-  const handleLike = (id: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setLikedNotes((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
 
   return (
     <main className="min-h-screen bg-transparent text-[var(--foreground)]">
-      {/* Page Header */}
-      <section className="relative px-5 pb-9 pt-28 sm:px-8 lg:px-12 lg:pt-32">
+      <section className="px-5 pb-8 pt-28 sm:px-8 lg:px-12 lg:pt-32">
         <div className="mx-auto max-w-6xl">
-          <div className="max-w-3xl">
-            <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">
-              <BookOpen className="size-4" strokeWidth={1.8} />
-            <span>随笔笔记与长文 ({notesList.length} 篇)</span>
+          <div className="flex items-end justify-between gap-8 border-b border-[var(--border-line-color)] pb-10">
+            <div className="max-w-3xl">
+              <div className="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-[var(--accent-green)]">
+                <BookOpen className="size-4" strokeWidth={1.8} aria-hidden="true" />
+                <span>文章归档</span>
+              </div>
+              <h1 className="text-4xl font-light tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
+                随笔笔记
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:text-base sm:leading-7">
+                记录技术实践、设计观察与日常灵感，慢慢整理成一份持续生长的个人杂志。
+              </p>
             </div>
-          
-          <h1 className="break-words text-4xl font-light tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
-            随笔笔记
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
-            记录针对前端技术架构、并发模型思考、深度阅读与生活光影的长文与随手笔记。点击可进入专属文章页面阅读。
-          </p>
+            <span className="hidden shrink-0 pb-1 text-sm text-[var(--muted)] sm:block">
+              共 {initialNotes.length} 篇
+            </span>
           </div>
 
-          {/* Search & Filter Bar */}
-          <div className="mt-12 border-t border-[var(--border-line-color)] pt-4 space-y-4">
-            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-              {/* Category Tabs */}
-              <div className="flex flex-wrap items-center gap-2">
-                {categories.map((cat) => (
+          <div className="mx-auto flex max-w-[68.75rem] flex-col gap-4 py-6 md:flex-row md:items-center md:justify-between">
+            <div className="grid w-full grid-cols-2 gap-2 sm:grid-cols-4 md:w-auto" aria-label="文章分类">
+              {categories.map((category) => {
+                const isActive = selectedCategory === category.value;
+
+                return (
                   <button
-                    key={cat}
-                    onClick={() => {
-                      setSelectedCategory(cat);
-                      setSelectedTag(null);
-                    }}
-                    className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${
-                      selectedCategory === cat && !selectedTag
-                        ? "bg-[#36513B] text-white shadow-sm"
-                        : "bg-white/80 text-[#5A5551] hover:bg-white hover:text-[#2D2B2C] border border-[#2D2B2C]/8"
+                    key={category.value}
+                    type="button"
+                    aria-pressed={isActive}
+                    onClick={() => setSelectedCategory(category.value)}
+                    className={`min-h-11 rounded-full border px-4 text-sm font-semibold transition-[color,background-color,border-color,transform] duration-200 active:translate-y-px motion-reduce:transition-none ${
+                      isActive
+                        ? "border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)]"
+                        : "border-[var(--border-line-color)] bg-[var(--surface)]/70 text-[var(--muted)] hover:border-[var(--accent-green)]/40 hover:text-[var(--foreground)]"
                     }`}
                   >
-                    {cat}
+                    {category.label}
                   </button>
-                ))}
-              </div>
-
-              {/* Search Input */}
-              <div className="relative w-full md:w-80">
-                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7A736A]" />
-                <input
-                  type="text"
-                  placeholder="搜索笔记标题或内容..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-full bg-white/90 border border-[#2D2B2C]/10 text-xs text-[#2D2B2C] placeholder-[#7A736A] focus:outline-none focus:ring-2 focus:ring-[#36513B]/30 transition-all"
-                />
-              </div>
+                );
+              })}
             </div>
 
-            {/* Tag Cloud Filter */}
-            <div className="flex flex-wrap items-center gap-2 pt-2">
-              <span className="text-xs font-semibold text-[#7A736A] flex items-center gap-1 mr-1">
-                <Tag className="w-3 h-3 text-[#36513B]" /> 热门标签:
-              </span>
-              {allTags.map((tag) => (
-                <button
-                  key={tag}
-                  onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-                  className={`px-3 py-1 rounded-full text-[11px] font-mono transition-all ${
-                    selectedTag === tag
-                      ? "bg-[#8C4A31] text-white shadow-xs"
-                      : "bg-white/60 text-[#7A736A] hover:bg-white hover:text-[#2D2B2C] border border-[#2D2B2C]/5"
-                  }`}
-                >
-                  {tag}
-                </button>
-              ))}
-              {selectedTag && (
-                <button
-                  onClick={() => setSelectedTag(null)}
-                  className="text-xs text-[#8C4A31] hover:underline ml-2"
-                >
-                  清除标签筛选
-                </button>
-              )}
-            </div>
+            <label className="relative block w-full md:w-72">
+              <span className="sr-only">搜索随笔</span>
+              <Search
+                className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[var(--muted)]"
+                strokeWidth={1.8}
+                aria-hidden="true"
+              />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="搜索随笔"
+                className="min-h-11 w-full rounded-full border border-[var(--border-line-color)] bg-[var(--surface)]/80 py-2 pl-11 pr-4 text-sm text-[var(--foreground)] outline-none transition-[border-color,box-shadow] placeholder:text-[var(--muted)] focus:border-[var(--accent-green)] focus:ring-4 focus:ring-[var(--accent-green)]/10"
+              />
+            </label>
           </div>
         </div>
       </section>
 
-      {/* Notes Grid */}
-      <section className="py-12 px-6 sm:px-12 lg:px-20 max-w-6xl mx-auto min-h-[50vh]">
+      <section className="mx-auto min-h-[50vh] max-w-[75rem] px-5 pb-20 sm:px-8 lg:pb-28">
+        <div className="mx-auto mb-4 flex max-w-[68.75rem] items-baseline justify-between border-b border-[var(--border-line-color)] pb-3">
+          <h2 className="text-xl font-medium tracking-[-0.025em] sm:text-2xl">全部文章</h2>
+          <span className="text-xs text-[var(--muted)]">按时间更新</span>
+        </div>
+
         {filteredNotes.length === 0 ? (
-          <div className="text-center py-20 space-y-3 bg-white/60 rounded-3xl border border-[#2D2B2C]/5">
-            <p className="text-lg font-semibold text-[#5A5551]">未找到匹配的随笔笔记</p>
-            <p className="text-xs text-[#7A736A]">请尝试更换搜索关键词或选择其他分类。</p>
+          <div className="rounded-2xl border border-[var(--border-line-color)] bg-[var(--surface)]/70 px-6 py-16 text-center">
+            <p className="text-lg font-semibold">没有找到文章</p>
+            <p className="mt-2 text-sm text-[var(--muted)]">换一个关键词或分类试试。</p>
             <button
+              type="button"
               onClick={() => {
                 setSelectedCategory("全部");
-                setSelectedTag(null);
                 setSearchQuery("");
               }}
-              className="mt-2 px-5 py-2 rounded-full bg-[#36513B] text-white text-xs font-semibold"
+              className="mt-5 min-h-11 rounded-full bg-[var(--foreground)] px-5 text-sm font-semibold text-[var(--background)] transition-transform active:translate-y-px"
             >
-              重置所有筛选
+              重置筛选
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {filteredNotes.map((note: NoteItem) => {
-              const isLiked = likedNotes[note.id];
+          <div className="grid gap-6">
+            {filteredNotes.map((note, index) => {
+              const imageOnRight = index % 2 === 1;
+              const cardAlignment = [
+                "lg:justify-self-start",
+                "lg:justify-self-end",
+                "lg:justify-self-center",
+                "lg:justify-self-start lg:translate-x-6",
+              ][index % 4];
+
               return (
                 <Link
                   key={note.id}
                   href={`/notes/${note.id}`}
-                  className="group relative bg-white/90 backdrop-blur-xs rounded-3xl p-6 border border-white/90 shadow-[0_4px_24px_rgba(45,43,44,0.04)] hover:-translate-y-1.5 hover:shadow-[0_16px_36px_rgba(45,43,44,0.08)] hover:border-[#36513B]/25 transition-all duration-300 flex flex-col justify-between"
+                  className={`notes-index-card group relative grid w-full max-w-[68.75rem] min-h-[13.5rem] grid-cols-1 overflow-hidden rounded-2xl border border-[var(--border-line-color)] bg-[var(--surface)]/80 shadow-[0_8px_26px_rgba(38,53,42,0.05)] transition-[transform,border-color,box-shadow,background-color] duration-200 hover:-translate-y-0.5 hover:border-[color:var(--accent-green)]/40 hover:bg-[var(--surface)] hover:shadow-[0_16px_38px_rgba(38,53,42,0.10)] focus-visible:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--accent-green)]/20 active:translate-y-0 md:h-[13.5rem] md:min-h-[13.5rem] motion-reduce:transition-none motion-reduce:hover:transform-none motion-reduce:focus-visible:transform-none ${cardAlignment} ${
+                    imageOnRight
+                      ? "md:grid-cols-[minmax(0,1.18fr)_minmax(17rem,0.82fr)]"
+                      : "md:grid-cols-[minmax(17rem,0.82fr)_minmax(0,1.18fr)]"
+                  }`}
                 >
-                  <div>
-                    {/* Header Pill & Category */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-10 h-10 rounded-xl bg-white/90 border border-white/60 flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform">
-                        {getIcon(note.iconName)}
-                      </div>
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#FAF7F2] text-[#36513B] border border-white/80">
-                        {note.category}
+                  <span
+                    aria-hidden="true"
+                    className={`absolute inset-x-0 bottom-0 z-20 h-[3px] origin-left scale-x-0 bg-linear-to-r from-[var(--accent-green)] via-[var(--accent-green)] to-[var(--accent-clay)] transition-transform duration-200 group-hover:scale-x-100 group-focus-visible:scale-x-100 motion-reduce:transition-none ${
+                      imageOnRight ? "md:origin-right" : ""
+                    }`}
+                  />
+
+                  <div
+                    className={`notes-index-media relative order-1 aspect-video min-h-0 overflow-hidden md:h-[13.5rem] md:aspect-auto md:min-h-[13.5rem] ${
+                      imageOnRight ? "md:order-2 md:[clip-path:polygon(6%_0,100%_0,100%_100%,0_100%)]" : "md:[clip-path:polygon(0_0,94%_0,100%_100%,0_100%)]"
+                    }`}
+                  >
+                    <Image
+                      fill
+                      src={note.coverImage || "/og-cover.jpg"}
+                      alt={note.coverAlt || ""}
+                      sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1200px) 38vw, 430px"
+                      className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.035] group-focus-visible:scale-[1.035] motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-focus-visible:scale-100"
+                    />
+                  </div>
+
+                  <div
+                    className={`order-2 flex min-w-0 flex-col justify-center overflow-hidden px-6 py-7 sm:px-8 md:h-[13.5rem] md:px-10 md:py-4 lg:px-12 ${
+                      imageOnRight ? "md:order-1" : ""
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 text-xs font-semibold text-[var(--accent-green)]">
+                      <span className="font-mono tracking-[0.1em] text-[var(--accent-clay)]">
+                        {String(index + 1).padStart(2, "0")}
                       </span>
+                      <span>{note.category}</span>
+                      <time dateTime={note.date}>{note.date}</time>
                     </div>
 
-                    {/* Title */}
-                    <h2 className="text-lg font-bold text-[#2D2B2C] group-hover:text-[#36513B] transition-colors line-clamp-2 mb-2.5 leading-snug">
+                    <h2 className="mt-2.5 line-clamp-2 text-[1.45rem] font-medium leading-snug tracking-[-0.03em] text-[var(--foreground)] sm:text-[1.65rem]">
                       {note.title}
                     </h2>
-
-                    {/* Summary */}
-                    <p className="text-sm text-[#5A5551] line-clamp-3 leading-relaxed mb-4 font-normal">
+                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-[var(--muted)] sm:text-[0.9375rem] md:line-clamp-1">
                       {note.summary}
                     </p>
 
-                    {/* Tags List */}
-                    <div className="flex flex-wrap gap-1.5 mb-6">
-                      {note.tags?.map((t) => (
-                        <span key={t} className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#F4F1EA] text-[#7A736A]">
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Card Footer Info */}
-                  <div className="pt-4 border-t border-[#2D2B2C]/5 flex items-center justify-between text-xs text-[#7A736A]">
-                    <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 text-[#7A736A]" />
-                        {note.date}
-                      </span>
-                      <span className="flex items-center gap-1 font-mono">
-                        <Clock className="w-3.5 h-3.5 text-[#7A736A]" />
+                    <div className="mt-4 flex items-center justify-between gap-6">
+                      <span className="inline-flex items-center gap-1.5 text-xs text-[var(--muted)]">
+                        <Clock className="size-3.5" strokeWidth={1.7} aria-hidden="true" />
                         {note.readTime}
                       </span>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={(e) => handleLike(note.id, e)}
-                        className="flex items-center gap-1 hover:text-[#8C4A31] transition-colors"
-                        title="喜欢"
-                      >
-                        <Heart className={`w-3.5 h-3.5 ${isLiked ? "fill-[#8C4A31] text-[#8C4A31]" : ""}`} />
-                        <span>{(note.likes || 90) + (isLiked ? 1 : 0)}</span>
-                      </button>
-
-                      <span className="inline-flex items-center text-[#36513B] font-semibold group-hover:translate-x-0.5 transition-transform">
-                        阅读 <ArrowRight className="w-3 h-3 ml-0.5" />
+                      <span className="inline-flex min-h-9 items-center gap-2 text-sm font-semibold text-[var(--foreground)] transition-[gap,color] duration-200 group-hover:gap-3.5 group-hover:text-[var(--accent-green)] group-focus-visible:gap-3.5 group-focus-visible:text-[var(--accent-green)] motion-reduce:transition-none">
+                        阅读全文
+                        <ArrowRight className="size-4" strokeWidth={1.8} aria-hidden="true" />
                       </span>
                     </div>
                   </div>

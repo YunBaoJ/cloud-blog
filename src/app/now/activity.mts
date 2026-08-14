@@ -1,3 +1,5 @@
+import { getGalleryWorkHref } from "../../lib/galleryUrl.mts";
+
 export interface ActivityNoteSource {
   id: string;
   title: string;
@@ -50,7 +52,7 @@ export function buildActivityItems(
     title: photo.title,
     summary: photo.story,
     date: photo.date,
-    href: "/gallery",
+    href: getGalleryWorkHref(photo.id),
     image: {
       src: photo.src,
       width: photo.width,

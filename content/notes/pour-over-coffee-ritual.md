@@ -7,6 +7,8 @@ readTime: "5 min read"
 category: "生活与摄影"
 tags: ["手冲咖啡", "生活方式", "慢节奏", "极简"]
 iconName: "Sparkles"
+coverImage: "/gallery/coffee.jpg"
+coverAlt: "窗边正在冲泡的手冲咖啡"
 featured: true
 ---
 

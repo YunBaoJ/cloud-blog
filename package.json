@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --test src/app/now/activity.test.mts src/lib/galleryUrl.test.mts scripts/content-health.test.mjs scripts/generate-game-sounds.test.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

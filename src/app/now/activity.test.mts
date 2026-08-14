@@ -25,7 +25,7 @@ test("按日期倒序合并笔记与图集，并生成正确目标", () => {
     activities.map(({ id, kind, href }) => ({ id, kind, href })),
     [
       { id: "note-note-new", kind: "note", href: "/notes/note-new" },
-      { id: "gallery-photo-mid", kind: "gallery", href: "/gallery" },
+      { id: "gallery-photo-mid", kind: "gallery", href: "/gallery?work=photo-mid" },
       { id: "note-note-old", kind: "note", href: "/notes/note-old" },
     ],
   );
