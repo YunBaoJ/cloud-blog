@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import { GALLERY_PHOTOS, type GalleryPhoto } from "@/data/siteContent";
 import { useMounted } from "@/lib/useMounted";
 import { GALLERY_WORK_PARAM, getGalleryWorkHref } from "@/lib/galleryUrl.mts";
+import GalleryArtworkViewer from "./GalleryArtworkViewer";
 
 gsap.registerPlugin(useGSAP);
 
@@ -262,21 +263,14 @@ export default function GalleryClient() {
             aria-labelledby="gallery-dialog-title"
             className="grid max-h-[90dvh] w-full max-w-6xl overflow-hidden rounded-2xl bg-[var(--surface)] text-[var(--foreground)] shadow-[0_24px_70px_rgba(14,24,18,0.18)] lg:grid-cols-[minmax(0,1.65fr)_minmax(18rem,0.65fr)]"
           >
-            <div className="flex min-h-[44dvh] items-center justify-center bg-[var(--surface-2)] p-5 sm:p-10">
-              {failedImageIds.has(selectedPhoto.id) ? (
-                <p className="text-sm text-[var(--muted)]">图片暂时无法载入，请检查文件路径。</p>
-              ) : (
-                <div className="flex max-h-[60dvh] max-w-full flex-col items-center bg-[#FFFFFF] p-3 shadow-[0_12px_30px_rgba(45,43,44,0.1)] ring-1 ring-[var(--border-line-color)] sm:p-5">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={selectedPhoto.src}
-                    alt={selectedPhoto.title}
-                    onError={() => markImageFailed(selectedPhoto.id)}
-                    className="max-h-[50dvh] max-w-full select-none object-contain"
-                  />
-                </div>
-              )}
-            </div>
+            <GalleryArtworkViewer
+              key={selectedPhoto.id}
+              photos={filteredPhotos}
+              currentIndex={currentIndex}
+              failedImageIds={failedImageIds}
+              onImageError={markImageFailed}
+              onSelect={replacePhoto}
+            />
 
             <div className="flex max-h-[46dvh] flex-col overflow-y-auto p-6 sm:p-8 lg:max-h-[90dvh]">
               <div className="flex items-center justify-between gap-4 border-b border-[var(--border-line-color)] pb-4 text-[10px] font-mono tracking-[0.14em] text-[var(--muted)]">
@@ -311,7 +305,7 @@ export default function GalleryClient() {
                 <div>
                   <p className="text-[10px] font-mono font-semibold tracking-[0.16em] text-[var(--accent-green)]">[02] ARCHIVE NOTE</p>
                   <div className="mt-3 rounded-lg border border-[var(--border-line-color)] p-4 text-xs leading-6 text-[var(--muted)]">
-                    点击左右按钮或使用键盘方向键浏览其他作品。
+                    使用左右按钮、键盘方向键或横向滑动浏览；双击图片可快速缩放。
                   </div>
                 </div>
               </div>

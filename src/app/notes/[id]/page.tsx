@@ -67,6 +67,23 @@ export default async function NoteDetailPage({ params }: NotePageProps) {
   const note = allNotes[noteIndex];
   const prevNote = noteIndex > 0 ? allNotes[noteIndex - 1] : null;
   const nextNote = noteIndex < allNotes.length - 1 ? allNotes[noteIndex + 1] : null;
+  const adjacentIds = new Set([prevNote?.id, nextNote?.id].filter(Boolean));
+  const relatedNotes = allNotes
+    .filter((candidate) => candidate.id !== note.id && !adjacentIds.has(candidate.id))
+    .map((candidate) => ({
+      note: candidate,
+      score:
+        candidate.tags.filter((tag) => note.tags.includes(tag)).length * 2
+        + Number(candidate.category === note.category),
+    }))
+    .sort((left, right) => right.score - left.score || right.note.date.localeCompare(left.note.date))
+    .slice(0, 2)
+    .map(({ note: candidate }) => ({
+      id: candidate.id,
+      title: candidate.title,
+      summary: candidate.summary,
+      category: candidate.category,
+    }));
   const articleUrl = new URL(`/notes/${note.id}`, SITE_URL).toString();
   const articleImage = new URL(note.coverImage || "/og-cover.jpg", SITE_URL).toString();
   const structuredData = {
@@ -98,7 +115,12 @@ export default async function NoteDetailPage({ params }: NotePageProps) {
           __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
         }}
       />
-      <NoteDetailClient note={note} prevNote={prevNote} nextNote={nextNote} />
+      <NoteDetailClient
+        note={note}
+        prevNote={prevNote}
+        nextNote={nextNote}
+        relatedNotes={relatedNotes}
+      />
     </>
   );
 }

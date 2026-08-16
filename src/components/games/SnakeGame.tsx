@@ -4,6 +4,8 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Play, RotateCcw } from "lucide-react";
 import { playGameSound } from "@/lib/gameSounds";
 import { usePersistentNumber } from "@/lib/usePersistentNumber";
+import { useGameActivity } from "@/components/games/GameActivityContext";
+import { recordGameResult } from "@/lib/gameHistory";
 
 type GameState = "idle" | "playing" | "paused" | "dead";
 type Direction = "UP" | "DOWN" | "LEFT" | "RIGHT";
@@ -30,6 +32,7 @@ const DIFFICULTY_CONFIG: Record<
 const INITIAL_SNAKE: Point[] = [{ x: 10, y: 10 }];
 
 export default function SnakeGame() {
+  const isGameActive = useGameActivity();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -187,10 +190,11 @@ export default function SnakeGame() {
     isAcceleratingRef.current = false;
     playGameSound("snake-crash");
     updateHighScore(score);
-  }, [score, updateHighScore]);
+    recordGameResult("snake", "贪吃蛇", `${score} 分 · ${DIFFICULTY_CONFIG[difficulty].label.split(" ")[0]}`);
+  }, [difficulty, score, updateHighScore]);
 
   const gameStep = useCallback(() => {
-    if (gameState !== "playing") return;
+    if (gameState !== "playing" || !isGameActive) return;
 
     directionRef.current = nextDirectionRef.current;
     const head = snakeRef.current[0];
@@ -256,14 +260,14 @@ export default function SnakeGame() {
       : currentBaseSpeed;
 
     gameLoopRef.current = setTimeout(() => gameStepRef.current(), nextInterval);
-  }, [gameState, difficulty, gameOver, draw, generateFood]);
+  }, [gameState, difficulty, gameOver, draw, generateFood, isGameActive]);
 
   useEffect(() => {
     gameStepRef.current = gameStep;
   }, [gameStep]);
 
   useEffect(() => {
-    if (gameState === "playing") {
+    if (gameState === "playing" && isGameActive) {
       const currentBaseSpeed = speedRef.current;
       const nextInterval = isAcceleratingRef.current
         ? Math.max(MIN_BOOST_SPEED, Math.floor(currentBaseSpeed * 0.35))
@@ -273,7 +277,7 @@ export default function SnakeGame() {
     return () => {
       if (gameLoopRef.current) clearTimeout(gameLoopRef.current);
     };
-  }, [gameState, gameStep]);
+  }, [gameState, gameStep, isGameActive]);
 
   // Start / Restart Game with specific difficulty
   const startNewGameWithDifficulty = useCallback(
@@ -330,7 +334,7 @@ export default function SnakeGame() {
         e.preventDefault();
       }
 
-      if (gameState !== "playing") return;
+      if (gameState !== "playing" || !isGameActive) return;
 
       // 开启长按加速
       isAcceleratingRef.current = true;
@@ -359,7 +363,7 @@ export default function SnakeGame() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [gameState]);
+  }, [gameState, isGameActive]);
 
   // Touch Swipe Controls
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -370,7 +374,7 @@ export default function SnakeGame() {
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     isAcceleratingRef.current = false;
-    if (!touchStartRef.current || gameState !== "playing") return;
+    if (!touchStartRef.current || gameState !== "playing" || !isGameActive) return;
 
     const touch = e.changedTouches[0];
     const dx = touch.clientX - touchStartRef.current.x;

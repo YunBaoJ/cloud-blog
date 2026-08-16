@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { playGameSound } from '@/lib/gameSounds';
+import { Pause, Play } from 'lucide-react';
+import { useGameActivity } from '@/components/games/GameActivityContext';
+import { recordGameResult } from '@/lib/gameHistory';
 
 // Wabi-sabi theme colors
 // background: #FAF7F2
@@ -44,12 +47,14 @@ function createBoard(gridSize: GridSize) {
 }
 
 export default function SlidePuzzle({ initialSize = 4 }: SlidePuzzleProps) {
+  const isGameActive = useGameActivity();
   const [size, setSize] = useState<GridSize>(initialSize);
   const [tiles, setTiles] = useState<number[]>(() => createBoard(initialSize));
   const [isStarted, setIsStarted] = useState(false);
   const [isWon, setIsWon] = useState(false);
   const [steps, setSteps] = useState(0);
   const [time, setTime] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   // Initialize board with 100% guaranteed solvability (Reverse random moves)
   const initBoard = useCallback((gridSize: GridSize) => {
@@ -58,12 +63,13 @@ export default function SlidePuzzle({ initialSize = 4 }: SlidePuzzleProps) {
     setTime(0);
     setIsStarted(false);
     setIsWon(false);
+    setIsPaused(false);
   }, []);
 
   // Timer
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (isStarted && !isWon) {
+    if (isStarted && !isWon && !isPaused && isGameActive) {
       interval = setInterval(() => {
         setTime((prev) => prev + 1);
       }, 1000);
@@ -71,7 +77,7 @@ export default function SlidePuzzle({ initialSize = 4 }: SlidePuzzleProps) {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isStarted, isWon]);
+  }, [isGameActive, isPaused, isStarted, isWon]);
 
 
 
@@ -83,7 +89,7 @@ export default function SlidePuzzle({ initialSize = 4 }: SlidePuzzleProps) {
   };
 
   const handleTileClick = (index: number) => {
-    if (isWon) return;
+    if (isWon || isPaused || !isGameActive) return;
 
     const emptyIndex = tiles.indexOf(0);
     const row = Math.floor(index / size);
@@ -105,7 +111,10 @@ export default function SlidePuzzle({ initialSize = 4 }: SlidePuzzleProps) {
       setSteps((s) => s + 1);
 
       playGameSound(solved ? 'puzzle-win' : 'puzzle-move');
-      if (solved) setIsWon(true);
+      if (solved) {
+        setIsWon(true);
+        recordGameResult('puzzle', '华容道', `${steps + 1} 步 · ${formatTime(time)}`);
+      }
     }
   };
 
@@ -144,6 +153,16 @@ export default function SlidePuzzle({ initialSize = 4 }: SlidePuzzleProps) {
         </div>
         
         <div className="flex items-center space-x-2">
+          {isStarted && !isWon && (
+            <button
+              type="button"
+              onClick={() => setIsPaused((current) => !current)}
+              className="rounded-lg bg-[#36513B]/8 p-2 text-[#36513B] transition-colors hover:bg-[#36513B]/14 dark:text-[#E2EBE4]"
+              aria-label={isPaused ? '继续游戏' : '暂停游戏'}
+            >
+              {isPaused ? <Play className="size-4" /> : <Pause className="size-4" />}
+            </button>
+          )}
           <select
             value={size}
             onChange={(e) => {
@@ -185,6 +204,16 @@ export default function SlidePuzzle({ initialSize = 4 }: SlidePuzzleProps) {
             </div>
           );
         })}
+        {isPaused && (
+          <button
+            type="button"
+            onClick={() => setIsPaused(false)}
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-[#FAF7F2]/88 text-sm font-semibold text-[#36513B] backdrop-blur-sm dark:bg-[#1E2721]/88 dark:text-[#E2EBE4]"
+          >
+            <Play className="size-6" />
+            继续游戏
+          </button>
+        )}
       </div>
 
       {/* Win Overlay */}

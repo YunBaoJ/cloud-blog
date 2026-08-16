@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { RefreshCw, RotateCcw, User, Bot, Award, Sparkles, Play, Pause, AlertTriangle } from "lucide-react";
 import { playGameSound } from "@/lib/gameSounds";
+import { useGameActivity } from "@/components/games/GameActivityContext";
+import { recordGameResult } from "@/lib/gameHistory";
 
 // --- Xiangqi Types & Constants ---
 type PieceType = "r" | "n" | "b" | "a" | "k" | "c" | "p"; // rook(车), knight(马), bishop(象/相), advisor(士/仕), king(将/帅), cannon(炮), pawn(卒/兵)
@@ -487,6 +489,8 @@ function StandardBoardSVG() {
 
 // --- Main Xiangqi Component ---
 export default function Xiangqi() {
+  const isGameActive = useGameActivity();
+  const recordedStatusRef = useRef<"red_win" | "black_win" | null>(null);
   const [mode, setMode] = useState<"pve" | "pvp" | "eve" | null>(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [userSide, setUserSide] = useState<Side>("red");
@@ -510,6 +514,20 @@ export default function Xiangqi() {
   useEffect(() => {
     if (showCheckAlert) playGameSound("xiangqi-check");
   }, [showCheckAlert, turn]);
+
+  useEffect(() => {
+    if (status === "playing") {
+      recordedStatusRef.current = null;
+      return;
+    }
+    if (recordedStatusRef.current === status) return;
+    recordedStatusRef.current = status;
+    const winner = status === "red_win" ? "红方" : "黑方";
+    const outcome = mode === "pve"
+      ? ((status === "red_win") === (userSide === "red") ? "胜利" : "失利")
+      : `${winner}胜利`;
+    recordGameResult("xiangqi", "中国象棋", `${outcome} · ${history.length} 回合`);
+  }, [history.length, mode, status, userSide]);
 
   // Reset Game
   const resetGame = useCallback((chosenMode?: "pve" | "pvp" | "eve") => {
@@ -577,7 +595,7 @@ export default function Xiangqi() {
 
   // Trigger AI Move
   const triggerAiMove = useCallback(() => {
-    if (status !== "playing" || thinking) return;
+    if (!isGameActive || status !== "playing" || thinking) return;
 
     setThinking(true);
     setTimeout(() => {
@@ -589,11 +607,11 @@ export default function Xiangqi() {
         executeMove(move);
       }
     }, 150);
-  }, [board, turn, status, thinking, executeMove]);
+  }, [board, turn, status, thinking, executeMove, isGameActive]);
 
   // Handle AI turn trigger for PvE or EvE auto play
   useEffect(() => {
-    if (status !== "playing" || !mode) return;
+    if (!isGameActive || status !== "playing" || !mode) return;
     let timer: NodeJS.Timeout | undefined;
     if (mode === "pve" && turn !== userSide) {
       timer = setTimeout(triggerAiMove, 0);
@@ -601,11 +619,11 @@ export default function Xiangqi() {
       timer = setTimeout(triggerAiMove, 600);
     }
     return () => { if (timer) clearTimeout(timer); };
-  }, [mode, turn, userSide, status, autoPlayEve, triggerAiMove]);
+  }, [mode, turn, userSide, status, autoPlayEve, triggerAiMove, isGameActive]);
 
   // Player click handler: In EvE mode, player can manually move BOTH Red and Black pieces!
   const handleCellClick = (x: number, y: number) => {
-    if (status !== "playing" || !mode) return;
+    if (!isGameActive || status !== "playing" || !mode) return;
     if (mode === "pve" && turn !== userSide) return;
 
     const clickedPiece = board[y][x];

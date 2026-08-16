@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useRef, useSyncExternalStore } from "react";
+import { useEffect, useCallback, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Footer from "@/components/Footer";
@@ -9,10 +9,12 @@ import Game2048 from "@/components/games/Game2048";
 import SlidePuzzle from "@/components/games/SlidePuzzle";
 import Gomoku from "@/components/games/Gomoku";
 import Xiangqi from "@/components/games/Xiangqi";
-import { X, Play, Gamepad2 } from "lucide-react";
+import { X, Play, Sparkles } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useMounted } from "@/lib/useMounted";
+import GameModalControls from "@/components/games/GameModalControls";
+import { GameActivityProvider } from "@/components/games/GameActivityContext";
 
 gsap.registerPlugin(useGSAP);
 
@@ -92,10 +94,12 @@ function getGameFromHash(): GameId | null {
 function GameModal({
   activeGame,
   activeInfo,
+  isOpen,
   close,
 }: {
   activeGame: GameId;
   activeInfo: (typeof GAMES)[number] | undefined;
+  isOpen: boolean;
   close: () => void;
 }) {
   return createPortal(
@@ -104,7 +108,7 @@ function GameModal({
         position: "fixed",
         inset: 0,
         zIndex: 9999,
-        display: "flex",
+        display: isOpen ? "flex" : "none",
         alignItems: "center",
         justifyContent: "center",
         padding: "16px",
@@ -112,6 +116,7 @@ function GameModal({
         backdropFilter: "blur(8px)",
         WebkitBackdropFilter: "blur(8px)",
       }}
+      aria-hidden={!isOpen}
       onClick={(e) => {
         if (e.target === e.currentTarget) close();
       }}
@@ -143,23 +148,28 @@ function GameModal({
               {activeInfo?.nameEn}
             </span>
           </div>
-          <button
-            onClick={close}
-            className="p-2 rounded-xl text-[#7A736A] hover:text-[#2D2B2C] dark:hover:text-[#F0F5F1] hover:bg-[#2D2B2C]/6 dark:hover:bg-white/8 transition-all"
-            aria-label="关闭"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-1">
+            <GameModalControls />
+            <button
+              onClick={close}
+              className="p-2 rounded-xl text-[#7A736A] hover:text-[#2D2B2C] dark:hover:text-[#F0F5F1] hover:bg-[#2D2B2C]/6 dark:hover:bg-white/8 transition-all"
+              aria-label="关闭"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Game content */}
-        <div className="min-w-0 overflow-y-auto p-2 sm:p-5" key={activeGame}>
-          {activeGame === "snake"   && <SnakeGame />}
-          {activeGame === "2048"    && <Game2048 />}
-          {activeGame === "puzzle"  && <SlidePuzzle />}
-          {activeGame === "gomoku"  && <Gomoku />}
-          {activeGame === "xiangqi" && <Xiangqi />}
-        </div>
+        <GameActivityProvider active={isOpen}>
+          <div className="min-w-0 overflow-y-auto p-2 sm:p-5" key={activeGame}>
+            {activeGame === "snake"   && <SnakeGame />}
+            {activeGame === "2048"    && <Game2048 />}
+            {activeGame === "puzzle"  && <SlidePuzzle />}
+            {activeGame === "gomoku"  && <Gomoku />}
+            {activeGame === "xiangqi" && <Xiangqi />}
+          </div>
+        </GameActivityProvider>
       </div>
 
       <style>{`
@@ -176,6 +186,7 @@ function GameModal({
 // ── Main page ──────────────────────────────────────────────────────
 export default function PlaygroundClient() {
   const activeGame = useSyncExternalStore(subscribeToHash, getGameFromHash, () => null);
+  const [retainedGame, setRetainedGame] = useState<GameId | null>(null);
   const mounted = useMounted();
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -193,13 +204,15 @@ export default function PlaygroundClient() {
   }, { scope: gridRef });
 
   const openGame = useCallback((id: GameId) => {
+    setRetainedGame(id);
     window.location.hash = id;
   }, []);
 
   const close = useCallback(() => {
+    if (activeGame) setRetainedGame(activeGame);
     history.replaceState(null, "", window.location.pathname);
     window.dispatchEvent(new HashChangeEvent("hashchange"));
-  }, []);
+  }, [activeGame]);
 
   // Escape key
   useEffect(() => {
@@ -214,7 +227,8 @@ export default function PlaygroundClient() {
     return () => { document.body.style.overflow = ""; };
   }, [activeGame]);
 
-  const activeInfo = GAMES.find((g) => g.id === activeGame);
+  const renderedGame = activeGame ?? retainedGame;
+  const activeInfo = GAMES.find((g) => g.id === renderedGame);
 
   return (
     <>
@@ -225,8 +239,8 @@ export default function PlaygroundClient() {
           <div className="mx-auto max-w-6xl">
             <div className="max-w-3xl">
             <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">
-              <Gamepad2 className="size-4" strokeWidth={1.8} />
-              <span>复古街机 &amp; 经典小游戏实验室</span>
+              <Sparkles className="size-4" strokeWidth={1.8} />
+              <span>游乐场</span>
             </div>
 
             <h1 className="break-words text-4xl font-light tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
@@ -311,10 +325,11 @@ export default function PlaygroundClient() {
       </main>
 
       {/* Portal modal — mounted outside <main>, directly on document.body */}
-      {mounted && activeGame && (
+      {mounted && renderedGame && (
         <GameModal
-          activeGame={activeGame}
+          activeGame={renderedGame}
           activeInfo={activeInfo}
+          isOpen={Boolean(activeGame)}
           close={close}
         />
       )}

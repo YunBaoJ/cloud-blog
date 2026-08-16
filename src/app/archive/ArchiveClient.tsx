@@ -73,7 +73,7 @@ export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
           <div className="max-w-3xl">
             <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">
             <Archive className="size-4" strokeWidth={1.8} />
-            <span>按年份 · 标签 · 分类归档</span>
+            <span>归档</span>
             </div>
           <h1 className="text-4xl font-light tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
             文章归档

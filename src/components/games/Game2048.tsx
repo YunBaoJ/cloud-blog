@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { playGameSound } from '@/lib/gameSounds';
+import { useGameActivity } from '@/components/games/GameActivityContext';
+import { recordGameResult } from '@/lib/gameHistory';
 import { usePersistentNumber } from '@/lib/usePersistentNumber';
 
 type GameState = 'playing' | 'won' | 'over';
@@ -131,6 +133,7 @@ const checkGameOver = (grid: Grid): boolean => {
 };
 
 export default function Game2048() {
+  const isGameActive = useGameActivity();
   const [grid, setGrid] = useState<Grid>(() => addRandomTile(addRandomTile(createEmptyGrid())));
   const [score, setScore] = useState(0);
   const [bestScore, setBestScore] = usePersistentNumber('2048-best-score');
@@ -146,7 +149,7 @@ export default function Game2048() {
   };
 
   const handleMove = useCallback((direction: 'UP' | 'RIGHT' | 'DOWN' | 'LEFT') => {
-    if (gameState === 'over' || (gameState === 'won' && !continued)) return;
+    if (!isGameActive || gameState === 'over' || (gameState === 'won' && !continued)) return;
 
     const { newGrid, scoreIncrease, moved } = move(grid, direction);
     if (!moved) return;
@@ -166,13 +169,16 @@ export default function Game2048() {
 
     if (won) {
       setGameState('won');
+      recordGameResult('2048', '2048', `${nextScore} 分 · 达成 2048`);
     } else if (over) {
       setGameState('over');
+      recordGameResult('2048', '2048', `${nextScore} 分`);
     }
-  }, [bestScore, continued, gameState, grid, score, setBestScore]);
+  }, [bestScore, continued, gameState, grid, isGameActive, score, setBestScore]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isGameActive) return;
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
         e.preventDefault();
       }
@@ -202,7 +208,7 @@ export default function Game2048() {
     };
     window.addEventListener('keydown', handleKeyDown, { passive: false });
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleMove]);
+  }, [handleMove, isGameActive]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartRef.current = {

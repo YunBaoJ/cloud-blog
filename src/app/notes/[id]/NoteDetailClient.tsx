@@ -4,11 +4,20 @@ import { useState, useRef } from "react";
 import Footer from "@/components/Footer";
 import ArticleTOC from "@/components/ArticleTOC";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Clock, Eye, ChevronRight, ChevronLeft, Copy, Check, Type, Sparkles, Maximize2, Minimize2, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Eye, ChevronRight, ChevronLeft, Copy, Check, Type, Sparkles, Maximize2, Minimize2, ChevronDown, ChevronUp, Share2, Bookmark, X } from "lucide-react";
 import type { NoteItem } from "@/lib/notes";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { useReadingPreferences } from "@/lib/useReadingPreferences";
+import { notify } from "@/lib/toast";
+
+interface RelatedNote {
+  id: string;
+  title: string;
+  summary: string;
+  category: string;
+}
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -18,6 +27,7 @@ interface NoteDetailClientProps {
   note: NoteItem;
   prevNote: NoteItem | null;
   nextNote: NoteItem | null;
+  relatedNotes: RelatedNote[];
 }
 
 function highlightCodeTokens(code: string): React.ReactNode[] {
@@ -403,9 +413,36 @@ function ArticleMarkdownRenderer({ content, fontSizeLevel }: { content: string; 
   return <div className="space-y-6">{elements}</div>;
 }
 
-export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetailClientProps) {
-  const [fontSizeLevel, setFontSizeLevel] = useState<"sm" | "base" | "lg">("base");
+export default function NoteDetailClient({ note, prevNote, nextNote, relatedNotes }: NoteDetailClientProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const {
+    fontSize: fontSizeLevel,
+    setFontSize: setFontSizeLevel,
+    savedProgress,
+    resumeReading,
+    dismissResume,
+  } = useReadingPreferences(note.id);
+
+  const handleShare = async () => {
+    const shareData = {
+      title: note.title,
+      text: note.summary,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        notify("已打开系统分享", "success");
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        notify("文章链接已复制", "success");
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      notify("分享失败，请稍后重试", "error");
+    }
+  };
 
   useGSAP(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -458,14 +495,14 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
     <div ref={containerRef} className="min-h-screen bg-transparent text-[var(--foreground)] transition-colors duration-300">
       <main className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 space-y-10">
         {/* Left Dynamic Sticky Track for ArticleTOC — 0 impact on main width, moves with page */}
-        <div className="hidden 2xl:block absolute -left-64 top-28 bottom-20 w-56 pointer-events-none">
+        <div className="absolute -left-64 top-28 bottom-20 w-56 pointer-events-none">
           <div className="sticky top-28 pointer-events-auto">
             <ArticleTOC items={tocItems} />
           </div>
         </div>
 
         {/* Top Controls */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <Link
             href="/notes"
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#5A5551] dark:text-[#9EB3A4] hover:text-[#36513B] transition-colors"
@@ -474,11 +511,22 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
             <span>返回随笔列表</span>
           </Link>
 
-          {/* Font Size Adjuster Controls */}
-          <div className="flex items-center gap-1 bg-white dark:bg-[#1E2721] p-1 rounded-2xl border border-[#2D2B2C]/8 dark:border-white/10 shadow-2xs">
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={handleShare}
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-[var(--border-line-color)] bg-[var(--surface)]/90 px-3 text-xs font-semibold text-[var(--foreground)] transition-colors hover:bg-[var(--surface-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-green)]/40"
+            >
+              <Share2 className="size-3.5 text-[var(--accent-green)]" aria-hidden="true" />
+              <span className="hidden sm:inline">分享</span>
+            </button>
+
+            {/* Font Size Adjuster Controls */}
+            <div className="flex items-center gap-1 bg-white dark:bg-[#1E2721] p-1 rounded-2xl border border-[#2D2B2C]/8 dark:border-white/10 shadow-2xs">
             <Type className="w-3.5 h-3.5 text-[#7A736A] ml-2 mr-1" />
             <button
               onClick={() => setFontSizeLevel("sm")}
+              aria-pressed={fontSizeLevel === "sm"}
               className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all ${
                 fontSizeLevel === "sm"
                   ? "bg-[#36513B] text-white shadow-2xs"
@@ -489,6 +537,7 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
             </button>
             <button
               onClick={() => setFontSizeLevel("base")}
+              aria-pressed={fontSizeLevel === "base"}
               className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all ${
                 fontSizeLevel === "base"
                   ? "bg-[#36513B] text-white shadow-2xs"
@@ -499,6 +548,7 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
             </button>
             <button
               onClick={() => setFontSizeLevel("lg")}
+              aria-pressed={fontSizeLevel === "lg"}
               className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all ${
                 fontSizeLevel === "lg"
                   ? "bg-[#36513B] text-white shadow-2xs"
@@ -507,8 +557,35 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
             >
               大
             </button>
+            </div>
           </div>
         </div>
+
+        {savedProgress > 0 && (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--border-line-color)] bg-[var(--surface)]/88 px-4 py-3 text-sm shadow-[0_8px_24px_rgba(51,72,58,0.05)] backdrop-blur-sm sm:px-5">
+            <div className="flex items-center gap-2.5 text-[var(--muted)]">
+              <Bookmark className="size-4 text-[var(--accent-green)]" aria-hidden="true" />
+              <span>上次读到 {savedProgress}%</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={resumeReading}
+                className="rounded-full bg-[var(--accent-green)] px-3.5 py-1.5 text-xs font-semibold text-[#F0F5F1] transition-transform hover:-translate-y-0.5 active:translate-y-0 motion-reduce:transition-none"
+              >
+                继续阅读
+              </button>
+              <button
+                type="button"
+                onClick={dismissResume}
+                aria-label="关闭继续阅读提示"
+                className="rounded-full p-1.5 text-[var(--muted)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--foreground)]"
+              >
+                <X className="size-4" aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Header Section */}
         <div className="space-y-4 text-center sm:text-left border-b border-[#2D2B2C]/8 dark:border-white/10 pb-8">
@@ -566,6 +643,22 @@ export default function NoteDetailClient({ note, prevNote, nextNote }: NoteDetai
               <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
+
+          {relatedNotes.length > 0 && (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {relatedNotes.map((relatedNote) => (
+                <Link
+                  key={relatedNote.id}
+                  href={`/notes/${relatedNote.id}`}
+                  className="group border-l-2 border-[var(--border-line-color)] px-4 py-2 transition-[border-color,transform] hover:translate-x-1 hover:border-[var(--accent-green)] focus-visible:translate-x-1 focus-visible:border-[var(--accent-green)] focus-visible:outline-none motion-reduce:transition-none"
+                >
+                  <span className="text-[11px] font-semibold text-[var(--accent-green)]">{relatedNote.category}</span>
+                  <h3 className="mt-1 line-clamp-1 text-sm font-semibold text-[var(--foreground)]">{relatedNote.title}</h3>
+                  <p className="mt-1 line-clamp-1 text-xs text-[var(--muted)]">{relatedNote.summary}</p>
+                </Link>
+              ))}
+            </div>
+          )}
 
           {/* Navigation Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">

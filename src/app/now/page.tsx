@@ -4,9 +4,9 @@ import Link from "next/link";
 import {
   ArrowUpRight,
   BookOpenText,
+  Clock3,
   Gamepad2,
   Images,
-  Sprout,
 } from "lucide-react";
 import { GALLERY_PHOTOS, PLAYGROUND_ITEMS } from "@/data/siteContent";
 import { getAllNotes } from "@/lib/notes";
@@ -46,8 +46,8 @@ export default function NowPage() {
       <div className="mx-auto max-w-6xl">
         <header className="max-w-3xl">
           <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">
-            <Sprout className="size-4" strokeWidth={1.8} />
-            <span>小屋近况</span>
+            <Clock3 className="size-4" strokeWidth={1.8} />
+            <span>近况</span>
           </div>
           <h1 className="text-4xl font-light tracking-[-0.04em] sm:text-5xl">
             近况

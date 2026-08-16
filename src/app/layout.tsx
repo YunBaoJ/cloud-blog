@@ -4,6 +4,7 @@ import CommandMenu from "@/components/CommandMenu";
 import Navbar from "@/components/Navbar";
 import ReadingProgress from "@/components/ReadingProgress";
 import RouteTheme from "@/components/RouteTheme";
+import ToastViewport from "@/components/ToastViewport";
 import { getAllNotes } from "@/lib/notes";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
@@ -88,6 +89,7 @@ export default function RootLayout({
           <ThemeProvider>
             <RouteTheme>
               <ReadingProgress />
+              <ToastViewport />
               <Navbar />
               <CommandMenu notes={searchNotes} />
               {children}

@@ -2,12 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Feather, Sparkles, BookOpen, User, ImageIcon, Archive, Clock3, Search } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Feather, Sparkles, BookOpen, User, ImageIcon, Archive, Clock3, Search, MoreHorizontal } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import AmbientPlayer from "./AmbientPlayer";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const navRef = useRef<HTMLDivElement>(null);
+  const moreButtonRef = useRef<HTMLButtonElement>(null);
+  const firstMoreLinkRef = useRef<HTMLAnchorElement>(null);
+  const wasMoreOpenRef = useRef(false);
 
   const isActive = (path: string) => {
     if (path === "/") return pathname === "/";
@@ -15,10 +21,36 @@ export default function Navbar() {
   };
 
   const triggerSearch = () => {
+    setIsMoreOpen(false);
     window.dispatchEvent(
       new KeyboardEvent("keydown", { key: "k", ctrlKey: true, metaKey: true, bubbles: true })
     );
   };
+
+  useEffect(() => {
+    if (!isMoreOpen) {
+      if (wasMoreOpenRef.current) {
+        window.requestAnimationFrame(() => moreButtonRef.current?.focus());
+        wasMoreOpenRef.current = false;
+      }
+      return;
+    }
+    wasMoreOpenRef.current = true;
+    window.requestAnimationFrame(() => firstMoreLinkRef.current?.focus());
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!navRef.current?.contains(event.target as Node)) setIsMoreOpen(false);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsMoreOpen(false);
+    };
+    window.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isMoreOpen]);
 
   return (
     <header className="fixed inset-x-0 top-3 z-50 w-full px-2 pointer-events-none sm:top-5 sm:px-6 lg:px-8">
@@ -26,7 +58,7 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto flex items-center justify-center">
         
         {/* Apple Acrylic Liquid Glass Floating Pill Bar */}
-        <div className="pointer-events-auto relative inline-flex max-w-[calc(100vw-1rem)] items-center gap-0.5 overflow-x-auto whitespace-nowrap rounded-full p-1 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-2xl saturate-150 transition-all duration-300 [scrollbar-width:none] [&>*]:shrink-0 [&::-webkit-scrollbar]:hidden sm:max-w-[calc(100vw-3rem)] sm:gap-1.5 sm:p-1.5"
+        <div ref={navRef} className="pointer-events-auto relative inline-flex max-w-[calc(100vw-1rem)] items-center gap-0.5 overflow-visible whitespace-nowrap rounded-full p-1 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-2xl saturate-150 transition-all duration-300 [&>*]:shrink-0 sm:max-w-[calc(100vw-3rem)] sm:gap-1.5 sm:p-1.5"
           style={{
             background: "var(--nav-bg)",
             border: "1px solid var(--nav-border)",
@@ -96,7 +128,7 @@ export default function Navbar() {
           <Link
             href="/now"
             aria-label="近况"
-            className={`flex min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-full px-2 py-1.5 text-xs font-medium transition-all sm:min-h-0 sm:min-w-0 sm:px-3 ${
+            className={`hidden min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-full px-2 py-1.5 text-xs font-medium transition-all sm:min-h-0 sm:min-w-0 sm:px-3 md:flex ${
               isActive("/now")
                 ? "bg-white text-[#2D2B2C] shadow-2xs font-semibold"
                 : "text-[#5A5551] hover:text-[#2D2B2C] hover:bg-white/70"
@@ -110,7 +142,7 @@ export default function Navbar() {
           <Link
             href="/archive"
             aria-label="文章归档"
-            className={`flex min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-full px-2 py-1.5 text-xs font-medium transition-all sm:min-h-0 sm:min-w-0 sm:px-3 ${
+            className={`hidden min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-full px-2 py-1.5 text-xs font-medium transition-all sm:min-h-0 sm:min-w-0 sm:px-3 md:flex ${
               isActive("/archive")
                 ? "bg-white text-[#2D2B2C] shadow-2xs font-semibold"
                 : "text-[#5A5551] hover:text-[#2D2B2C] hover:bg-white/70"
@@ -124,7 +156,7 @@ export default function Navbar() {
           <Link
             href="/about"
             aria-label="关于小屋"
-            className={`flex min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-full px-2 py-1.5 text-xs font-medium transition-all sm:min-h-0 sm:min-w-0 sm:px-3 ${
+            className={`hidden min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-full px-2 py-1.5 text-xs font-medium transition-all sm:min-h-0 sm:min-w-0 sm:px-3 md:flex ${
               isActive("/about")
                 ? "bg-white text-[#2D2B2C] shadow-2xs font-semibold"
                 : "text-[#5A5551] hover:text-[#2D2B2C] hover:bg-white/70"
@@ -134,11 +166,55 @@ export default function Navbar() {
             <span className="hidden md:inline">关于</span>
           </Link>
 
+          <button
+            ref={moreButtonRef}
+            type="button"
+            onClick={() => setIsMoreOpen((current) => !current)}
+            aria-label="更多导航"
+            aria-expanded={isMoreOpen}
+            aria-controls="mobile-more-navigation"
+            className={`flex min-h-10 min-w-10 items-center justify-center rounded-full text-xs transition-colors md:hidden ${isMoreOpen || isActive("/now") || isActive("/archive") || isActive("/about") ? "bg-white text-[#2D2B2C] shadow-2xs" : "text-[#5A5551] hover:bg-white/70"}`}
+          >
+            <MoreHorizontal className="size-4" aria-hidden="true" />
+          </button>
+
+          {isMoreOpen && (
+            <div
+              id="mobile-more-navigation"
+              role="menu"
+              aria-label="更多导航"
+              className="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-44 space-y-1 rounded-2xl border border-[var(--nav-border)] bg-[var(--surface)]/96 p-2 text-[var(--foreground)] shadow-[0_16px_40px_rgba(38,53,42,0.18)] backdrop-blur-2xl md:hidden"
+            >
+              {[
+                { href: "/now", label: "近况", icon: Clock3 },
+                { href: "/archive", label: "归档", icon: Archive },
+                { href: "/about", label: "关于", icon: User },
+              ].map((item, index) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    ref={index === 0 ? firstMoreLinkRef : undefined}
+                    href={item.href}
+                    role="menuitem"
+                    onClick={() => setIsMoreOpen(false)}
+                    className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm transition-colors ${isActive(item.href) ? "bg-[var(--accent-green)] text-[#F0F5F1]" : "hover:bg-[var(--surface-2)]"}`}
+                  >
+                    <Icon className="size-4" aria-hidden="true" />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+
           {/* 软分隔线 */}
           <div className="h-4 w-px bg-[#2D2B2C]/10 dark:bg-[#EDE9E4]/10 mx-0.5" />
 
           {/* Ambient Player (白噪音播放器) */}
-          <AmbientPlayer />
+          <div className="hidden min-[400px]:block">
+            <AmbientPlayer />
+          </div>
 
           {/* Theme toggle (夜间模式切换) */}
           <ThemeToggle />

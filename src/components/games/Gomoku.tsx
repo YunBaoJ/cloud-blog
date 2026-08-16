@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { RotateCcw, User, Bot, Users, Undo2, Play, Pause, Sparkles } from "lucide-react";
 import { playGameSound } from "@/lib/gameSounds";
+import { useGameActivity } from "@/components/games/GameActivityContext";
+import { recordGameResult } from "@/lib/gameHistory";
 
 type Stone = "black" | "white" | null;
 type Mode = "pvp" | "pve" | "eve_step";
@@ -297,6 +299,8 @@ function getWinLine(board: Stone[], who: Stone, lastIdx: number): number[] {
 
 // ─── Component ───────────────────────────────────────────────────
 export default function Gomoku() {
+  const isGameActive = useGameActivity();
+  const recordedWinnerRef = useRef<Stone>(null);
   const [mode, setMode] = useState<Mode | null>(null);
   const [playerColor, setPlayerColor] = useState<"black" | "white">("black");
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -320,7 +324,7 @@ export default function Gomoku() {
 
   // ─── AI Step Execution (触发 AI 替下一步) ──────────────────────────
   const executeAIMove = useCallback(() => {
-    if (winner || aiThinking) return;
+    if (!isGameActive || winner || aiThinking) return;
 
     setAiThinking(true);
     requestAnimationFrame(() => {
@@ -345,7 +349,20 @@ export default function Gomoku() {
       }
       setAiThinking(false);
     });
-  }, [board, turn, winner, aiThinking, place]);
+  }, [board, turn, winner, aiThinking, isGameActive, place]);
+
+  useEffect(() => {
+    if (!winner) {
+      recordedWinnerRef.current = null;
+      return;
+    }
+    if (recordedWinnerRef.current === winner) return;
+    recordedWinnerRef.current = winner;
+    const outcome = mode === "pve"
+      ? (winner === playerColor ? "胜利" : "失利")
+      : `${winner === "black" ? "黑方" : "白方"}胜利`;
+    recordGameResult("gomoku", "五子棋", `${outcome} · ${history.length} 手`);
+  }, [history.length, mode, playerColor, winner]);
 
   const startPveGame = useCallback((chosenColor: "black" | "white") => {
     const centerIdx = Math.floor(SIZE / 2) * SIZE + Math.floor(SIZE / 2);
@@ -388,13 +405,13 @@ export default function Gomoku() {
   // ─── Auto Play Loop for EvE Mode ──────────────────────────────────
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (mode === "eve_step" && isAutoPlay && !winner && !aiThinking) {
+    if (isGameActive && mode === "eve_step" && isAutoPlay && !winner && !aiThinking) {
       timer = setTimeout(() => {
         executeAIMove();
       }, 500);
     }
     return () => clearTimeout(timer);
-  }, [mode, isAutoPlay, winner, aiThinking, executeAIMove]);
+  }, [mode, isAutoPlay, winner, aiThinking, executeAIMove, isGameActive]);
 
   // ─── Undo Move (悔棋) ──────────────────────────────────────────
   const undo = useCallback(() => {
@@ -431,7 +448,7 @@ export default function Gomoku() {
   }, [aiThinking, mode, history, playerColor]);
 
   const handleClick = useCallback((idx: number) => {
-    if (!mode || board[idx] || winner || aiThinking) return;
+    if (!isGameActive || !mode || board[idx] || winner || aiThinking) return;
     if (mode === "pve" && turn !== playerColor) return;
 
     if (mode === "pve") {
@@ -488,7 +505,7 @@ export default function Gomoku() {
       setBoard(boardWithMove);
       setTurn(nextTurn);
     }
-  }, [mode, board, winner, aiThinking, turn, place, history, playerColor, aiColor]);
+  }, [mode, board, winner, aiThinking, turn, place, history, playerColor, aiColor, isGameActive]);
 
   // Last Move Index
   const lastMoveIdx = history.length > 0 ? history[history.length - 1] : null;

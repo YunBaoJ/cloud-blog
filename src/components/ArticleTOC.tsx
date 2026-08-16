@@ -17,6 +17,9 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
   const [isOpenMobile, setIsOpenMobile] = useState(false);
   const sidebarRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const mobileTriggerRef = useRef<HTMLButtonElement>(null);
+  const mobileCloseRef = useRef<HTMLButtonElement>(null);
+  const wasOpenMobileRef = useRef(false);
 
   useGSAP(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -90,6 +93,23 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
     }
   }, [activeId]);
 
+  useEffect(() => {
+    if (!isOpenMobile) {
+      if (wasOpenMobileRef.current) {
+        window.requestAnimationFrame(() => mobileTriggerRef.current?.focus());
+        wasOpenMobileRef.current = false;
+      }
+      return;
+    }
+    wasOpenMobileRef.current = true;
+    window.requestAnimationFrame(() => mobileCloseRef.current?.focus());
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpenMobile(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpenMobile]);
+
   const scrollToHeading = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
     setIsOpenMobile(false);
@@ -105,7 +125,7 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
   return (
     <>
       {/* Desktop/Tablet Dynamic Sticky Track Panel — 0 impact on main article card size, follows page scroll */}
-      <aside ref={sidebarRef} className="w-56 pointer-events-auto">
+      <aside ref={sidebarRef} className="hidden w-56 pointer-events-auto 2xl:block">
         <nav className="space-y-3 bg-white/95 dark:bg-[#1C1A17]/95 backdrop-blur-xl p-4.5 rounded-2xl border border-[#2D2B2C]/12 dark:border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
           {/* Header with Title & Reading Progress Bar */}
           <div className="space-y-2 border-b border-[#2D2B2C]/10 dark:border-white/15 pb-3">
@@ -154,24 +174,36 @@ export default function ArticleTOC({ items }: { items: TOCItem[] }) {
       </aside>
 
       {/* Mobile & Medium Screen Floating Capsule Button & Popup Panel */}
-      <div className="2xl:hidden fixed right-5 bottom-6 z-40">
+      <div className="pointer-events-auto fixed bottom-6 right-5 z-40 2xl:hidden">
         {!isOpenMobile ? (
           <button
+            ref={mobileTriggerRef}
+            type="button"
             onClick={() => setIsOpenMobile(true)}
+            aria-expanded="false"
+            aria-controls="mobile-article-toc"
             className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#36513B] dark:bg-[#7CD090] text-white dark:text-[#142219] text-xs font-bold shadow-lg hover:scale-105 active:scale-95 transition-all"
           >
             <List className="w-4 h-4" />
             <span>目录 ({items.length}) · {scrollProgress}%</span>
           </button>
         ) : (
-          <div className="w-72 bg-white dark:bg-[#1C1A17] p-5 rounded-3xl border border-[#2D2B2C]/10 dark:border-white/10 shadow-[0_16px_48px_rgba(0,0,0,0.2)] space-y-3 animate-in slide-in-from-bottom-4 duration-200">
+          <div
+            id="mobile-article-toc"
+            role="dialog"
+            aria-label="文章目录"
+            className="w-72 bg-white dark:bg-[#1C1A17] p-5 rounded-3xl border border-[#2D2B2C]/10 dark:border-white/10 shadow-[0_16px_48px_rgba(0,0,0,0.2)] space-y-3 animate-in slide-in-from-bottom-4 duration-200"
+          >
             <div className="flex items-center justify-between border-b border-[#2D2B2C]/8 dark:border-white/10 pb-2.5">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-[#36513B] dark:text-[#7CD090] font-mono">目录导航</span>
                 <span className="text-[10px] text-[#7A736A] dark:text-[#9EB3A4] font-mono">({scrollProgress}%)</span>
               </div>
               <button
+                ref={mobileCloseRef}
+                type="button"
                 onClick={() => setIsOpenMobile(false)}
+                aria-label="关闭文章目录"
                 className="p-1 rounded-lg text-[#7A736A] hover:bg-[#2D2B2C]/5 dark:hover:bg-white/10"
               >
                 <X className="w-4 h-4" />

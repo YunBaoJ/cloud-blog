@@ -41,7 +41,7 @@ export default function NotesClient({ initialNotes }: NotesClientProps) {
             <div className="max-w-3xl">
               <div className="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-[var(--accent-green)]">
                 <BookOpen className="size-4" strokeWidth={1.8} aria-hidden="true" />
-                <span>文章归档</span>
+                <span>随笔笔记</span>
               </div>
               <h1 className="text-4xl font-light tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
                 随笔笔记

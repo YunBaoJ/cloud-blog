@@ -1,3 +1,6 @@
+import { getGameSoundPreference } from "@/lib/gamePreferences";
+import { resolveGamePlaybackVolume } from "@/lib/gameRecords.mts";
+
 const GAME_SOUNDS = {
   "xiangqi-move": ["/sounds/move.wav", 0.72],
   "xiangqi-capture": ["/sounds/capture.wav", 0.78],
@@ -25,8 +28,10 @@ export function playGameSound(sound: GameSound): void {
 
   try {
     const [path, volume] = GAME_SOUNDS[sound];
+    const preference = getGameSoundPreference();
+    if (preference.muted || preference.volume === 0) return;
     const audio = players.get(sound) ?? new Audio(path);
-    audio.volume = volume;
+    audio.volume = resolveGamePlaybackVolume(volume, preference.volume);
     audio.currentTime = 0;
     players.set(sound, audio);
     void audio.play().catch(() => {});

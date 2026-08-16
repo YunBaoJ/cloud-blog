@@ -8,7 +8,7 @@ import {
   Gamepad2,
   ImageIcon,
   Mail,
-  Sprout,
+  User,
 } from "lucide-react";
 
 const COTTAGE_ROOMS = [
@@ -42,8 +42,8 @@ export default function AboutContent() {
         <div className="mx-auto max-w-6xl">
           <div className="max-w-3xl">
             <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">
-              <Sprout className="size-4" strokeWidth={1.8} aria-hidden="true" />
-              <span>关于小屋</span>
+              <User className="size-4" strokeWidth={1.8} aria-hidden="true" />
+              <span>关于</span>
             </div>
             <h1 className="text-4xl font-light tracking-[-0.05em] sm:text-5xl">
               关于我
