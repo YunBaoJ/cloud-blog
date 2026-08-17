@@ -35,7 +35,7 @@ export default function ProjectScreenshotGallery({
   const currentShot = currentScreenshots[selectedShotIndex] || currentScreenshots[0];
   const CategoryIcon = CATEGORY_ICONS[currentCategory.id] || Shield;
 
-  const totalPages = Math.ceil(currentScreenshots.length / THUMBNAIL_PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(currentScreenshots.length / THUMBNAIL_PAGE_SIZE));
   const visibleThumbnails = currentScreenshots.slice(
     thumbPage * THUMBNAIL_PAGE_SIZE,
     (thumbPage + 1) * THUMBNAIL_PAGE_SIZE,
@@ -103,7 +103,7 @@ export default function ProjectScreenshotGallery({
       {/* Taobao-style Side-by-Side Showcase Structure */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* ===================== 左侧：macOS 拟真主视区 + 底部最多展示 3 张带翻页按钮 ===================== */}
+        {/* ===================== 左侧：macOS 拟真主视区 + 统一固定 3 槽位缩略图轨道 ===================== */}
         <div className="lg:col-span-7 space-y-4">
           
           {/* macOS Simulated Browser Frame */}
@@ -166,7 +166,7 @@ export default function ProjectScreenshotGallery({
             </div>
           </div>
 
-          {/* 下方小截图：最多显示 3 张，多于 3 张带有左右翻页按钮 <> */}
+          {/* 下方小截图：版式完全统一定型 (固定左右翻页按钮槽位，固定 3 列卡片宽度) */}
           <div key={currentCategory.id} className="animate-in fade-in duration-200 space-y-2.5">
             <div className="flex items-center justify-between px-1">
               <span className="text-xs font-bold text-[#2D2B2C] dark:text-[#F0F5F1] flex items-center gap-1.5">
@@ -174,31 +174,27 @@ export default function ProjectScreenshotGallery({
                 <span>{currentCategory.name} · 功能子页面 ({currentScreenshots.length} 张)</span>
               </span>
               
-              {totalPages > 1 && (
-                <span className="text-[11px] font-mono text-[#7A736A] dark:text-[#9EB3A4]">
-                  页码 {thumbPage + 1} / {totalPages}
-                </span>
-              )}
+              <span className="text-[11px] font-mono text-[#7A736A] dark:text-[#9EB3A4]">
+                页码 {thumbPage + 1} / {totalPages}
+              </span>
             </div>
 
-            {/* 3-Thumbnail Track with Prev/Next Navigation Controls */}
+            {/* 3-Thumbnail Track with Perfectly Aligned Fixed Prev/Next Controls */}
             <div className="flex items-center gap-2">
               
-              {/* Prev Page Button (当总图数 > 3 时渲染) */}
-              {totalPages > 1 && (
-                <button
-                  type="button"
-                  onClick={() => setThumbPage((p) => Math.max(0, p - 1))}
-                  disabled={thumbPage === 0}
-                  className="inline-flex size-9 items-center justify-center rounded-full bg-white dark:bg-[#1C261F] text-[#2D2B2C] dark:text-white shadow-md hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed border border-[#2D2B2C]/10 dark:border-white/15 transition-all shrink-0 cursor-pointer"
-                  title="上一页 (<)"
-                  aria-label="上一页"
-                >
-                  <ChevronLeft className="size-4.5" />
-                </button>
-              )}
+              {/* Prev Page Button (固定占位，保持所有角色版式 100% 一致) */}
+              <button
+                type="button"
+                onClick={() => setThumbPage((p) => Math.max(0, p - 1))}
+                disabled={thumbPage === 0 || totalPages <= 1}
+                className="inline-flex size-9 items-center justify-center rounded-full bg-white dark:bg-[#1C261F] text-[#2D2B2C] dark:text-white shadow-md hover:scale-105 active:scale-95 disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:scale-100 border border-[#2D2B2C]/10 dark:border-white/15 transition-all shrink-0 cursor-pointer"
+                title="上一页 (<)"
+                aria-label="上一页"
+              >
+                <ChevronLeft className="size-4.5" />
+              </button>
 
-              {/* Exact 3 Thumbnails Container */}
+              {/* Exact 3 Thumbnails Container (所有角色统一固定 3 槽位) */}
               <div className="grid grid-cols-3 gap-2.5 flex-1">
                 {visibleThumbnails.map((shot, localIdx) => {
                   const globalIdx = thumbPage * THUMBNAIL_PAGE_SIZE + localIdx;
@@ -233,26 +229,24 @@ export default function ProjectScreenshotGallery({
                 })}
               </div>
 
-              {/* Next Page Button (当总图数 > 3 时渲染) */}
-              {totalPages > 1 && (
-                <button
-                  type="button"
-                  onClick={() => setThumbPage((p) => Math.min(totalPages - 1, p + 1))}
-                  disabled={thumbPage >= totalPages - 1}
-                  className="inline-flex size-9 items-center justify-center rounded-full bg-white dark:bg-[#1C261F] text-[#2D2B2C] dark:text-white shadow-md hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed border border-[#2D2B2C]/10 dark:border-white/15 transition-all shrink-0 cursor-pointer"
-                  title="下一页 (>)"
-                  aria-label="下一页"
-                >
-                  <ChevronRight className="size-4.5" />
-                </button>
-              )}
+              {/* Next Page Button (固定占位，保持所有角色版式 100% 一致) */}
+              <button
+                type="button"
+                onClick={() => setThumbPage((p) => Math.min(totalPages - 1, p + 1))}
+                disabled={thumbPage >= totalPages - 1 || totalPages <= 1}
+                className="inline-flex size-9 items-center justify-center rounded-full bg-white dark:bg-[#1C261F] text-[#2D2B2C] dark:text-white shadow-md hover:scale-105 active:scale-95 disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:scale-100 border border-[#2D2B2C]/10 dark:border-white/15 transition-all shrink-0 cursor-pointer"
+                title="下一页 (>)"
+                aria-label="下一页"
+              >
+                <ChevronRight className="size-4.5" />
+              </button>
 
             </div>
           </div>
 
         </div>
 
-        {/* ===================== 右侧：角色大类视角选择与业务深度详情 (已取消底部放大按钮) ===================== */}
+        {/* ===================== 右侧：角色大类视角选择与业务深度详情 ===================== */}
         <div className="lg:col-span-5 space-y-6">
           
           {/* Detail Card (淘宝商品属性面板风格) */}
@@ -347,7 +341,7 @@ export default function ProjectScreenshotGallery({
 
       </div>
 
-      {/* ===================== 全屏灯箱模态弹窗 (深色沉浸卡片背景，彻底去除刺眼纯白) ===================== */}
+      {/* ===================== 全屏灯箱模态弹窗 (深色沉浸卡片背景) ===================== */}
       {mounted && isLightboxOpen && createPortal(
         <div
           role="dialog"
@@ -358,7 +352,7 @@ export default function ProjectScreenshotGallery({
             if (e.target === e.currentTarget) setIsLightboxOpen(false);
           }}
         >
-          {/* 中间深色沉浸背景板卡片 (高雅松针暗绿/黑胶底色，完全不是白色) */}
+          {/* 中间深色沉浸背景板卡片 */}
           <div className="relative max-w-5xl w-full rounded-3xl bg-[#162019]/95 border border-white/15 p-3 sm:p-5 shadow-[0_24px_80px_rgba(0,0,0,0.6)] flex flex-col items-center gap-3 text-white">
             
             {/* Topbar: 视角信息 + 关闭按钮 */}
@@ -384,7 +378,7 @@ export default function ProjectScreenshotGallery({
               </button>
             </div>
 
-            {/* 核心高清大图展示框 (深暗背景，凸显界面细节) */}
+            {/* 核心高清大图展示框 */}
             <div className="relative w-full flex items-center justify-center overflow-hidden rounded-2xl bg-black/50 border border-white/10 p-2 sm:p-4 shadow-inner min-h-[50vh]">
               {/* Prev Button */}
               <button
