@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Feather, Sparkles, BookOpen, User, ImageIcon, Archive, Clock3, Search, MoreHorizontal } from "lucide-react";
+import { Feather, Sparkles, BookOpen, User, ImageIcon, Archive, Clock3, Layers3, Search, MoreHorizontal } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
-import AmbientPlayer from "./AmbientPlayer";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -110,7 +109,17 @@ export default function Navbar() {
             <span className="hidden md:inline">作品画廊</span>
           </Link>
 
-          {/* 4. 灵感游乐场 */}
+          {/* 4. 项目案例 */}
+          <Link
+            href="/projects/dormitory-system"
+            aria-label="项目"
+            className={`hidden min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-full px-2 py-1.5 text-xs font-medium transition-all sm:min-h-0 sm:min-w-0 sm:px-3 md:flex ${isActive("/projects") ? "bg-white text-[#2D2B2C] shadow-2xs font-semibold" : "text-[#5A5551] hover:text-[#2D2B2C] hover:bg-white/70"}`}
+          >
+            <Layers3 className="w-3.5 h-3.5 text-[var(--accent-green)]" />
+            <span className="hidden lg:inline">项目</span>
+          </Link>
+
+          {/* 5. 灵感游乐场 */}
           <Link
             href="/playground"
             aria-label="游乐场"
@@ -124,7 +133,7 @@ export default function Navbar() {
             <span className="hidden sm:inline">游乐场</span>
           </Link>
 
-          {/* 5. 近况 */}
+          {/* 6. 近况 */}
           <Link
             href="/now"
             aria-label="近况"
@@ -138,7 +147,7 @@ export default function Navbar() {
             <span className="hidden md:inline">近况</span>
           </Link>
 
-          {/* 6. 文章归档 */}
+          {/* 7. 文章归档 */}
           <Link
             href="/archive"
             aria-label="文章归档"
@@ -152,7 +161,7 @@ export default function Navbar() {
             <span className="hidden lg:inline">归档</span>
           </Link>
 
-          {/* 7. 关于小屋 */}
+          {/* 8. 关于小屋 */}
           <Link
             href="/about"
             aria-label="关于小屋"
@@ -173,7 +182,7 @@ export default function Navbar() {
             aria-label="更多导航"
             aria-expanded={isMoreOpen}
             aria-controls="mobile-more-navigation"
-            className={`flex min-h-10 min-w-10 items-center justify-center rounded-full text-xs transition-colors md:hidden ${isMoreOpen || isActive("/now") || isActive("/archive") || isActive("/about") ? "bg-white text-[#2D2B2C] shadow-2xs" : "text-[#5A5551] hover:bg-white/70"}`}
+            className={`flex min-h-10 min-w-10 items-center justify-center rounded-full text-xs transition-colors md:hidden ${isMoreOpen || isActive("/projects") || isActive("/now") || isActive("/archive") || isActive("/about") ? "bg-white text-[#2D2B2C] shadow-2xs" : "text-[#5A5551] hover:bg-white/70"}`}
           >
             <MoreHorizontal className="size-4" aria-hidden="true" />
           </button>
@@ -186,6 +195,7 @@ export default function Navbar() {
               className="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-44 space-y-1 rounded-2xl border border-[var(--nav-border)] bg-[var(--surface)]/96 p-2 text-[var(--foreground)] shadow-[0_16px_40px_rgba(38,53,42,0.18)] backdrop-blur-2xl md:hidden"
             >
               {[
+                { href: "/projects/dormitory-system", label: "项目", icon: Layers3 },
                 { href: "/now", label: "近况", icon: Clock3 },
                 { href: "/archive", label: "归档", icon: Archive },
                 { href: "/about", label: "关于", icon: User },
@@ -207,14 +217,6 @@ export default function Navbar() {
               })}
             </div>
           )}
-
-          {/* 软分隔线 */}
-          <div className="h-4 w-px bg-[#2D2B2C]/10 dark:bg-[#EDE9E4]/10 mx-0.5" />
-
-          {/* Ambient Player (白噪音播放器) */}
-          <div className="hidden min-[400px]:block">
-            <AmbientPlayer />
-          </div>
 
           {/* Theme toggle (夜间模式切换) */}
           <ThemeToggle />

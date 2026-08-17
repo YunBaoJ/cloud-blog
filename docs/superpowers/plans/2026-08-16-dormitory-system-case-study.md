@@ -52,7 +52,7 @@ package.json
 Run from `F:\bishe\Antigravity\Dorm-Sys\frontend`:
 
 ```powershell
-npx playwright test tests/e2e/roles.spec.js --project=chromium
+npx playwright test tests/e2e/roles.spec.js
 ```
 
 Expected: the existing configuration starts local frontend and backend services, then role-login checks pass. Do not print passwords, connection strings, tokens, or test fixtures.

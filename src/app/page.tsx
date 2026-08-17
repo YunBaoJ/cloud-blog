@@ -1,6 +1,7 @@
 import Hero from "@/components/Hero";
 import HomepageStats from "@/components/HomepageStats";
 import FeaturedNotes from "@/components/FeaturedNotes";
+import ProjectTeaser from "@/components/ProjectTeaser";
 import GalleryTeaser from "@/components/GalleryTeaser";
 import PlaygroundTeaser from "@/components/PlaygroundTeaser";
 import NewsletterSection from "@/components/NewsletterSection";
@@ -16,6 +17,7 @@ export default function Home() {
         <Hero />
         <HomepageStats />
         <FeaturedNotes initialNotes={notes} />
+        <ProjectTeaser />
         <GalleryTeaser />
         <PlaygroundTeaser />
         <NewsletterSection />

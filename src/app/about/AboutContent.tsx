@@ -58,6 +58,13 @@ export default function AboutContent() {
               <p className="mt-6 max-w-[56ch] text-sm leading-7 text-[var(--foreground)] sm:text-base">
                 我在这里整理正在学习的技术，也留下阅读、创作和日常生活中的灵感。比起展示一份履历，我更希望这间小屋能慢慢长成真实的个人记录。
               </p>
+              <Link
+                href="/projects/dormitory-system"
+                className="group mt-7 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[var(--accent-green)] outline-none transition-colors duration-200 hover:text-[var(--foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent-green)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--background)] motion-reduce:transition-none"
+              >
+                查看智慧宿舍管理系统
+                <ArrowUpRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 motion-reduce:transition-none" strokeWidth={1.8} aria-hidden="true" />
+              </Link>
             </div>
 
             <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-[var(--surface-2)] shadow-[0_18px_50px_rgba(45,43,44,0.09)] dark:shadow-none">
