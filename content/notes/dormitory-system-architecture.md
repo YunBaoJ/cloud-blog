@@ -14,13 +14,13 @@ featured: true
 
 # 从零构建智慧宿舍管理系统：Spring Boot 3 与 Vue 3 的工程化实战与架构权衡
 
-高校宿舍管理是一项典型的多角色、重流程、高并发变动的校园信息化业务。从每学期初的**大规模新生批量入住**、**学期中的调宿与设施损坏报修**，到**每日的外来访客登记与晚归考勤**，传统的纸质台账或单体管理模式极易导致数据孤岛与协同低效。
+高校宿舍管理是一项典型的多角色、重流程、高并发变动的校园信息化业务。从每学期初的大规模新生批量入住、学期中的调宿与设施损坏报修，到每日的外来访客登记与晚归考勤，传统的纸质台账或单体管理模式极易导致数据孤岛与协同低效。
 
-本文将从需求分析、系统分层架构、RBAC 细粒度权限控制、JWT 无状态双向鉴权到状态机工单流转，深度复盘基于 **Spring Boot 3 + Java 17 + Vue 3 + Element Plus** 构建的智慧宿舍管理系统的工程化落地过程。
+本文将从需求分析、系统分层架构、RBAC 细粒度权限控制、JWT 无状态双向鉴权到状态机工单流转，深度复盘基于 Spring Boot 3、Java 17、Vue 3 与 Element Plus 构建的智慧宿舍管理系统的工程化落地过程。
 
 ---
 
-## 🏛️ 1. 系统总体分层与技术选型
+## 1. 系统总体分层与技术选型
 
 为了保证系统的高内聚低耦合，我们采用了严谨的标准三层架构设计：表现层（Vue 3 Client）、业务安全层（Spring Boot 3 API）与数据持久层（MySQL 8.0）。
 
@@ -29,18 +29,18 @@ featured: true
 ### 为什么选择 Spring Boot 3 与 Java 17？
 - **Jakarta EE 命名空间升级与性能基准**：基于 Spring Boot 3 享受最新的框架性能与安全基准，全面支持响应式与函数式编程范式；
 - **RESTful 契约统一**：通过统一响应体 `R<T>`、全局错误码枚举 `ResultCode` 与统一异常拦截器 `@RestControllerAdvice`，实现严格的前后端数据接口契约；
-- **MyBatis-Plus 高效持久化**：在单表基础操作上零 SQL 编码，在多表复杂统计与大屏聚合查询中使用 XML 手写优化 SQL。
+- **MyBatis-Plus 高效持久化**：在单表基础操作上零 SQL 编码，在多表复杂统计与大屏聚合查询中使用手写 XML 优化 SQL。
 
 ---
 
-## 🛡️ 2. RBAC 细粒度权限模型与 JWT 双向鉴权
+## 2. RBAC 细粒度权限模型与 JWT 双向鉴权
 
-系统涵盖 **学生 (Student)**、**宿管 (Manager)** 与 **系统管理员 (Admin)** 三类完全不同的用户群体，权限边界的隔离是系统的生命线。
+系统涵盖在住学生 (Student)、楼栋宿管 (Manager) 与系统管理员 (Admin) 三类完全不同的用户群体，权限边界的隔离是系统的生命线。
 
 ![统一身份认证 - 学生/宿管/管理员三端安全登录入口](/projects/dormitory-system/login.png)
 
 ### 2.1 鉴权与路由流转机制
-1. **统一登录网关**：用户提交身份角色 + 学工号 + 密码至认证接口 `/api/auth/login`；
+1. **统一登录网关**：用户提交身份角色、学工号与密码至认证接口 `/api/auth/login`；
 2. **Spring Security 校验**：基于 BCrypt 强哈希算法进行密码比对，校验通过后签发包含用户 ID 与角色元数据的 HS256 JWT Token；
 3. **前端状态与动态路由**：Vue 3 客户端通过 Pinia 持久化 Token，全局路由守卫 `router.beforeEach` 动态生成当前角色可访问的专属菜单；
 4. **Axios 拦截器透传**：后续所有业务请求在 Header 中自动注入 `Authorization: Bearer <Token>`，后端统一网关拦截器无状态校验。
@@ -86,7 +86,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 ---
 
-## ⚙️ 3. 报修业务 5 节点状态机审批流
+## 3. 报修业务 5 节点状态机审批流
 
 报修是宿舍日常最高频的交互场景。为了防止工单流转出现状态倒流或悬挂，我们设计了严格的状态机流转模型。
 
@@ -101,9 +101,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 ---
 
-## 📊 4. 宿管工作台与房态图谱优化
+## 4. 宿管工作台与房态图谱优化
 
-在宿管端，如何直观展示**整栋楼宇数十个房间的实时入住率与空余床位**是一个核心前端交互难点。
+在宿管端，如何直观展示整栋楼宇数十个房间的实时入住率与空余床位是一个核心前端交互难点。
 
 ![宿管日常工作台 - 楼栋入住率看板与房态状态机](/projects/dormitory-system/manager-workbench.png)
 
@@ -113,7 +113,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 ---
 
-## 🎯 5. 工程复盘与思考
+## 5. 工程复盘与思考
 
 1. **前后端类型契约的统一**：通过 TypeScript Interface 与 Java DTO 保持完全镜像，消除了前后端联调时的字段类型隐患；
 2. **细粒度数据脱敏**：在全校大盘展示与访客记录中，对学生身份证号、手机号统一使用脱敏掩码（如 `138****1234`），保障校园个人隐私安全；
@@ -121,5 +121,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 ---
 
-> 💡 **项目结语**：
-> 一个优秀的管理系统不仅在于功能的完备，更在于架构设计的严谨性、状态流转的自洽性与交互界面的克制之美。
+> 架构设计准则：一个优秀的管理系统不仅在于功能的完备，更在于架构设计的严谨性、状态流转的自洽性与交互界面的克制之美。

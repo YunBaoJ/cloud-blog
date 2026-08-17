@@ -176,7 +176,7 @@ export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
         <section className="flex-1 space-y-12 pb-16">
           {grouped.length === 0 ? (
             <div className="py-20 text-center space-y-3">
-              <p className="text-4xl">🔍</p>
+              <Search className="size-10 text-[var(--muted)] mx-auto opacity-50" />
               <p className="text-[#7A736A] text-base">没有找到匹配的文章，换个关键词试试？</p>
             </div>
           ) : (

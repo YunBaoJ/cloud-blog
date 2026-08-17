@@ -517,7 +517,10 @@ export default function Gomoku() {
     return (
       <div className="bg-white dark:bg-[#1E2721]/50 rounded-3xl p-8 border border-[#2D2B2C]/6 dark:border-white/8 shadow-[0_4px_24px_rgba(45,43,44,0.05)] space-y-8">
         <div className="text-center space-y-2">
-          <div className="text-4xl">⚫⚪</div>
+          <div className="flex items-center justify-center gap-1.5 py-1">
+            <span className="size-6 rounded-full bg-[#2D2B2C] shadow-sm inline-block" />
+            <span className="size-6 rounded-full bg-white border border-[#2D2B2C]/30 shadow-sm inline-block" />
+          </div>
           <h3 className="text-xl font-bold text-[#2D2B2C] dark:text-[#F0F5F1]">五子棋</h3>
           <p className="text-sm text-[#7A736A] dark:text-[#9EB3A4]">选择游戏模式</p>
         </div>
@@ -581,7 +584,7 @@ export default function Gomoku() {
                   先手
                 </div>
                 <div className="text-center">
-                  <p className="font-bold text-[#2D2B2C] dark:text-[#F0F5F1]">执黑棋 ⚫</p>
+                  <p className="font-bold text-[#2D2B2C] dark:text-[#F0F5F1]">执黑棋 (先行)</p>
                   <p className="text-[11px] text-[#7A736A] dark:text-[#9EB3A4] mt-0.5">优先执黑先行</p>
                 </div>
               </button>
@@ -594,7 +597,7 @@ export default function Gomoku() {
                   后手
                 </div>
                 <div className="text-center">
-                  <p className="font-bold text-[#2D2B2C] dark:text-[#F0F5F1]">执白棋 ⚪</p>
+                  <p className="font-bold text-[#2D2B2C] dark:text-[#F0F5F1]">执白棋 (后手)</p>
                   <p className="text-[11px] text-[#7A736A] dark:text-[#9EB3A4] mt-0.5">AI 率先执黑落子</p>
                 </div>
               </button>
@@ -647,8 +650,8 @@ export default function Gomoku() {
           {winner && (
             <span className="text-xs px-2.5 py-1 rounded-full font-bold bg-[#36513B] text-white">
               {mode === "pve"
-                ? (winner === playerColor ? "🎉 你赢了！" : "😞 AI 获胜")
-                : (winner === "black" ? "⚫ 黑棋获胜" : "⚪ 白棋获胜")}
+                ? (winner === playerColor ? "你赢了！" : "AI 获胜")
+                : (winner === "black" ? "黑棋获胜" : "白棋获胜")}
             </span>
           )}
         </div>
@@ -855,7 +858,7 @@ export default function Gomoku() {
 
       <p className="text-center text-[10px] text-[#B0A99F] dark:text-[#4A6B55] font-mono">
         {mode === "eve_step"
-          ? "🤖 AI 军师推演模式 · 可随时点【AI 下一步】或由你插手落子"
+          ? "AI 军师推演模式 · 可随时点【AI 下一步】或由你插手落子"
           : mode === "pve"
           ? (playerColor === "black" ? "你执黑先行 · 可随时点【AI 下一步】助攻" : "你执白后手 · AI 执黑先手 · 可点【AI 下一步】助攻")
           : "双人同台对弈 · 任意时刻可点【AI 下一步】军师帮下"}

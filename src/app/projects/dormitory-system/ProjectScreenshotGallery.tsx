@@ -206,7 +206,7 @@ export default function ProjectScreenshotGallery({
             {/* Bottom Screen Bar */}
             <div className="flex items-center justify-between px-4 py-3 bg-[#FAF7F2]/60 dark:bg-[#16221B]/60 border-t border-[#2D2B2C]/8 dark:border-white/10 text-xs text-[#5A5551] dark:text-[#9EB3A4]">
               <span className="font-medium text-[#2D2B2C] dark:text-[#F0F5F1] truncate max-w-sm">
-                💡 {currentShot.alt}
+                {currentShot.alt}
               </span>
               <button
                 type="button"
@@ -544,7 +544,7 @@ export default function ProjectScreenshotGallery({
             {/* 底部缩略圆点指示器 + 滚轮提示 */}
             <div className="w-full flex items-center justify-between px-1 text-[11px] text-[var(--muted)]">
               <span className="hidden sm:inline">
-                💡 鼠标滚轮上下滚动缩放 · 双击快速切换 1.8x · 放大后按住可拖拽
+                鼠标滚轮上下滚动缩放 · 双击快速切换 1.8x · 放大后按住可拖拽
               </span>
               <div className="flex items-center gap-2 mx-auto sm:mx-0 py-1">
                 {currentScreenshots.map((s, idx) => (

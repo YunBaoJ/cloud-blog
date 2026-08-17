@@ -46,7 +46,7 @@ export default function Footer() {
         <div className="p-8 sm:p-10 rounded-3xl bg-[#E2EBE4]/60 dark:bg-[#1E2721]/80 border border-[#36513B]/15 dark:border-white/10 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#36513B]/10 dark:bg-[#7CD090]/15 text-[#36513B] dark:text-[#7CD090] text-xs font-bold tracking-wider">
-              <span>✦ 灵光一闪 · 每日一言</span>
+              <span>灵光一闪 · 每日一言</span>
             </div>
 
             <div className={`transition-opacity duration-200 ${shuffling ? "opacity-0" : "opacity-100"}`}>

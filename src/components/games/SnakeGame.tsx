@@ -253,7 +253,7 @@ export default function SnakeGame() {
     snakeRef.current = newSnake;
     draw();
 
-    // ⚡ 长按方向键加速计算：如长按则步长缩减为 35%，但最高速度受 MIN_BOOST_SPEED (25ms) 保护
+    // 长按方向键加速计算：如长按则步长缩减为 35%，但最高速度受 MIN_BOOST_SPEED (25ms) 保护
     const currentBaseSpeed = speedRef.current;
     const nextInterval = isAcceleratingRef.current
       ? Math.max(MIN_BOOST_SPEED, Math.floor(currentBaseSpeed * 0.35))

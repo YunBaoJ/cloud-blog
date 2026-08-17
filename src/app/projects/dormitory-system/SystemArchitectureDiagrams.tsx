@@ -308,10 +308,10 @@ export default function SystemArchitectureDiagrams() {
                     <span className="font-mono text-[10px] text-[#8C4A31]">全域权限</span>
                   </div>
                   <ul className="space-y-1.5 text-[11px] text-[var(--muted)]">
-                    <li className="flex items-center gap-1.5">✓ 楼栋资产与房间床位拓扑配置</li>
-                    <li className="flex items-center gap-1.5">✓ 用户账号状态与 RBAC 角色授权</li>
-                    <li className="flex items-center gap-1.5">✓ 全校报修大盘与宏观统计报表</li>
-                    <li className="flex items-center gap-1.5">✓ 操作安全审计日志与敏感操作回溯</li>
+                    <li className="flex items-center gap-1.5">· 楼栋资产与房间床位拓扑配置</li>
+                    <li className="flex items-center gap-1.5">· 用户账号状态与 RBAC 角色授权</li>
+                    <li className="flex items-center gap-1.5">· 全校报修大盘与宏观统计报表</li>
+                    <li className="flex items-center gap-1.5">· 操作安全审计日志与敏感操作回溯</li>
                   </ul>
                 </div>
 
@@ -322,10 +322,10 @@ export default function SystemArchitectureDiagrams() {
                     <span className="font-mono text-[10px] text-[#2A5270]">楼栋权限</span>
                   </div>
                   <ul className="space-y-1.5 text-[11px] text-[var(--muted)]">
-                    <li className="flex items-center gap-1.5">✓ 楼栋学生入住/退宿办理与房态看板</li>
-                    <li className="flex items-center gap-1.5">✓ 设施报修审核、师傅指派与完工验收</li>
-                    <li className="flex items-center gap-1.5">✓ 外来访客登记留痕与晚归考勤审计</li>
-                    <li className="flex items-center gap-1.5">✓ 寝室卫生定期评分与水电账单催缴</li>
+                    <li className="flex items-center gap-1.5">· 楼栋学生入住/退宿办理与房态看板</li>
+                    <li className="flex items-center gap-1.5">· 设施报修审核、师傅指派与完工验收</li>
+                    <li className="flex items-center gap-1.5">· 外来访客登记留痕与晚归考勤审计</li>
+                    <li className="flex items-center gap-1.5">· 寝室卫生定期评分与水电账单催缴</li>
                   </ul>
                 </div>
 
@@ -336,10 +336,10 @@ export default function SystemArchitectureDiagrams() {
                     <span className="font-mono text-[10px] text-[#36513B]">个人服务</span>
                   </div>
                   <ul className="space-y-1.5 text-[11px] text-[var(--muted)]">
-                    <li className="flex items-center gap-1.5">✓ 查看本寝室床位、室友档案与通知</li>
-                    <li className="flex items-center gap-1.5">✓ 设施损坏拍照申报与工单实时追踪</li>
-                    <li className="flex items-center gap-1.5">✓ 水电费用账单明细与缴费记录</li>
-                    <li className="flex items-center gap-1.5">✓ 访客来访预约申请与宿舍调换申请</li>
+                    <li className="flex items-center gap-1.5">· 查看本寝室床位、室友档案与通知</li>
+                    <li className="flex items-center gap-1.5">· 设施损坏拍照申报与工单实时追踪</li>
+                    <li className="flex items-center gap-1.5">· 水电费用账单明细与缴费记录</li>
+                    <li className="flex items-center gap-1.5">· 访客来访预约申请与宿舍调换申请</li>
                   </ul>
                 </div>
 
@@ -411,22 +411,22 @@ export default function SystemArchitectureDiagrams() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                 
                 <div className="rounded-xl bg-[var(--surface)] p-3.5 border border-[var(--border-line-color)] space-y-1 font-mono">
-                  <span className="font-bold text-[var(--foreground)] block">🏢 sys_building</span>
+                  <span className="font-bold text-[var(--foreground)] block text-xs">sys_building</span>
                   <span className="text-[10px] text-[var(--muted)] block">楼宇资产表 (ID, 楼栋号, 层数, 宿管ID)</span>
                 </div>
 
                 <div className="rounded-xl bg-[var(--surface)] p-3.5 border border-[var(--border-line-color)] space-y-1 font-mono">
-                  <span className="font-bold text-[var(--foreground)] block">🚪 sys_room</span>
+                  <span className="font-bold text-[var(--foreground)] block text-xs">sys_room</span>
                   <span className="text-[10px] text-[var(--muted)] block">房间床位表 (ID, 楼栋ID, 房间号, 床位数, 已住人数)</span>
                 </div>
 
                 <div className="rounded-xl bg-[var(--surface)] p-3.5 border border-[var(--border-line-color)] space-y-1 font-mono">
-                  <span className="font-bold text-[var(--foreground)] block">👤 sys_user</span>
+                  <span className="font-bold text-[var(--foreground)] block text-xs">sys_user</span>
                   <span className="text-[10px] text-[var(--muted)] block">用户核心表 (ID, 学工号, 密码, 角色, 房间ID)</span>
                 </div>
 
                 <div className="rounded-xl bg-[var(--surface)] p-3.5 border border-[var(--border-line-color)] space-y-1 font-mono">
-                  <span className="font-bold text-[var(--foreground)] block">🔧 biz_repair</span>
+                  <span className="font-bold text-[var(--foreground)] block text-xs">biz_repair</span>
                   <span className="text-[10px] text-[var(--muted)] block">报修工单表 (ID, 学生ID, 房间ID, 状态, 派单人)</span>
                 </div>
 

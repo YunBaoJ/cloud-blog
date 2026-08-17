@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState, useEffect } from "react";
-import { BookOpen, Gamepad2, ArrowRight, ArrowDown, Feather, Sparkles, Image as ImageIcon, Check, Palette } from "lucide-react";
+import { BookOpen, Gamepad2, ArrowRight, ArrowDown, Feather, Sparkles, Image as ImageIcon, Check, Palette, X } from "lucide-react";
 import TextType from "@/components/ui/TextType";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -14,18 +14,18 @@ const STATIC_DESCRIPTION = "凌晨四点，我看见海棠花未眠。";
 
 // Available wallpapers for Hero (Exact files from user download folder)
 const WALLPAPERS = [
-  { id: "kimono-golden", name: "🌅 绝美夕阳落日余晖 (和服)", src: "/hero-kimono-golden.png" },
-  { id: "kimono-night", name: "🌙 月夜和风走廊 (和服)", src: "/hero-kimono-night.png" },
-  { id: "ryo-hd", name: "🔷 山田葵·高清苍穹侧颜", src: "/hero-ryo-hd.png" },
-  { id: "user-final", name: "🖼️ 原版山田葵右移", src: "/hero-user-final.png" },
-  { id: "classic", name: "🌸 月色花枝", src: "/bg-image.png" },
+  { id: "kimono-golden", name: "落日余晖 (和服)", src: "/hero-kimono-golden.png" },
+  { id: "kimono-night", name: "月夜走廊 (和服)", src: "/hero-kimono-night.png" },
+  { id: "ryo-hd", name: "苍穹侧颜 (山田葵)", src: "/hero-ryo-hd.png" },
+  { id: "user-final", name: "原版山田葵", src: "/hero-user-final.png" },
+  { id: "classic", name: "月色花枝", src: "/bg-image.png" },
 ];
 
 // Filter presets — each has image CSS filter + scrim overlay gradient
 const FILTERS = [
   {
     id: "cinema",
-    name: "🎬 电影",
+    name: "电影质感",
     imgFilter: "brightness(0.82) contrast(1.05) saturate(0.92)",
     scrim: [
       "linear-gradient(90deg,rgba(15,20,18,0.72) 0%,rgba(15,20,18,0.35) 45%,rgba(15,20,18,0.08) 80%)",
@@ -34,13 +34,13 @@ const FILTERS = [
   },
   {
     id: "soft",
-    name: "☁️ 轻柔",
+    name: "柔和自然",
     imgFilter: "brightness(0.88)",
     scrim: "linear-gradient(180deg,rgba(0,0,0,0.08) 0%,rgba(0,0,0,0.04) 50%,rgba(0,0,0,0.22) 100%)",
   },
   {
     id: "sunset",
-    name: "🌅 夕阳",
+    name: "夕阳暖调",
     imgFilter: "brightness(0.86) saturate(1.18) sepia(0.12)",
     scrim: [
       "radial-gradient(ellipse at 30% 60%,rgba(217,134,95,0.32) 0%,transparent 50%)",
@@ -50,7 +50,7 @@ const FILTERS = [
   },
   {
     id: "night",
-    name: "🌃 深夜蓝",
+    name: "深夜冷调",
     imgFilter: "brightness(0.72) saturate(1.08) hue-rotate(10deg)",
     scrim: [
       "radial-gradient(ellipse at 25% 40%,rgba(41,62,98,0.45) 0%,transparent 55%)",
@@ -158,7 +158,9 @@ export default function Hero() {
                   <Palette className="w-3 h-3" />
                   滤镜
                 </button>
-                <button onClick={() => setShowPicker(false)} className="px-3 text-white/40 hover:text-white text-xs">✕</button>
+                <button onClick={() => setShowPicker(false)} className="px-3 text-white/40 hover:text-white flex items-center justify-center cursor-pointer" aria-label="关闭" title="关闭">
+                  <X className="size-3.5" />
+                </button>
               </div>
 
               <div className="p-3 space-y-1.5">

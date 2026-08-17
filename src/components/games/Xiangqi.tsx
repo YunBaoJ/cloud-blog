@@ -739,7 +739,7 @@ export default function Xiangqi() {
                   先手
                 </div>
                 <div className="text-center">
-                  <p className="font-bold text-[#C82A2A] dark:text-red-400">执红棋 🔴</p>
+                  <p className="font-bold text-[#C82A2A] dark:text-red-400">执红棋 (先手)</p>
                   <p className="text-[11px] text-[#7A736A] dark:text-[#9EB3A4] mt-0.5">优先执红先行</p>
                 </div>
               </button>
@@ -752,7 +752,7 @@ export default function Xiangqi() {
                   后手
                 </div>
                 <div className="text-center">
-                  <p className="font-bold text-[#2D2B2C] dark:text-[#F0F5F1]">执黑棋 ⬛</p>
+                  <p className="font-bold text-[#2D2B2C] dark:text-[#F0F5F1]">执黑棋</p>
                   <p className="text-[11px] text-[#7A736A] dark:text-[#9EB3A4] mt-0.5">AI 率先执红落子</p>
                 </div>
               </button>
@@ -784,13 +784,13 @@ export default function Xiangqi() {
                 : "bg-[#2D2B2C] text-white border border-black"
             }`}
           >
-            {turn === "red" ? "🔴 红方 (先手)" : "⬛ 黑方 (后手)"}
+            {turn === "red" ? "红方 (先手)" : "黑方 (后手)"}
           </span>
 
           {inCheck && status === "playing" && (
             <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white font-black text-xs animate-pulse shadow-md border border-red-400">
               <AlertTriangle className="w-4 h-4 text-yellow-300 animate-pulse" />
-              <span className="tracking-wider">⚠️ 將軍！</span>
+              <span className="tracking-wider">將軍！</span>
             </span>
           )}
 
@@ -948,7 +948,7 @@ export default function Xiangqi() {
         {status !== "playing" && (
           <div className="absolute inset-0 z-30 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center space-y-4 animate-in fade-in duration-200">
             <h3 className="text-2xl font-bold text-white">
-              {status === "red_win" ? "🎉 绝杀！红方胜出！" : "🎉 绝杀！黑方胜出！"}
+              {status === "red_win" ? "绝杀！红方胜出！" : "绝杀！黑方胜出！"}
             </h3>
             <p className="text-xs text-gray-300">
               {status === "red_win" ? "帅统六合，红棋大获全胜" : "将定乾坤，黑棋克敌制胜"}

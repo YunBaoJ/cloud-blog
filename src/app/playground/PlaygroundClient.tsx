@@ -304,7 +304,7 @@ export default function PlaygroundClient() {
 
                   <div className="pt-3 border-t border-[#2D2B2C]/6 dark:border-white/8 flex items-center justify-between text-xs text-[#7A736A] dark:text-[#9EB3A4]">
                     <span className="font-mono text-[11px] bg-[#FAF7F2] dark:bg-[#142219] px-2.5 py-1 rounded-lg border border-[#2D2B2C]/5 dark:border-white/5">
-                      🎮 {game.tip}
+                      {game.tip}
                     </span>
 
                     <button
