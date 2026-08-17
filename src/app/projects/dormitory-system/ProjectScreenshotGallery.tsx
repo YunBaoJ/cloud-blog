@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { X, ZoomIn, Shield, UserCheck, GraduationCap, KeyRound, CheckCircle2, Layers, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import type { ProjectCaseStudy } from "@/data/projects";
 
@@ -69,6 +70,12 @@ export default function ProjectScreenshotGallery({
 }) {
   const [activeTab, setActiveTab] = useState(1); // 默认展示管理员总览
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const currentShot = screenshots[activeTab] || screenshots[0];
   const currentMeta = ROLE_META[activeTab] || ROLE_META[0];
   const CurrentIcon = currentMeta.icon;
@@ -174,7 +181,7 @@ export default function ProjectScreenshotGallery({
               <button
                 type="button"
                 onClick={() => setIsLightboxOpen(true)}
-                className="text-[11px] font-semibold text-[#36513B] dark:text-[#7CD090] hover:underline flex items-center gap-1"
+                className="text-[11px] font-semibold text-[#36513B] dark:text-[#7CD090] hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <ZoomIn className="size-3.5" />
                 <span>全屏放大</span>
@@ -323,27 +330,27 @@ export default function ProjectScreenshotGallery({
 
       </div>
 
-      {/* ===================== 全屏灯箱模态弹窗 (顶层渲染，z-[9999]) ===================== */}
-      {isLightboxOpen && (
+      {/* ===================== 全屏灯箱模态弹窗 (模仿画廊点开预览效果) ===================== */}
+      {mounted && isLightboxOpen && createPortal(
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="截图高清全屏查看"
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 sm:p-8 animate-in fade-in duration-200"
+          aria-label="截图高清全景查看"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--background)]/85 dark:bg-[#142219]/90 backdrop-blur-md p-4 sm:p-6 lg:p-8 animate-in fade-in duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsLightboxOpen(false);
           }}
         >
-          {/* Main Lightbox Frame */}
-          <div className="relative max-w-6xl w-full rounded-2xl bg-white dark:bg-[#1C261F] p-3 shadow-2xl border border-white/20 flex flex-col items-center">
+          {/* 中间背景板卡片 (纯净展示大图) */}
+          <div className="relative max-w-5xl w-full rounded-3xl bg-[var(--surface)] p-3 sm:p-5 shadow-[0_24px_70px_rgba(14,24,18,0.18)] border border-[var(--border-line-color)] flex flex-col items-center gap-3">
             
-            {/* Topbar Controls */}
-            <div className="w-full flex items-center justify-between pb-3 px-2 border-b border-[#2D2B2C]/8 dark:border-white/10">
+            {/* Topbar: 视角信息 + 关闭按钮 */}
+            <div className="w-full flex items-center justify-between px-2 pt-1">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-[#2D2B2C] dark:text-[#F0F5F1]">
+                <span className="text-sm font-bold text-[var(--foreground)]">
                   {currentShot.title || currentShot.alt}
                 </span>
-                <span className="text-xs text-[#7A736A] font-mono">
+                <span className="text-xs text-[var(--muted)] font-mono">
                   ({activeTab + 1}/{screenshots.length})
                 </span>
               </div>
@@ -352,70 +359,67 @@ export default function ProjectScreenshotGallery({
               <button
                 type="button"
                 onClick={() => setIsLightboxOpen(false)}
-                className="inline-flex size-9 items-center justify-center rounded-full bg-[#FAF7F2] dark:bg-[#23382C] text-[#2D2B2C] dark:text-white hover:bg-black/10 dark:hover:bg-white/20 transition-all cursor-pointer shadow-xs"
+                className="rounded-full p-2 text-[var(--muted)] ring-1 ring-[var(--border-line-color)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--foreground)] active:scale-[0.98] cursor-pointer"
+                aria-label="关闭预览"
                 title="关闭 (Esc)"
               >
-                <X className="size-5" />
+                <X className="size-4" strokeWidth={2} />
               </button>
             </div>
 
-            {/* Image Container with Nav Arrows */}
-            <div className="relative w-full flex items-center justify-center py-2 min-h-[50vh]">
+            {/* 核心高清大图展示框 */}
+            <div className="relative w-full flex items-center justify-center overflow-hidden rounded-2xl bg-white dark:bg-[#141F18] border border-[var(--border-line-color)] p-2 sm:p-4 shadow-inner min-h-[50vh]">
               {/* Prev Button */}
               <button
                 type="button"
                 onClick={() => setActiveTab((prev) => (prev > 0 ? prev - 1 : screenshots.length - 1))}
-                className="absolute left-3 z-10 inline-flex size-11 items-center justify-center rounded-full bg-white/90 dark:bg-black/80 text-[#2D2B2C] dark:text-white shadow-xl hover:scale-110 active:scale-95 transition-all border border-[#2D2B2C]/10 cursor-pointer"
+                className="absolute left-4 z-10 inline-flex size-10 items-center justify-center rounded-full bg-white/95 dark:bg-[#23382C]/95 text-[var(--foreground)] shadow-md hover:scale-105 active:scale-95 transition-all border border-[var(--border-line-color)] cursor-pointer"
                 title="上一张 (←)"
+                aria-label="上一张"
               >
-                <ChevronLeft className="size-6" />
+                <ChevronLeft className="size-5" />
               </button>
 
-              {/* Screenshot Image */}
-              <div className="relative max-h-[75vh] w-full flex items-center justify-center overflow-hidden rounded-xl bg-[#FAF7F2] dark:bg-[#141F18]">
-                <Image
-                  src={currentShot.src}
-                  alt={currentShot.alt}
-                  width={currentShot.width || 1440}
-                  height={currentShot.height || 900}
-                  priority
-                  className="max-h-[75vh] w-auto h-auto object-contain mx-auto rounded-lg shadow-sm"
-                />
-              </div>
+              {/* Screenshot Image (纯粹大图) */}
+              <Image
+                src={currentShot.src}
+                alt={currentShot.alt}
+                width={currentShot.width || 1440}
+                height={currentShot.height || 900}
+                priority
+                className="max-h-[75vh] w-auto h-auto object-contain mx-auto rounded-lg select-none shadow-sm"
+              />
 
               {/* Next Button */}
               <button
                 type="button"
                 onClick={() => setActiveTab((prev) => (prev < screenshots.length - 1 ? prev + 1 : 0))}
-                className="absolute right-3 z-10 inline-flex size-11 items-center justify-center rounded-full bg-white/90 dark:bg-black/80 text-[#2D2B2C] dark:text-white shadow-xl hover:scale-110 active:scale-95 transition-all border border-[#2D2B2C]/10 cursor-pointer"
+                className="absolute right-4 z-10 inline-flex size-10 items-center justify-center rounded-full bg-white/95 dark:bg-[#23382C]/95 text-[var(--foreground)] shadow-md hover:scale-105 active:scale-95 transition-all border border-[var(--border-line-color)] cursor-pointer"
                 title="下一张 (→)"
+                aria-label="下一张"
               >
-                <ChevronRight className="size-6" />
+                <ChevronRight className="size-5" />
               </button>
             </div>
 
-            {/* Bottom Caption & Thumbnails inside Lightbox */}
-            <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 px-2 border-t border-[#2D2B2C]/8 dark:border-white/10 text-xs text-[#5A5551] dark:text-[#9EB3A4]">
-              <span className="truncate max-w-md">
-                💡 {currentShot.alt}
-              </span>
-              <div className="flex items-center gap-1.5">
-                {screenshots.map((s, idx) => (
-                  <button
-                    key={s.src}
-                    type="button"
-                    onClick={() => setActiveTab(idx)}
-                    className={`h-2 rounded-full transition-all cursor-pointer ${
-                      activeTab === idx ? "w-6 bg-[#36513B] dark:bg-[#7CD090]" : "w-2 bg-black/20 dark:bg-white/30"
-                    }`}
-                    title={`切换到第 ${idx + 1} 张`}
-                  />
-                ))}
-              </div>
+            {/* 底部缩略圆点指示器 */}
+            <div className="flex items-center gap-2 py-1">
+              {screenshots.map((s, idx) => (
+                <button
+                  key={s.src}
+                  type="button"
+                  onClick={() => setActiveTab(idx)}
+                  className={`h-2 rounded-full transition-all cursor-pointer ${
+                    activeTab === idx ? "w-6 bg-[var(--accent-green)]" : "w-2 bg-[var(--border-line-color)] hover:bg-[var(--muted)]"
+                  }`}
+                  title={`切换到第 ${idx + 1} 张`}
+                />
+              ))}
             </div>
 
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </div>
