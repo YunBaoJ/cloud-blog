@@ -341,27 +341,27 @@ export default function ProjectScreenshotGallery({
 
       </div>
 
-      {/* ===================== 全屏灯箱模态弹窗 (深色沉浸卡片背景) ===================== */}
+      {/* ===================== 全屏灯箱模态弹窗 (参考画廊：背景主题色 + 宣纸卡片) ===================== */}
       {mounted && isLightboxOpen && createPortal(
         <div
           role="dialog"
           aria-modal="true"
           aria-label="截图高清全景查看"
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 sm:p-6 lg:p-8 animate-in fade-in duration-200"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--background)]/90 p-4 backdrop-blur-md sm:p-6 lg:p-8 animate-in fade-in duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsLightboxOpen(false);
           }}
         >
-          {/* 中间深色沉浸背景板卡片 */}
-          <div className="relative max-w-5xl w-full rounded-3xl bg-[#162019]/95 border border-white/15 p-3 sm:p-5 shadow-[0_24px_80px_rgba(0,0,0,0.6)] flex flex-col items-center gap-3 text-white">
+          {/* 中间主题卡片容器 (参考画廊 bg-[var(--surface)]) */}
+          <div className="relative max-w-5xl w-full rounded-3xl bg-[var(--surface)] border border-[var(--border-line-color)] p-4 sm:p-6 shadow-[0_24px_70px_rgba(14,24,18,0.18)] flex flex-col items-center gap-3 text-[var(--foreground)]">
             
             {/* Topbar: 视角信息 + 关闭按钮 */}
-            <div className="w-full flex items-center justify-between px-2 pt-1">
+            <div className="w-full flex items-center justify-between px-1 pb-1">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-white tracking-wide">
+                <span className="text-sm font-bold text-[var(--foreground)] tracking-tight">
                   {currentCategory.name} · {currentShot.title}
                 </span>
-                <span className="text-xs text-[#9EB3A4] font-mono">
+                <span className="text-xs text-[var(--muted)] font-mono">
                   ({selectedShotIndex + 1}/{currentScreenshots.length})
                 </span>
               </div>
@@ -370,7 +370,7 @@ export default function ProjectScreenshotGallery({
               <button
                 type="button"
                 onClick={() => setIsLightboxOpen(false)}
-                className="rounded-full p-2 text-white/70 hover:text-white hover:bg-white/10 ring-1 ring-white/15 transition-all active:scale-[0.98] cursor-pointer"
+                className="rounded-full p-2 text-[var(--muted)] ring-1 ring-[var(--border-line-color)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--foreground)] active:scale-[0.98] cursor-pointer"
                 aria-label="关闭预览"
                 title="关闭 (Esc)"
               >
@@ -378,8 +378,8 @@ export default function ProjectScreenshotGallery({
               </button>
             </div>
 
-            {/* 核心高清大图展示框 */}
-            <div className="relative w-full flex items-center justify-center overflow-hidden rounded-2xl bg-black/50 border border-white/10 p-2 sm:p-4 shadow-inner min-h-[50vh]">
+            {/* 核心大图展示槽 (参考画廊 bg-[var(--surface-2)]) */}
+            <div className="relative w-full flex items-center justify-center overflow-hidden rounded-2xl bg-[var(--surface-2)] border border-[var(--border-line-color)] p-3 sm:p-5 shadow-inner min-h-[50vh]">
               {/* Prev Button */}
               <button
                 type="button"
@@ -387,21 +387,21 @@ export default function ProjectScreenshotGallery({
                   const nextIdx = selectedShotIndex > 0 ? selectedShotIndex - 1 : currentScreenshots.length - 1;
                   handleSelectShot(nextIdx);
                 }}
-                className="absolute left-4 z-10 inline-flex size-11 items-center justify-center rounded-full bg-black/70 hover:bg-black text-white shadow-xl hover:scale-105 active:scale-95 transition-all border border-white/20 cursor-pointer"
+                className="absolute left-4 z-10 inline-flex size-10 items-center justify-center rounded-full bg-[var(--surface)]/90 text-[var(--foreground)] shadow-md hover:scale-105 active:scale-95 transition-all ring-1 ring-[var(--border-line-color)] cursor-pointer"
                 title="上一张 (←)"
                 aria-label="上一张"
               >
-                <ChevronLeft className="size-6" />
+                <ChevronLeft className="size-5" />
               </button>
 
-              {/* Screenshot Image (纯粹大图) */}
+              {/* Screenshot Image */}
               <Image
                 src={currentShot.src}
                 alt={currentShot.alt}
                 width={currentShot.width || 1440}
                 height={currentShot.height || 900}
                 priority
-                className="max-h-[75vh] w-auto h-auto object-contain mx-auto rounded-lg select-none shadow-md"
+                className="max-h-[72vh] w-auto h-auto object-contain mx-auto rounded-lg select-none shadow-[0_8px_24px_rgba(0,0,0,0.08)]"
               />
 
               {/* Next Button */}
@@ -411,11 +411,11 @@ export default function ProjectScreenshotGallery({
                   const nextIdx = selectedShotIndex < currentScreenshots.length - 1 ? selectedShotIndex + 1 : 0;
                   handleSelectShot(nextIdx);
                 }}
-                className="absolute right-4 z-10 inline-flex size-11 items-center justify-center rounded-full bg-black/70 hover:bg-black text-white shadow-xl hover:scale-105 active:scale-95 transition-all border border-white/20 cursor-pointer"
+                className="absolute right-4 z-10 inline-flex size-10 items-center justify-center rounded-full bg-[var(--surface)]/90 text-[var(--foreground)] shadow-md hover:scale-105 active:scale-95 transition-all ring-1 ring-[var(--border-line-color)] cursor-pointer"
                 title="下一张 (→)"
                 aria-label="下一张"
               >
-                <ChevronRight className="size-6" />
+                <ChevronRight className="size-5" />
               </button>
             </div>
 
@@ -427,7 +427,7 @@ export default function ProjectScreenshotGallery({
                   type="button"
                   onClick={() => handleSelectShot(idx)}
                   className={`h-2 rounded-full transition-all cursor-pointer ${
-                    selectedShotIndex === idx ? "w-6 bg-[#7CD090]" : "w-2 bg-white/25 hover:bg-white/50"
+                    selectedShotIndex === idx ? "w-6 bg-[var(--accent-green)]" : "w-2 bg-[var(--border-line-color)] hover:bg-[var(--muted)]"
                   }`}
                   title={`切换到：${s.title}`}
                 />
