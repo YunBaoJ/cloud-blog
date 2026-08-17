@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { X, ZoomIn, Shield, UserCheck, GraduationCap, KeyRound, CheckCircle2, Layers, ShieldCheck, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { X, ZoomIn, Shield, UserCheck, GraduationCap, KeyRound, CheckCircle2, Layers, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { DORMITORY_CATEGORIES, type ProjectCategory } from "@/data/projects";
 
 const CATEGORY_ICONS: Record<string, any> = {
@@ -13,6 +13,8 @@ const CATEGORY_ICONS: Record<string, any> = {
   admin: Shield,
 };
 
+const THUMBNAIL_PAGE_SIZE = 3;
+
 export default function ProjectScreenshotGallery({
   screenshots,
 }: {
@@ -20,6 +22,7 @@ export default function ProjectScreenshotGallery({
 } = {}) {
   const [selectedCatIndex, setSelectedCatIndex] = useState(1); // 默认高亮学生服务台
   const [selectedShotIndex, setSelectedShotIndex] = useState(0); // 当前分类下的第几张
+  const [thumbPage, setThumbPage] = useState(0); // 缩略图页码 (每页 3 张)
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -32,10 +35,23 @@ export default function ProjectScreenshotGallery({
   const currentShot = currentScreenshots[selectedShotIndex] || currentScreenshots[0];
   const CategoryIcon = CATEGORY_ICONS[currentCategory.id] || Shield;
 
-  // 切换大分类时重置子页面索引为第 0 张
+  const totalPages = Math.ceil(currentScreenshots.length / THUMBNAIL_PAGE_SIZE);
+  const visibleThumbnails = currentScreenshots.slice(
+    thumbPage * THUMBNAIL_PAGE_SIZE,
+    (thumbPage + 1) * THUMBNAIL_PAGE_SIZE,
+  );
+
+  // 切换大分类时重置子页面索引与缩略图页码
   const handleCategoryChange = (idx: number) => {
     setSelectedCatIndex(idx);
     setSelectedShotIndex(0);
+    setThumbPage(0);
+  };
+
+  // 选择具体截图时，自动同步所在缩略图页码
+  const handleSelectShot = (globalIdx: number) => {
+    setSelectedShotIndex(globalIdx);
+    setThumbPage(Math.floor(globalIdx / THUMBNAIL_PAGE_SIZE));
   };
 
   // 键盘快捷操作：数字 1-4 切换大分类，Esc 退出放大，左右箭头切图
@@ -50,9 +66,11 @@ export default function ProjectScreenshotGallery({
 
       if (isLightboxOpen) {
         if (e.key === "ArrowLeft") {
-          setSelectedShotIndex((prev) => (prev > 0 ? prev - 1 : currentScreenshots.length - 1));
+          const nextIdx = selectedShotIndex > 0 ? selectedShotIndex - 1 : currentScreenshots.length - 1;
+          handleSelectShot(nextIdx);
         } else if (e.key === "ArrowRight") {
-          setSelectedShotIndex((prev) => (prev < currentScreenshots.length - 1 ? prev + 1 : 0));
+          const nextIdx = selectedShotIndex < currentScreenshots.length - 1 ? selectedShotIndex + 1 : 0;
+          handleSelectShot(nextIdx);
         }
       }
 
@@ -66,7 +84,7 @@ export default function ProjectScreenshotGallery({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isLightboxOpen, currentScreenshots.length]);
+  }, [isLightboxOpen, selectedShotIndex, currentScreenshots.length]);
 
   // 控制放大预览时的页面背景滚动
   useEffect(() => {
@@ -85,7 +103,7 @@ export default function ProjectScreenshotGallery({
       {/* Taobao-style Side-by-Side Showcase Structure */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* ===================== 左侧：macOS 拟真主视区 + 仅展示当前视角下的专属缩略图 ===================== */}
+        {/* ===================== 左侧：macOS 拟真主视区 + 底部最多展示 3 张带翻页按钮 ===================== */}
         <div className="lg:col-span-7 space-y-4">
           
           {/* macOS Simulated Browser Frame */}
@@ -127,7 +145,7 @@ export default function ProjectScreenshotGallery({
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-300 group-hover:bg-black/15">
                 <div className="flex items-center gap-2 rounded-full bg-white/95 dark:bg-black/85 px-4 py-2 text-xs font-bold text-[#2D2B2C] dark:text-white opacity-0 backdrop-blur-md transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 translate-y-2 shadow-xl border border-[#2D2B2C]/10 dark:border-white/20">
                   <ZoomIn className="size-4 text-[#36513B] dark:text-[#7CD090]" />
-                  <span>点击画廊卡片全屏查看</span>
+                  <span>点击查看高清大图</span>
                 </div>
               </div>
             </button>
@@ -148,64 +166,93 @@ export default function ProjectScreenshotGallery({
             </div>
           </div>
 
-          {/* 只有点击右侧视角时，下方才会展示该视角对应的子图片列表 */}
-          <div key={currentCategory.id} className="animate-in fade-in duration-200 space-y-2">
+          {/* 下方小截图：最多显示 3 张，多于 3 张带有左右翻页按钮 <> */}
+          <div key={currentCategory.id} className="animate-in fade-in duration-200 space-y-2.5">
             <div className="flex items-center justify-between px-1">
               <span className="text-xs font-bold text-[#2D2B2C] dark:text-[#F0F5F1] flex items-center gap-1.5">
                 <CategoryIcon className="size-3.5 text-[#36513B] dark:text-[#7CD090]" />
-                <span>【{currentCategory.name}】专属界面截图 ({currentScreenshots.length} 张)：</span>
+                <span>{currentCategory.name} · 功能子页面 ({currentScreenshots.length} 张)</span>
               </span>
-              <span className="text-[10px] text-[#7A736A]">悬停或点击直接切换</span>
+              
+              {totalPages > 1 && (
+                <span className="text-[11px] font-mono text-[#7A736A] dark:text-[#9EB3A4]">
+                  页码 {thumbPage + 1} / {totalPages}
+                </span>
+              )}
             </div>
 
-            {/* 动态自适应网格：根据当前角色的截图数量自适应排列 */}
-            <div
-              className={`grid gap-2.5 ${
-                currentScreenshots.length <= 3
-                  ? "grid-cols-3"
-                  : currentScreenshots.length <= 4
-                  ? "grid-cols-4"
-                  : currentScreenshots.length <= 6
-                  ? "grid-cols-3 sm:grid-cols-6"
-                  : "grid-cols-4 sm:grid-cols-4 md:grid-cols-7"
-              }`}
-            >
-              {currentScreenshots.map((shot, idx) => {
-                const isActive = selectedShotIndex === idx;
+            {/* 3-Thumbnail Track with Prev/Next Navigation Controls */}
+            <div className="flex items-center gap-2">
+              
+              {/* Prev Page Button (当总图数 > 3 时渲染) */}
+              {totalPages > 1 && (
+                <button
+                  type="button"
+                  onClick={() => setThumbPage((p) => Math.max(0, p - 1))}
+                  disabled={thumbPage === 0}
+                  className="inline-flex size-9 items-center justify-center rounded-full bg-white dark:bg-[#1C261F] text-[#2D2B2C] dark:text-white shadow-md hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed border border-[#2D2B2C]/10 dark:border-white/15 transition-all shrink-0 cursor-pointer"
+                  title="上一页 (<)"
+                  aria-label="上一页"
+                >
+                  <ChevronLeft className="size-4.5" />
+                </button>
+              )}
 
-                return (
-                  <button
-                    key={shot.src}
-                    type="button"
-                    onClick={() => setSelectedShotIndex(idx)}
-                    onMouseEnter={() => setSelectedShotIndex(idx)} // 悬停即切，体验极致流畅
-                    className={`group relative flex flex-col items-center gap-1 p-1.5 rounded-xl border transition-all text-center cursor-pointer bg-white/80 dark:bg-[#1C261F]/80 backdrop-blur-md ${
-                      isActive
-                        ? "border-[#36513B] dark:border-[#7CD090] ring-2 ring-[#36513B]/20 dark:ring-[#7CD090]/30 shadow-md scale-[1.03]"
-                        : "border-[#2D2B2C]/8 dark:border-white/10 opacity-70 hover:opacity-100 hover:border-[#36513B]/40"
-                    }`}
-                  >
-                    <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-[#FAF7F2] dark:bg-[#141F18]">
-                      <Image
-                        src={shot.src}
-                        alt={shot.alt}
-                        fill
-                        sizes="(max-width: 640px) 33vw, 15vw"
-                        className="object-cover object-top"
-                      />
-                    </div>
-                    <span className="text-[10px] font-semibold text-[#2D2B2C] dark:text-[#F0F5F1] truncate px-0.5 w-full">
-                      {shot.subTitle || shot.title}
-                    </span>
-                  </button>
-                );
-              })}
+              {/* Exact 3 Thumbnails Container */}
+              <div className="grid grid-cols-3 gap-2.5 flex-1">
+                {visibleThumbnails.map((shot, localIdx) => {
+                  const globalIdx = thumbPage * THUMBNAIL_PAGE_SIZE + localIdx;
+                  const isActive = selectedShotIndex === globalIdx;
+
+                  return (
+                    <button
+                      key={shot.src}
+                      type="button"
+                      onClick={() => handleSelectShot(globalIdx)}
+                      onMouseEnter={() => handleSelectShot(globalIdx)} // 悬停即切，体验流畅
+                      className={`group relative flex flex-col items-center gap-1.5 p-1.5 rounded-2xl border transition-all text-center cursor-pointer bg-white/90 dark:bg-[#1C261F]/90 backdrop-blur-md ${
+                        isActive
+                          ? "border-[#36513B] dark:border-[#7CD090] ring-2 ring-[#36513B]/20 dark:ring-[#7CD090]/30 shadow-md scale-[1.02]"
+                          : "border-[#2D2B2C]/8 dark:border-white/10 opacity-75 hover:opacity-100 hover:border-[#36513B]/40"
+                      }`}
+                    >
+                      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-[#FAF7F2] dark:bg-[#141F18]">
+                        <Image
+                          src={shot.src}
+                          alt={shot.alt}
+                          fill
+                          sizes="(max-width: 640px) 33vw, 20vw"
+                          className="object-cover object-top"
+                        />
+                      </div>
+                      <span className="text-[11px] font-semibold text-[#2D2B2C] dark:text-[#F0F5F1] truncate px-1 w-full">
+                        {shot.subTitle || shot.title}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Next Page Button (当总图数 > 3 时渲染) */}
+              {totalPages > 1 && (
+                <button
+                  type="button"
+                  onClick={() => setThumbPage((p) => Math.min(totalPages - 1, p + 1))}
+                  disabled={thumbPage >= totalPages - 1}
+                  className="inline-flex size-9 items-center justify-center rounded-full bg-white dark:bg-[#1C261F] text-[#2D2B2C] dark:text-white shadow-md hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed border border-[#2D2B2C]/10 dark:border-white/15 transition-all shrink-0 cursor-pointer"
+                  title="下一页 (>)"
+                  aria-label="下一页"
+                >
+                  <ChevronRight className="size-4.5" />
+                </button>
+              )}
+
             </div>
           </div>
 
         </div>
 
-        {/* ===================== 右侧：角色大类视角选择与业务深度详情 ===================== */}
+        {/* ===================== 右侧：角色大类视角选择与业务深度详情 (已取消底部放大按钮) ===================== */}
         <div className="lg:col-span-5 space-y-6">
           
           {/* Detail Card (淘宝商品属性面板风格) */}
@@ -235,7 +282,7 @@ export default function ProjectScreenshotGallery({
             <div className="space-y-3">
               <span className="text-xs font-bold text-[#2D2B2C] dark:text-[#F0F5F1] flex items-center gap-1.5">
                 <Layers className="size-3.5 text-[#36513B] dark:text-[#7CD090]" />
-                <span>点击切换系统角色视角 (Role View)：</span>
+                <span>选择系统角色视角 (Role View)：</span>
               </span>
 
               <div className="grid grid-cols-2 gap-2.5">
@@ -294,43 +341,33 @@ export default function ProjectScreenshotGallery({
               </span>
             </div>
 
-            {/* Big Zoom Action Trigger Button */}
-            <button
-              type="button"
-              onClick={() => setIsLightboxOpen(true)}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-[#36513B] hover:bg-[#283E2C] text-white text-xs font-bold shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-            >
-              <ZoomIn className="size-4 text-[#E2EBE4]" />
-              <span>放大查看高清全景 ({currentCategory.name} · {currentShot.title})</span>
-            </button>
-
           </div>
 
         </div>
 
       </div>
 
-      {/* ===================== 全屏灯箱模态弹窗 (模仿画廊点开预览效果) ===================== */}
+      {/* ===================== 全屏灯箱模态弹窗 (深色沉浸卡片背景，彻底去除刺眼纯白) ===================== */}
       {mounted && isLightboxOpen && createPortal(
         <div
           role="dialog"
           aria-modal="true"
           aria-label="截图高清全景查看"
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--background)]/85 dark:bg-[#142219]/90 backdrop-blur-md p-4 sm:p-6 lg:p-8 animate-in fade-in duration-200"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 sm:p-6 lg:p-8 animate-in fade-in duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsLightboxOpen(false);
           }}
         >
-          {/* 中间背景板卡片 (纯净展示大图) */}
-          <div className="relative max-w-5xl w-full rounded-3xl bg-[var(--surface)] p-3 sm:p-5 shadow-[0_24px_70px_rgba(14,24,18,0.18)] border border-[var(--border-line-color)] flex flex-col items-center gap-3">
+          {/* 中间深色沉浸背景板卡片 (高雅松针暗绿/黑胶底色，完全不是白色) */}
+          <div className="relative max-w-5xl w-full rounded-3xl bg-[#162019]/95 border border-white/15 p-3 sm:p-5 shadow-[0_24px_80px_rgba(0,0,0,0.6)] flex flex-col items-center gap-3 text-white">
             
             {/* Topbar: 视角信息 + 关闭按钮 */}
             <div className="w-full flex items-center justify-between px-2 pt-1">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-[var(--foreground)]">
+                <span className="text-sm font-bold text-white tracking-wide">
                   {currentCategory.name} · {currentShot.title}
                 </span>
-                <span className="text-xs text-[var(--muted)] font-mono">
+                <span className="text-xs text-[#9EB3A4] font-mono">
                   ({selectedShotIndex + 1}/{currentScreenshots.length})
                 </span>
               </div>
@@ -339,7 +376,7 @@ export default function ProjectScreenshotGallery({
               <button
                 type="button"
                 onClick={() => setIsLightboxOpen(false)}
-                className="rounded-full p-2 text-[var(--muted)] ring-1 ring-[var(--border-line-color)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--foreground)] active:scale-[0.98] cursor-pointer"
+                className="rounded-full p-2 text-white/70 hover:text-white hover:bg-white/10 ring-1 ring-white/15 transition-all active:scale-[0.98] cursor-pointer"
                 aria-label="关闭预览"
                 title="关闭 (Esc)"
               >
@@ -347,17 +384,20 @@ export default function ProjectScreenshotGallery({
               </button>
             </div>
 
-            {/* 核心高清大图展示框 */}
-            <div className="relative w-full flex items-center justify-center overflow-hidden rounded-2xl bg-white dark:bg-[#141F18] border border-[var(--border-line-color)] p-2 sm:p-4 shadow-inner min-h-[50vh]">
+            {/* 核心高清大图展示框 (深暗背景，凸显界面细节) */}
+            <div className="relative w-full flex items-center justify-center overflow-hidden rounded-2xl bg-black/50 border border-white/10 p-2 sm:p-4 shadow-inner min-h-[50vh]">
               {/* Prev Button */}
               <button
                 type="button"
-                onClick={() => setSelectedShotIndex((prev) => (prev > 0 ? prev - 1 : currentScreenshots.length - 1))}
-                className="absolute left-4 z-10 inline-flex size-10 items-center justify-center rounded-full bg-white/95 dark:bg-[#23382C]/95 text-[var(--foreground)] shadow-md hover:scale-105 active:scale-95 transition-all border border-[var(--border-line-color)] cursor-pointer"
+                onClick={() => {
+                  const nextIdx = selectedShotIndex > 0 ? selectedShotIndex - 1 : currentScreenshots.length - 1;
+                  handleSelectShot(nextIdx);
+                }}
+                className="absolute left-4 z-10 inline-flex size-11 items-center justify-center rounded-full bg-black/70 hover:bg-black text-white shadow-xl hover:scale-105 active:scale-95 transition-all border border-white/20 cursor-pointer"
                 title="上一张 (←)"
                 aria-label="上一张"
               >
-                <ChevronLeft className="size-5" />
+                <ChevronLeft className="size-6" />
               </button>
 
               {/* Screenshot Image (纯粹大图) */}
@@ -367,18 +407,21 @@ export default function ProjectScreenshotGallery({
                 width={currentShot.width || 1440}
                 height={currentShot.height || 900}
                 priority
-                className="max-h-[75vh] w-auto h-auto object-contain mx-auto rounded-lg select-none shadow-sm"
+                className="max-h-[75vh] w-auto h-auto object-contain mx-auto rounded-lg select-none shadow-md"
               />
 
               {/* Next Button */}
               <button
                 type="button"
-                onClick={() => setSelectedShotIndex((prev) => (prev < currentScreenshots.length - 1 ? prev + 1 : 0))}
-                className="absolute right-4 z-10 inline-flex size-10 items-center justify-center rounded-full bg-white/95 dark:bg-[#23382C]/95 text-[var(--foreground)] shadow-md hover:scale-105 active:scale-95 transition-all border border-[var(--border-line-color)] cursor-pointer"
+                onClick={() => {
+                  const nextIdx = selectedShotIndex < currentScreenshots.length - 1 ? selectedShotIndex + 1 : 0;
+                  handleSelectShot(nextIdx);
+                }}
+                className="absolute right-4 z-10 inline-flex size-11 items-center justify-center rounded-full bg-black/70 hover:bg-black text-white shadow-xl hover:scale-105 active:scale-95 transition-all border border-white/20 cursor-pointer"
                 title="下一张 (→)"
                 aria-label="下一张"
               >
-                <ChevronRight className="size-5" />
+                <ChevronRight className="size-6" />
               </button>
             </div>
 
@@ -388,9 +431,9 @@ export default function ProjectScreenshotGallery({
                 <button
                   key={s.src}
                   type="button"
-                  onClick={() => setSelectedShotIndex(idx)}
+                  onClick={() => handleSelectShot(idx)}
                   className={`h-2 rounded-full transition-all cursor-pointer ${
-                    selectedShotIndex === idx ? "w-6 bg-[var(--accent-green)]" : "w-2 bg-[var(--border-line-color)] hover:bg-[var(--muted)]"
+                    selectedShotIndex === idx ? "w-6 bg-[#7CD090]" : "w-2 bg-white/25 hover:bg-white/50"
                   }`}
                   title={`切换到：${s.title}`}
                 />
