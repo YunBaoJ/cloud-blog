@@ -7,7 +7,7 @@ readTime: "10 min read"
 category: "工程实战"
 tags: ["Spring Boot 3", "Vue 3", "系统架构", "RBAC", "全栈开发"]
 iconName: "Server"
-coverImage: "/projects/dormitory-system/admin-overview.png"
+coverImage: "../../public/projects/dormitory-system/admin-overview.png"
 coverAlt: "智慧宿舍管理系统系统管理员全局中枢数据监控看板"
 featured: true
 ---
@@ -24,7 +24,7 @@ featured: true
 
 为了保证系统的高内聚低耦合，我们采用了严谨的标准三层架构设计：表现层（Vue 3 Client）、业务安全层（Spring Boot 3 API）与数据持久层（MySQL 8.0）。
 
-![智慧宿舍管理系统 - 总体架构与系统管理员全局中枢监控看板](/projects/dormitory-system/admin-overview.png)
+![智慧宿舍管理系统 - 总体架构与系统管理员全局中枢监控看板](../../public/projects/dormitory-system/admin-overview.png)
 
 ### 为什么选择 Spring Boot 3 与 Java 17？
 - **Jakarta EE 命名空间升级与性能基准**：基于 Spring Boot 3 享受最新的框架性能与安全基准，全面支持响应式与函数式编程范式；
@@ -37,7 +37,7 @@ featured: true
 
 系统涵盖在住学生 (Student)、楼栋宿管 (Manager) 与系统管理员 (Admin) 三类完全不同的用户群体，权限边界的隔离是系统的生命线。
 
-![统一身份认证 - 学生/宿管/管理员三端安全登录入口](/projects/dormitory-system/login.png)
+![统一身份认证 - 学生/宿管/管理员三端安全登录入口](../../public/projects/dormitory-system/login.png)
 
 ### 2.1 鉴权与路由流转机制
 1. **统一登录网关**：用户提交身份角色、学工号与密码至认证接口 `/api/auth/login`；
@@ -90,7 +90,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 报修是宿舍日常最高频的交互场景。为了防止工单流转出现状态倒流或悬挂，我们设计了严格的状态机流转模型。
 
-![学生个人服务台 - 在线报修申报与实时工单追踪](/projects/dormitory-system/student-repair.png)
+![学生个人服务台 - 在线报修申报与实时工单追踪](../../public/projects/dormitory-system/student-repair.png)
 
 ### 报修流转的 5 个关键生命周期：
 1. **待审核 (PENDING)**：学生在线拍照提交报修申报，表单自动关联其所在楼栋与房间床位；
@@ -105,7 +105,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 在宿管端，如何直观展示整栋楼宇数十个房间的实时入住率与空余床位是一个核心前端交互难点。
 
-![宿管日常工作台 - 楼栋入住率看板与房态状态机](/projects/dormitory-system/manager-workbench.png)
+![宿管日常工作台 - 楼栋入住率看板与房态状态机](../../public/projects/dormitory-system/manager-workbench.png)
 
 ### 房态可视化与防抖优化：
 - **动态房态色谱**：绿色代表完全空闲、蓝色代表部分入住、琥珀色代表满员满宿、灰色代表维保锁定；

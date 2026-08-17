@@ -106,6 +106,11 @@ function extractSmartSummary(rawContent: string, fallbackTitle: string): string 
   return fallbackTitle;
 }
 
+function cleanImagePath(rawPath: string): string {
+  if (!rawPath) return rawPath;
+  return rawPath.replace(/^(\.\.\/)+public\//, "/").replace(/^(\.\/)+public\//, "/");
+}
+
 /**
  * 智能扫描提取正文中出现的第一张图片作为封面
  */
@@ -117,7 +122,7 @@ function extractFirstImage(rawContent: string): { src: string; alt: string } | n
   if (mdImgMatch && mdImgMatch[2]) {
     return {
       alt: mdImgMatch[1] || "文章配图",
-      src: mdImgMatch[2],
+      src: cleanImagePath(mdImgMatch[2]),
     };
   }
 
@@ -125,7 +130,7 @@ function extractFirstImage(rawContent: string): { src: string; alt: string } | n
   const htmlImgMatch = rawContent.match(/<img[^>]+src=["'](.*?)["'][^>]*alt=["'](.*?)["']/i);
   if (htmlImgMatch && htmlImgMatch[1]) {
     return {
-      src: htmlImgMatch[1],
+      src: cleanImagePath(htmlImgMatch[1]),
       alt: htmlImgMatch[2] || "文章配图",
     };
   }

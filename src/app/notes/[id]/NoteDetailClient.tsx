@@ -375,13 +375,15 @@ function ArticleMarkdownRenderer({ content, fontSizeLevel }: { content: string; 
     const imgMatch = trimmed.match(/^!\[(.*?)\]\((.*?)\)$/);
     if (imgMatch) {
       const alt = imgMatch[1];
-      const src = imgMatch[2];
+      const rawSrc = imgMatch[2];
+      // 智能路径兼容：支持本地相对路径 ../../public/... 自动映射为网页静态路径 /...
+      const cleanSrc = rawSrc.replace(/^(\.\.\/)+public\//, "/").replace(/^(\.\/)+public\//, "/");
       elements.push(
         <figure key={`img-${idx}`} className="my-6 space-y-2 not-prose">
           <div className="overflow-hidden rounded-2xl border border-[var(--border-line-color)] bg-[var(--surface-2)] shadow-md">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={src}
+              src={cleanSrc}
               alt={alt}
               className="w-full h-auto object-cover max-h-[550px]"
               loading="lazy"
