@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { X, ZoomIn, Shield, UserCheck, GraduationCap, KeyRound, CheckCircle2, ArrowRight, Layers, Sparkles, Laptop, ShieldCheck } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+import { X, ZoomIn, Shield, UserCheck, GraduationCap, KeyRound, CheckCircle2, Layers, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import type { ProjectCaseStudy } from "@/data/projects";
 
 type Screenshot = ProjectCaseStudy["screenshots"][number];
@@ -67,24 +67,53 @@ export default function ProjectScreenshotGallery({
 }: {
   screenshots: ProjectCaseStudy["screenshots"];
 }) {
-  const [activeTab, setActiveTab] = useState(1); // 默认高亮展示管理员总览
+  const [activeTab, setActiveTab] = useState(1); // 默认展示管理员总览
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const currentShot = screenshots[activeTab] || screenshots[0];
   const currentMeta = ROLE_META[activeTab] || ROLE_META[0];
   const CurrentIcon = currentMeta.icon;
 
-  // 支持数字键 1-4 快捷切换
+  // 键盘快捷操作：数字 1-4 切换视角，Esc 退出放大，左右箭头切图
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (["1", "2", "3", "4"].includes(e.key) && !["INPUT", "TEXTAREA"].includes((e.target as HTMLElement)?.tagName)) {
+      if (["INPUT", "TEXTAREA"].includes((e.target as HTMLElement)?.tagName)) return;
+
+      if (e.key === "Escape" && isLightboxOpen) {
+        setIsLightboxOpen(false);
+        return;
+      }
+
+      if (isLightboxOpen) {
+        if (e.key === "ArrowLeft") {
+          setActiveTab((prev) => (prev > 0 ? prev - 1 : screenshots.length - 1));
+        } else if (e.key === "ArrowRight") {
+          setActiveTab((prev) => (prev < screenshots.length - 1 ? prev + 1 : 0));
+        }
+      }
+
+      if (["1", "2", "3", "4"].includes(e.key)) {
         const index = parseInt(e.key, 10) - 1;
         if (index >= 0 && index < screenshots.length) {
           setActiveTab(index);
         }
       }
     };
+
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [screenshots.length]);
+  }, [isLightboxOpen, screenshots.length]);
+
+  // 控制放大预览时的页面背景滚动
+  useEffect(() => {
+    if (isLightboxOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isLightboxOpen]);
 
   return (
     <div className="mt-8">
@@ -111,37 +140,45 @@ export default function ProjectScreenshotGallery({
               </div>
             </div>
 
-            {/* Main Interactive Screen with Zoom */}
-            <ProjectScreenshotPreview screenshot={currentShot} priority>
-              <div className="group relative aspect-[16/10] w-full overflow-hidden bg-[#FAF7F2] dark:bg-[#141F18] cursor-zoom-in">
-                <Image
-                  key={currentShot.src}
-                  src={currentShot.src}
-                  alt={currentShot.alt}
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 60vw"
-                  className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.01]"
-                />
-                
-                {/* Hover Quick Zoom Cue */}
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-300 group-hover:bg-black/15">
-                  <div className="flex items-center gap-2 rounded-full bg-white/90 dark:bg-black/80 px-4 py-2 text-xs font-semibold text-[#2D2B2C] dark:text-white opacity-0 backdrop-blur-md transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 translate-y-2 shadow-lg border border-[#2D2B2C]/10 dark:border-white/20">
-                    <ZoomIn className="size-4 text-[#36513B] dark:text-[#7CD090]" />
-                    <span>点击放大全屏查看</span>
-                  </div>
+            {/* Main Interactive Screen with Click-to-Zoom */}
+            <button
+              type="button"
+              onClick={() => setIsLightboxOpen(true)}
+              className="group relative block aspect-[16/10] w-full overflow-hidden bg-[#FAF7F2] dark:bg-[#141F18] cursor-zoom-in outline-none text-left"
+              aria-label={`放大查看：${currentShot.title || currentShot.alt}`}
+            >
+              <Image
+                key={currentShot.src}
+                src={currentShot.src}
+                alt={currentShot.alt}
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 60vw"
+                className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.01]"
+              />
+              
+              {/* Hover Quick Zoom Cue */}
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-300 group-hover:bg-black/15">
+                <div className="flex items-center gap-2 rounded-full bg-white/95 dark:bg-black/85 px-4 py-2 text-xs font-bold text-[#2D2B2C] dark:text-white opacity-0 backdrop-blur-md transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 translate-y-2 shadow-xl border border-[#2D2B2C]/10 dark:border-white/20">
+                  <ZoomIn className="size-4 text-[#36513B] dark:text-[#7CD090]" />
+                  <span>点击放大全屏查看</span>
                 </div>
               </div>
-            </ProjectScreenshotPreview>
+            </button>
 
             {/* Bottom Screen Bar */}
             <div className="flex items-center justify-between px-4 py-3 bg-[#FAF7F2]/60 dark:bg-[#16221B]/60 border-t border-[#2D2B2C]/8 dark:border-white/10 text-xs text-[#5A5551] dark:text-[#9EB3A4]">
               <span className="font-medium text-[#2D2B2C] dark:text-[#F0F5F1] truncate max-w-sm">
                 {currentShot.title || currentShot.alt}
               </span>
-              <span className="text-[10px] font-mono text-[#7A736A]">
-                按键盘 1-4 快速切图
-              </span>
+              <button
+                type="button"
+                onClick={() => setIsLightboxOpen(true)}
+                className="text-[11px] font-semibold text-[#36513B] dark:text-[#7CD090] hover:underline flex items-center gap-1"
+              >
+                <ZoomIn className="size-3.5" />
+                <span>全屏放大</span>
+              </button>
             </div>
           </div>
 
@@ -270,23 +307,122 @@ export default function ProjectScreenshotGallery({
               </span>
             </div>
 
-            {/* Zoom Action Button */}
-            <ProjectScreenshotPreview screenshot={currentShot}>
-              <div className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-[#36513B] hover:bg-[#283E2C] text-white text-xs font-bold shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
-                <ZoomIn className="size-4 text-[#E2EBE4]" />
-                <span>放大查看高清界面细节</span>
-              </div>
-            </ProjectScreenshotPreview>
+            {/* Big Zoom Action Trigger Button */}
+            <button
+              type="button"
+              onClick={() => setIsLightboxOpen(true)}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-[#36513B] hover:bg-[#283E2C] text-white text-xs font-bold shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+            >
+              <ZoomIn className="size-4 text-[#E2EBE4]" />
+              <span>放大查看高清全景细节</span>
+            </button>
 
           </div>
 
         </div>
 
       </div>
+
+      {/* ===================== 全屏灯箱模态弹窗 (顶层渲染，z-[9999]) ===================== */}
+      {isLightboxOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="截图高清全屏查看"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 sm:p-8 animate-in fade-in duration-200"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsLightboxOpen(false);
+          }}
+        >
+          {/* Main Lightbox Frame */}
+          <div className="relative max-w-6xl w-full rounded-2xl bg-white dark:bg-[#1C261F] p-3 shadow-2xl border border-white/20 flex flex-col items-center">
+            
+            {/* Topbar Controls */}
+            <div className="w-full flex items-center justify-between pb-3 px-2 border-b border-[#2D2B2C]/8 dark:border-white/10">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-[#2D2B2C] dark:text-[#F0F5F1]">
+                  {currentShot.title || currentShot.alt}
+                </span>
+                <span className="text-xs text-[#7A736A] font-mono">
+                  ({activeTab + 1}/{screenshots.length})
+                </span>
+              </div>
+
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setIsLightboxOpen(false)}
+                className="inline-flex size-9 items-center justify-center rounded-full bg-[#FAF7F2] dark:bg-[#23382C] text-[#2D2B2C] dark:text-white hover:bg-black/10 dark:hover:bg-white/20 transition-all cursor-pointer shadow-xs"
+                title="关闭 (Esc)"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            {/* Image Container with Nav Arrows */}
+            <div className="relative w-full flex items-center justify-center py-2 min-h-[50vh]">
+              {/* Prev Button */}
+              <button
+                type="button"
+                onClick={() => setActiveTab((prev) => (prev > 0 ? prev - 1 : screenshots.length - 1))}
+                className="absolute left-3 z-10 inline-flex size-11 items-center justify-center rounded-full bg-white/90 dark:bg-black/80 text-[#2D2B2C] dark:text-white shadow-xl hover:scale-110 active:scale-95 transition-all border border-[#2D2B2C]/10 cursor-pointer"
+                title="上一张 (←)"
+              >
+                <ChevronLeft className="size-6" />
+              </button>
+
+              {/* Screenshot Image */}
+              <div className="relative max-h-[75vh] w-full flex items-center justify-center overflow-hidden rounded-xl bg-[#FAF7F2] dark:bg-[#141F18]">
+                <Image
+                  src={currentShot.src}
+                  alt={currentShot.alt}
+                  width={currentShot.width || 1440}
+                  height={currentShot.height || 900}
+                  priority
+                  className="max-h-[75vh] w-auto h-auto object-contain mx-auto rounded-lg shadow-sm"
+                />
+              </div>
+
+              {/* Next Button */}
+              <button
+                type="button"
+                onClick={() => setActiveTab((prev) => (prev < screenshots.length - 1 ? prev + 1 : 0))}
+                className="absolute right-3 z-10 inline-flex size-11 items-center justify-center rounded-full bg-white/90 dark:bg-black/80 text-[#2D2B2C] dark:text-white shadow-xl hover:scale-110 active:scale-95 transition-all border border-[#2D2B2C]/10 cursor-pointer"
+                title="下一张 (→)"
+              >
+                <ChevronRight className="size-6" />
+              </button>
+            </div>
+
+            {/* Bottom Caption & Thumbnails inside Lightbox */}
+            <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 px-2 border-t border-[#2D2B2C]/8 dark:border-white/10 text-xs text-[#5A5551] dark:text-[#9EB3A4]">
+              <span className="truncate max-w-md">
+                💡 {currentShot.alt}
+              </span>
+              <div className="flex items-center gap-1.5">
+                {screenshots.map((s, idx) => (
+                  <button
+                    key={s.src}
+                    type="button"
+                    onClick={() => setActiveTab(idx)}
+                    className={`h-2 rounded-full transition-all cursor-pointer ${
+                      activeTab === idx ? "w-6 bg-[#36513B] dark:bg-[#7CD090]" : "w-2 bg-black/20 dark:bg-white/30"
+                    }`}
+                    title={`切换到第 ${idx + 1} 张`}
+                  />
+                ))}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
 
+// 保留 ProjectScreenshotPreview 导出以兼容旧引用
 export function ProjectScreenshotPreview({
   screenshot,
   priority = false,
@@ -296,116 +432,5 @@ export function ProjectScreenshotPreview({
   priority?: boolean;
   children?: ReactNode;
 }) {
-  const [selectedScreenshot, setSelectedScreenshot] = useState<Screenshot | null>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (!selectedScreenshot) return;
-
-    const previousBodyOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.requestAnimationFrame(() => closeButtonRef.current?.focus());
-
-    const handleDialogKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        setSelectedScreenshot(null);
-        return;
-      }
-
-      if (event.key !== "Tab" || !dialogRef.current) return;
-
-      const focusable = Array.from(dialogRef.current.querySelectorAll<HTMLElement>(
-        'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-      ));
-      if (focusable.length === 0) return;
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener("keydown", handleDialogKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleDialogKeyDown);
-      document.body.style.overflow = previousBodyOverflow;
-      window.requestAnimationFrame(() => triggerRef.current?.focus());
-    };
-  }, [selectedScreenshot]);
-
-  return (
-    <>
-      <button
-        ref={triggerRef}
-        type="button"
-        onClick={(event) => {
-          triggerRef.current = event.currentTarget;
-          setSelectedScreenshot(screenshot);
-        }}
-        className="block w-full cursor-zoom-in outline-none transition-all duration-200 active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-[#36513B] focus-visible:ring-inset motion-reduce:transition-none"
-        aria-label={`放大查看：${screenshot.alt}`}
-      >
-        {children ?? (
-          <Image
-            src={screenshot.src}
-            alt={screenshot.alt}
-            width={screenshot.width}
-            height={screenshot.height}
-            priority={priority}
-            sizes={priority ? "(max-width: 1280px) 100vw, 1152px" : "(max-width: 767px) 100vw, (max-width: 1280px) 33vw, 384px"}
-            className="h-auto w-full"
-          />
-        )}
-      </button>
-
-      {selectedScreenshot ? (
-        <div
-          ref={dialogRef}
-          role="dialog"
-          aria-modal="true"
-          aria-label="截图放大预览"
-          className="fixed inset-0 z-50 overflow-y-auto bg-[#FAF8F4]/95 dark:bg-[#142219]/95 p-4 backdrop-blur-md sm:p-8 flex items-center justify-center"
-          onClick={(event) => {
-            if (!panelRef.current?.contains(event.target as Node)) {
-              setSelectedScreenshot(null);
-            }
-          }}
-        >
-          <div className="relative max-w-6xl w-full">
-            <div ref={panelRef} className="relative w-full overflow-hidden rounded-2xl bg-white dark:bg-[#1C261F] p-3 text-[#2D2B2C] dark:text-[#F0F5F1] shadow-2xl ring-1 ring-[#2D2B2C]/10 dark:ring-white/20">
-              <button
-                ref={closeButtonRef}
-                type="button"
-                onClick={() => setSelectedScreenshot(null)}
-                className="absolute right-5 top-5 z-10 inline-flex size-10 items-center justify-center rounded-full bg-white/90 dark:bg-[#23382C] text-[#2D2B2C] dark:text-white shadow-md border border-[#2D2B2C]/10 dark:border-white/20 transition-transform duration-200 hover:scale-110 active:scale-95"
-                aria-label="关闭放大预览"
-              >
-                <X className="size-5" strokeWidth={2} aria-hidden="true" />
-              </button>
-              <Image
-                src={selectedScreenshot.src}
-                alt={selectedScreenshot.alt}
-                width={selectedScreenshot.width}
-                height={selectedScreenshot.height}
-                sizes="100vw"
-                className="h-auto max-h-[85vh] w-full object-contain mx-auto rounded-xl"
-              />
-              <div className="p-3.5 text-center text-xs text-[#5A5551] dark:text-[#9EB3A4] font-medium bg-[#FAF7F2] dark:bg-[#16221B] mt-2 rounded-lg">
-                {selectedScreenshot.title} · {selectedScreenshot.alt}
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
-    </>
-  );
+  return <>{children}</>;
 }
