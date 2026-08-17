@@ -1,60 +1,75 @@
-import Image from "next/image";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Layers3, MonitorSmartphone, Server, Database, ShieldCheck, Cpu, Code2, CheckCircle2, Sparkles } from "lucide-react";
+import { 
+  ArrowLeft, 
+  Layers, 
+  Cpu, 
+  ShieldCheck, 
+  CheckCircle2, 
+  Code2, 
+  Database, 
+  Server, 
+  ExternalLink,
+  BookOpen,
+  Sparkles,
+  MonitorSmartphone 
+} from "lucide-react";
 import { DORMITORY_SYSTEM_PROJECT } from "@/data/projects";
 import ProjectScreenshotGallery from "./ProjectScreenshotGallery";
+import SystemArchitectureDiagrams from "./SystemArchitectureDiagrams";
 
-export default function DormitorySystemProjectPage() {
+export const metadata: Metadata = {
+  title: "智慧宿舍管理系统 | 案例研究",
+  description:
+    "面向高校三端角色的宿舍综合管理系统，基于 Spring Boot 3 与 Vue 3 的全栈工程实践与架构设计。",
+  openGraph: {
+    title: "智慧宿舍管理系统 · 案例研究 | Cloud 的数字小屋",
+    description:
+      "面向高校三端角色的宿舍综合管理系统，基于 Spring Boot 3 与 Vue 3 的全栈工程实践与架构设计。",
+  },
+};
+
+export default function DormitorySystemPage() {
   const project = DORMITORY_SYSTEM_PROJECT;
 
   return (
-    <main className="min-h-[100dvh] bg-transparent px-4 pb-24 pt-28 text-[var(--foreground)] sm:px-8 lg:px-12 lg:pb-32 lg:pt-32">
-      <div className="mx-auto max-w-6xl space-y-16 sm:space-y-24">
+    <main className="min-h-screen bg-transparent py-24 sm:py-32">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 space-y-16">
         
-        {/* Top Navigation Back */}
-        <div>
+        {/* 1. Header Navigation & Title */}
+        <header className="space-y-6">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--muted)] hover:text-[var(--accent-green)] transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--muted)] hover:text-[var(--accent-green)] transition-colors group"
           >
-            <ArrowLeft className="size-4" />
-            <span>返回数字小屋首页</span>
+            <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-1" />
+            <span>返回主页</span>
           </Link>
-        </div>
 
-        {/* 1. Project Hero Header */}
-        <header className="relative overflow-hidden rounded-[2.5rem] border border-[var(--border-line-color)] bg-[var(--surface)]/80 p-8 sm:p-12 lg:p-16 shadow-[0_20px_60px_rgba(45,43,44,0.06)] backdrop-blur-xl">
-          {/* Ambient Background Aura */}
-          <div className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(54,81,59,0.12)_0%,transparent_70%)]" />
-          <div className="pointer-events-none absolute -bottom-20 -left-20 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(140,74,49,0.10)_0%,transparent_70%)]" />
-
-          <div className="relative z-10 max-w-3xl space-y-6">
+          <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--accent-green)]/30 bg-[var(--accent-green)]/10 px-3.5 py-1 text-xs font-semibold text-[var(--accent-green)]">
-                <Layers3 className="size-3.5" />
-                <span>工程实战案例</span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E2EBE4] dark:bg-[#23382C] px-3 py-1 text-xs font-semibold text-[#36513B] dark:text-[#7CD090]">
+                <Layers className="size-3.5" />
+                <span>全栈工程案例</span>
               </span>
-              <span className="rounded-full bg-[var(--surface-2)] px-3 py-1 text-xs font-medium text-[var(--muted)] border border-[var(--border-line-color)]">
-                {project.status}
-              </span>
-              <span className="rounded-full bg-[#E2EBE4] dark:bg-[#23382C] px-3 py-1 text-xs font-semibold text-[#36513B] dark:text-[#7CD090]">
-                RBAC 权限体系
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--surface-2)] px-3 py-1 text-xs font-medium text-[var(--muted)] border border-[var(--border-line-color)]">
+                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>{project.status}</span>
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[var(--foreground)] leading-tight">
+            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[var(--foreground)]">
               {project.title}
             </h1>
-
-            <p className="text-base sm:text-lg leading-relaxed text-[var(--muted)]">
+            <p className="max-w-3xl text-sm sm:text-base leading-relaxed text-[var(--muted)]">
               {project.summary}
             </p>
 
-            {/* Quick Tech Highlights */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-[var(--border-line-color)]">
+            {/* Quick Metrics Bar */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-[var(--border-line-color)]">
               <div>
                 <span className="block text-[11px] font-mono text-[var(--muted)] uppercase tracking-wider">前端技术栈</span>
-                <span className="text-sm font-bold text-[var(--foreground)]">Vue 3 + Element Plus</span>
+                <span className="text-sm font-bold text-[var(--foreground)]">Vue 3 + Vite + Element+</span>
               </div>
               <div>
                 <span className="block text-[11px] font-mono text-[var(--muted)] uppercase tracking-wider">后端架构</span>
@@ -62,7 +77,7 @@ export default function DormitorySystemProjectPage() {
               </div>
               <div>
                 <span className="block text-[11px] font-mono text-[var(--muted)] uppercase tracking-wider">数据库持久化</span>
-                <span className="text-sm font-bold text-[var(--foreground)]">MySQL 8.0 + MyBatis</span>
+                <span className="text-sm font-bold text-[var(--foreground)]">MySQL 8.0 + MyBatis+</span>
               </div>
               <div>
                 <span className="block text-[11px] font-mono text-[var(--muted)] uppercase tracking-wider">工程规范</span>
@@ -78,7 +93,7 @@ export default function DormitorySystemProjectPage() {
             <div>
               <div className="flex items-center gap-2 text-xs font-semibold text-[var(--accent-green)]">
                 <MonitorSmartphone className="size-4" />
-                <span>交互界面实景</span>
+                <span>交互界面实景 (26 张全量页面)</span>
               </div>
               <h2 id="screenshots-title" className="mt-2 text-2xl sm:text-4xl font-bold tracking-tight text-[var(--foreground)]">
                 三类工作台多视角全景
@@ -92,7 +107,37 @@ export default function DormitorySystemProjectPage() {
           <ProjectScreenshotGallery screenshots={project.screenshots} />
         </section>
 
-        {/* 3. System Architecture Layers */}
+        {/* 3. Deep Architecture & Sequence Diagrams */}
+        <section aria-labelledby="architecture-diagrams-title">
+          <SystemArchitectureDiagrams />
+        </section>
+
+        {/* 4. Deep Tech Article Promo Banner */}
+        <section className="rounded-3xl border border-[var(--border-line-color)] bg-[var(--surface)] p-6 sm:p-10 shadow-sm relative overflow-hidden group">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+            <div className="space-y-2 max-w-2xl">
+              <div className="flex items-center gap-2 text-xs font-semibold text-[var(--accent-green)]">
+                <BookOpen className="size-4" />
+                <span>技术随笔沉淀</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold text-[var(--foreground)] tracking-tight">
+                从零构建智慧宿舍管理系统：架构设计与实战权衡
+              </h3>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">
+                详细拆解 Spring Boot 3 与 Vue 3 的前后端工程实践、RBAC 细粒度权限控制、双向 Token 校验机制与状态机审批流实现。
+              </p>
+            </div>
+            <Link
+              href="/notes/dormitory-system-architecture"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[var(--accent-green)] text-white text-xs font-bold shadow-md hover:brightness-95 active:scale-[0.98] transition-all shrink-0"
+            >
+              <span>阅读深度长文</span>
+              <ExternalLink className="size-3.5" />
+            </Link>
+          </div>
+        </section>
+
+        {/* 5. System Architecture Layers */}
         <section aria-labelledby="architecture-title" className="space-y-8 rounded-[2.5rem] border border-[var(--border-line-color)] bg-[var(--surface)]/70 p-8 sm:p-12 shadow-sm">
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-[var(--accent-green)]">
@@ -139,7 +184,7 @@ export default function DormitorySystemProjectPage() {
           </div>
         </section>
 
-        {/* 4. Core Workflows Matrix */}
+        {/* 6. Core Workflows Matrix */}
         <section aria-labelledby="workflows-title" className="space-y-8">
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-[var(--accent-green)]">
@@ -174,24 +219,21 @@ export default function DormitorySystemProjectPage() {
           </div>
         </section>
 
-        {/* 5. Bottom Navigation Bar */}
+        {/* 7. Bottom Navigation Bar */}
         <footer className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-12 border-t border-[var(--border-line-color)]">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[var(--surface-2)] hover:bg-[var(--surface)] text-xs font-semibold text-[var(--foreground)] border border-[var(--border-line-color)] transition-all shadow-xs"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--muted)] hover:text-[var(--accent-green)] transition-colors group"
           >
-            <ArrowLeft className="size-4" />
-            <span>返回首页</span>
+            <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-1" />
+            <span>返回主页</span>
           </Link>
 
-          <Link
-            href="/notes"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[var(--accent-green)] hover:bg-[#2A402F] text-xs font-semibold text-white transition-all shadow-md group"
-          >
-            <Sparkles className="size-4 text-[#7CD090]" />
-            <span>阅读技术随笔与架构思考</span>
-            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-          </Link>
+          <div className="flex items-center gap-4 text-xs text-[var(--muted)]">
+            <span>最后更新：2026年3月</span>
+            <span>·</span>
+            <span>Cloud 的数字小屋</span>
+          </div>
         </footer>
 
       </div>
