@@ -3,72 +3,23 @@
 import Image from "next/image";
 import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { X, ZoomIn, Shield, UserCheck, GraduationCap, KeyRound, CheckCircle2, Layers, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
-import type { ProjectCaseStudy } from "@/data/projects";
+import { X, ZoomIn, Shield, UserCheck, GraduationCap, KeyRound, CheckCircle2, Layers, ShieldCheck, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { DORMITORY_CATEGORIES, type ProjectCategory } from "@/data/projects";
 
-type Screenshot = ProjectCaseStudy["screenshots"][number];
-
-const ROLE_META = [
-  {
-    role: "统一身份认证登录",
-    path: "/login",
-    tag: "全局安全入口",
-    icon: KeyRound,
-    accent: "var(--accent-clay)",
-    highlights: [
-      "支持学生、宿管与管理员三端统一认证与凭证分发",
-      "基于 JWT 的无状态鉴权与双向 Token 校验机制",
-      "根据身份自动定向至对应角色的专属动态工作台",
-    ],
-    techPoints: "Spring Security / JWT / BCrypt 密码加密",
-  },
-  {
-    role: "系统管理员总览",
-    path: "/admin/overview",
-    tag: "全局中枢看板",
-    icon: Shield,
-    accent: "var(--accent-green)",
-    highlights: [
-      "全校楼宇、楼层与宿舍床位资源可视化拓扑分布",
-      "RBAC 细粒度角色与系统运维操作日志全流程审计",
-      "全站数据报表聚合，支持多条件筛选与批量导出",
-    ],
-    techPoints: "Element Plus / ECharts 图表 / 动态权限路由",
-  },
-  {
-    role: "宿管日常工作台",
-    path: "/manager/workbench",
-    tag: "楼栋运营枢纽",
-    icon: UserCheck,
-    accent: "#2A5270",
-    highlights: [
-      "实时入住、调宿办理与房态空闲/满员即时变色看板",
-      "学生报修工单接单、流转、指派与完成状态归档",
-      "外来访客进出留痕登记与夜间晚归异常考勤记录",
-    ],
-    techPoints: "状态机审批流 / WebSocket 提醒 / 房态图谱",
-  },
-  {
-    role: "学生个人服务台",
-    path: "/student/portal",
-    tag: "学生自助服务",
-    icon: GraduationCap,
-    accent: "#B8623D",
-    highlights: [
-      "在线查看当前入住寝室、床位信息与室友通讯录",
-      "水电费用账单实时查询与在线快捷缴费申请",
-      "宿舍设施损坏一键拍照报修与工单实时进度追踪",
-    ],
-    techPoints: "响应式移动端兼容 / 表单防抖提交 / 进度步骤条",
-  },
-];
+const CATEGORY_ICONS: Record<string, any> = {
+  login: KeyRound,
+  student: GraduationCap,
+  manager: UserCheck,
+  admin: Shield,
+};
 
 export default function ProjectScreenshotGallery({
   screenshots,
 }: {
-  screenshots: ProjectCaseStudy["screenshots"];
-}) {
-  const [activeTab, setActiveTab] = useState(1); // 默认展示管理员总览
+  screenshots?: any;
+} = {}) {
+  const [selectedCatIndex, setSelectedCatIndex] = useState(1); // 默认高亮学生服务台
+  const [selectedShotIndex, setSelectedShotIndex] = useState(0); // 当前分类下的第几张
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -76,11 +27,18 @@ export default function ProjectScreenshotGallery({
     setMounted(true);
   }, []);
 
-  const currentShot = screenshots[activeTab] || screenshots[0];
-  const currentMeta = ROLE_META[activeTab] || ROLE_META[0];
-  const CurrentIcon = currentMeta.icon;
+  const currentCategory = DORMITORY_CATEGORIES[selectedCatIndex] || DORMITORY_CATEGORIES[0];
+  const currentScreenshots = currentCategory.screenshots;
+  const currentShot = currentScreenshots[selectedShotIndex] || currentScreenshots[0];
+  const CategoryIcon = CATEGORY_ICONS[currentCategory.id] || Shield;
 
-  // 键盘快捷操作：数字 1-4 切换视角，Esc 退出放大，左右箭头切图
+  // 切换大分类时重置子页面索引
+  const handleCategoryChange = (idx: number) => {
+    setSelectedCatIndex(idx);
+    setSelectedShotIndex(0);
+  };
+
+  // 键盘快捷操作：数字 1-4 切换大分类，Esc 退出放大，左右箭头切图
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (["INPUT", "TEXTAREA"].includes((e.target as HTMLElement)?.tagName)) return;
@@ -92,23 +50,23 @@ export default function ProjectScreenshotGallery({
 
       if (isLightboxOpen) {
         if (e.key === "ArrowLeft") {
-          setActiveTab((prev) => (prev > 0 ? prev - 1 : screenshots.length - 1));
+          setSelectedShotIndex((prev) => (prev > 0 ? prev - 1 : currentScreenshots.length - 1));
         } else if (e.key === "ArrowRight") {
-          setActiveTab((prev) => (prev < screenshots.length - 1 ? prev + 1 : 0));
+          setSelectedShotIndex((prev) => (prev < currentScreenshots.length - 1 ? prev + 1 : 0));
         }
       }
 
-      if (["1", "2", "3", "4"].includes(e.key)) {
+      if (!isLightboxOpen && ["1", "2", "3", "4"].includes(e.key)) {
         const index = parseInt(e.key, 10) - 1;
-        if (index >= 0 && index < screenshots.length) {
-          setActiveTab(index);
+        if (index >= 0 && index < DORMITORY_CATEGORIES.length) {
+          handleCategoryChange(index);
         }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isLightboxOpen, screenshots.length]);
+  }, [isLightboxOpen, currentScreenshots.length]);
 
   // 控制放大预览时的页面背景滚动
   useEffect(() => {
@@ -127,7 +85,7 @@ export default function ProjectScreenshotGallery({
       {/* Taobao-style Side-by-Side Showcase Structure */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* ===================== 左侧：主视区与缩略图 ===================== */}
+        {/* ===================== 左侧：macOS 拟真主视区 + 子页面缩略图切片 ===================== */}
         <div className="lg:col-span-7 space-y-4">
           
           {/* macOS Simulated Browser Frame */}
@@ -140,10 +98,11 @@ export default function ProjectScreenshotGallery({
                 <span className="h-3 w-3 rounded-full bg-[#27C93F]" />
               </div>
               <div className="flex items-center gap-2 rounded-lg bg-white dark:bg-[#1C261F] px-3 py-1 text-[11px] font-mono text-[#7A736A] dark:text-[#9EB3A4] border border-[#2D2B2C]/8 dark:border-white/10 max-w-xs truncate">
-                <span>dormitory-system{currentMeta.path}</span>
+                <span>dormitory-system{currentCategory.path}</span>
               </div>
-              <div className="flex items-center gap-1 text-[11px] font-semibold text-[#36513B] dark:text-[#7CD090]">
-                <span>视角 {activeTab + 1}/4</span>
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-[#36513B] dark:text-[#7CD090]">
+                <span>{currentShot.title}</span>
+                <span className="text-[10px] text-[#7A736A]">({selectedShotIndex + 1}/{currentScreenshots.length})</span>
               </div>
             </div>
 
@@ -152,7 +111,7 @@ export default function ProjectScreenshotGallery({
               type="button"
               onClick={() => setIsLightboxOpen(true)}
               className="group relative block aspect-[16/10] w-full overflow-hidden bg-[#FAF7F2] dark:bg-[#141F18] cursor-zoom-in outline-none text-left"
-              aria-label={`放大查看：${currentShot.title || currentShot.alt}`}
+              aria-label={`放大查看：${currentShot.title}`}
             >
               <Image
                 key={currentShot.src}
@@ -168,7 +127,7 @@ export default function ProjectScreenshotGallery({
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-300 group-hover:bg-black/15">
                 <div className="flex items-center gap-2 rounded-full bg-white/95 dark:bg-black/85 px-4 py-2 text-xs font-bold text-[#2D2B2C] dark:text-white opacity-0 backdrop-blur-md transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 translate-y-2 shadow-xl border border-[#2D2B2C]/10 dark:border-white/20">
                   <ZoomIn className="size-4 text-[#36513B] dark:text-[#7CD090]" />
-                  <span>点击放大全屏查看</span>
+                  <span>点击画廊卡片全屏查看</span>
                 </div>
               </div>
             </button>
@@ -176,12 +135,12 @@ export default function ProjectScreenshotGallery({
             {/* Bottom Screen Bar */}
             <div className="flex items-center justify-between px-4 py-3 bg-[#FAF7F2]/60 dark:bg-[#16221B]/60 border-t border-[#2D2B2C]/8 dark:border-white/10 text-xs text-[#5A5551] dark:text-[#9EB3A4]">
               <span className="font-medium text-[#2D2B2C] dark:text-[#F0F5F1] truncate max-w-sm">
-                {currentShot.title || currentShot.alt}
+                💡 {currentShot.alt}
               </span>
               <button
                 type="button"
                 onClick={() => setIsLightboxOpen(true)}
-                className="text-[11px] font-semibold text-[#36513B] dark:text-[#7CD090] hover:underline flex items-center gap-1 cursor-pointer"
+                className="text-[11px] font-semibold text-[#36513B] dark:text-[#7CD090] hover:underline flex items-center gap-1 cursor-pointer shrink-0 ml-2"
               >
                 <ZoomIn className="size-3.5" />
                 <span>全屏放大</span>
@@ -189,46 +148,53 @@ export default function ProjectScreenshotGallery({
             </div>
           </div>
 
-          {/* E-Commerce Thumbnail Track (紧贴主图下方，无需上下滚动) */}
-          <div className="grid grid-cols-4 gap-3">
-            {screenshots.map((shot, idx) => {
-              const isActive = activeTab === idx;
-              const meta = ROLE_META[idx] || ROLE_META[0];
-              const Icon = meta.icon;
+          {/* E-Commerce Sub-pages Thumbnail Track (展示当前分类下的所有丰富子页面) */}
+          <div>
+            <div className="flex items-center justify-between mb-2 px-1">
+              <span className="text-xs font-bold text-[#2D2B2C] dark:text-[#F0F5F1] flex items-center gap-1.5">
+                <CategoryIcon className="size-3.5 text-[#36513B] dark:text-[#7CD090]" />
+                <span>{currentCategory.name} · 功能子页面 ({currentScreenshots.length})</span>
+              </span>
+              <span className="text-[10px] text-[#7A736A]">鼠标悬停或点击秒切</span>
+            </div>
 
-              return (
-                <button
-                  key={shot.src}
-                  type="button"
-                  onClick={() => setActiveTab(idx)}
-                  onMouseEnter={() => setActiveTab(idx)} // 仿淘宝悬停即切，体验极致流畅
-                  className={`group relative flex flex-col items-center gap-1.5 p-1.5 rounded-2xl border transition-all text-center cursor-pointer bg-white/80 dark:bg-[#1C261F]/80 backdrop-blur-md ${
-                    isActive
-                      ? "border-[#36513B] dark:border-[#7CD090] ring-2 ring-[#36513B]/20 dark:ring-[#7CD090]/30 shadow-md scale-[1.02]"
-                      : "border-[#2D2B2C]/8 dark:border-white/10 opacity-70 hover:opacity-100 hover:border-[#36513B]/40"
-                  }`}
-                >
-                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-[#FAF7F2] dark:bg-[#141F18]">
-                    <Image
-                      src={shot.src}
-                      alt={shot.alt}
-                      fill
-                      sizes="(max-width: 640px) 25vw, 15vw"
-                      className="object-cover object-top"
-                    />
-                  </div>
-                  <div className="flex items-center gap-1 text-[11px] font-semibold text-[#2D2B2C] dark:text-[#F0F5F1] truncate px-1 w-full justify-center">
-                    <Icon className={`size-3 shrink-0 ${isActive ? "text-[#36513B] dark:text-[#7CD090]" : "text-[#7A736A]"}`} />
-                    <span className="truncate">{meta.role.split(" - ")[0].replace("系统", "").replace("统一身份认证", "登录")}</span>
-                  </div>
-                </button>
-              );
-            })}
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2">
+              {currentScreenshots.map((shot, idx) => {
+                const isActive = selectedShotIndex === idx;
+
+                return (
+                  <button
+                    key={shot.src}
+                    type="button"
+                    onClick={() => setSelectedShotIndex(idx)}
+                    onMouseEnter={() => setSelectedShotIndex(idx)} // 悬停即切，极致流畅
+                    className={`group relative flex flex-col items-center gap-1 p-1 rounded-xl border transition-all text-center cursor-pointer bg-white/80 dark:bg-[#1C261F]/80 backdrop-blur-md ${
+                      isActive
+                        ? "border-[#36513B] dark:border-[#7CD090] ring-2 ring-[#36513B]/20 dark:ring-[#7CD090]/30 shadow-md scale-[1.03]"
+                        : "border-[#2D2B2C]/8 dark:border-white/10 opacity-70 hover:opacity-100 hover:border-[#36513B]/40"
+                    }`}
+                  >
+                    <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-[#FAF7F2] dark:bg-[#141F18]">
+                      <Image
+                        src={shot.src}
+                        alt={shot.alt}
+                        fill
+                        sizes="(max-width: 640px) 33vw, 15vw"
+                        className="object-cover object-top"
+                      />
+                    </div>
+                    <span className="text-[10px] font-semibold text-[#2D2B2C] dark:text-[#F0F5F1] truncate px-0.5 w-full">
+                      {shot.subTitle || shot.title}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
         </div>
 
-        {/* ===================== 右侧：视角规格选择与业务详情 ===================== */}
+        {/* ===================== 右侧：角色大类规格切换与业务深度详情 ===================== */}
         <div className="lg:col-span-5 space-y-6">
           
           {/* Detail Card (淘宝商品属性面板风格) */}
@@ -238,46 +204,49 @@ export default function ProjectScreenshotGallery({
             <div className="space-y-2 border-b border-[#2D2B2C]/8 dark:border-white/10 pb-5">
               <div className="flex items-center justify-between">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E2EBE4] dark:bg-[#23382C] px-3 py-1 text-xs font-semibold text-[#36513B] dark:text-[#7CD090]">
-                  <CurrentIcon className="size-3.5" />
-                  <span>{currentMeta.tag}</span>
+                  <CategoryIcon className="size-3.5" />
+                  <span>{currentCategory.tag}</span>
                 </span>
                 <span className="font-mono text-xs font-semibold text-[#8C4A31] dark:text-[#E5987D]">
-                  {currentMeta.path}
+                  {currentCategory.path}
                 </span>
               </div>
 
               <h3 className="text-xl sm:text-2xl font-bold text-[#2D2B2C] dark:text-[#F0F5F1] tracking-tight">
-                {currentMeta.role}
+                {currentCategory.name}
               </h3>
               <p className="text-xs text-[#5A5551] dark:text-[#9EB3A4] leading-relaxed">
                 {currentShot.alt}
               </p>
             </div>
 
-            {/* Spec Selector (角色规格切换) */}
+            {/* Spec Selector (4 大核心角色规格切换) */}
             <div className="space-y-3">
               <span className="text-xs font-bold text-[#2D2B2C] dark:text-[#F0F5F1] flex items-center gap-1.5">
                 <Layers className="size-3.5 text-[#36513B] dark:text-[#7CD090]" />
-                <span>快速切换工作台视角：</span>
+                <span>选择系统工作台角色 (Role Spec)：</span>
               </span>
 
-              <div className="grid grid-cols-2 gap-2">
-                {ROLE_META.map((meta, idx) => {
-                  const Icon = meta.icon;
-                  const isActive = activeTab === idx;
+              <div className="grid grid-cols-2 gap-2.5">
+                {DORMITORY_CATEGORIES.map((cat, idx) => {
+                  const Icon = CATEGORY_ICONS[cat.id] || Shield;
+                  const isActive = selectedCatIndex === idx;
                   return (
                     <button
-                      key={meta.role}
+                      key={cat.id}
                       type="button"
-                      onClick={() => setActiveTab(idx)}
-                      className={`flex items-center gap-2 p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer ${
+                      onClick={() => handleCategoryChange(idx)}
+                      className={`flex items-center gap-2 p-3 rounded-2xl border text-left text-xs transition-all cursor-pointer ${
                         isActive
-                          ? "border-[#36513B] dark:border-[#7CD090] bg-[#FAF7F2] dark:bg-[#23382C] text-[#36513B] dark:text-[#7CD090] font-bold shadow-xs"
+                          ? "border-[#36513B] dark:border-[#7CD090] bg-[#FAF7F2] dark:bg-[#23382C] text-[#36513B] dark:text-[#7CD090] font-bold shadow-xs scale-[1.02]"
                           : "border-[#2D2B2C]/8 dark:border-white/8 bg-white/50 dark:bg-white/5 text-[#5A5551] dark:text-[#9EB3A4] hover:bg-white hover:border-[#36513B]/30"
                       }`}
                     >
-                      <Icon className="size-3.5 shrink-0" />
-                      <span className="truncate">{meta.role}</span>
+                      <Icon className="size-4 shrink-0" />
+                      <div className="truncate">
+                        <div className="truncate">{cat.name}</div>
+                        <div className="text-[10px] font-normal text-[#7A736A]">{cat.screenshots.length}个详细页面</div>
+                      </div>
                     </button>
                   );
                 })}
@@ -288,11 +257,11 @@ export default function ProjectScreenshotGallery({
             <div className="space-y-3 pt-1">
               <span className="text-xs font-bold text-[#2D2B2C] dark:text-[#F0F5F1] flex items-center gap-1.5">
                 <ShieldCheck className="size-3.5 text-[#36513B] dark:text-[#7CD090]" />
-                <span>核心业务闭环特性：</span>
+                <span>{currentCategory.name} · 核心业务闭环：</span>
               </span>
 
               <ul className="space-y-2">
-                {currentMeta.highlights.map((highlight, index) => (
+                {currentCategory.highlights.map((highlight, index) => (
                   <li
                     key={index}
                     className="flex items-start gap-2 text-xs text-[#5A5551] dark:text-[#9EB3A4] leading-relaxed"
@@ -307,10 +276,10 @@ export default function ProjectScreenshotGallery({
             {/* Tech Implementation Badge */}
             <div className="rounded-2xl bg-[#FAF7F2] dark:bg-[#16221B] p-3.5 border border-[#2D2B2C]/6 dark:border-white/8 space-y-1">
               <span className="block text-[10px] font-mono text-[#7A736A] uppercase tracking-wider">
-                技术实现点 (Tech Stack)
+                技术架构实现 (Architecture)
               </span>
               <span className="block text-xs font-semibold text-[#2D2B2C] dark:text-[#F0F5F1]">
-                {currentMeta.techPoints}
+                {currentCategory.techStack}
               </span>
             </div>
 
@@ -321,7 +290,7 @@ export default function ProjectScreenshotGallery({
               className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-[#36513B] hover:bg-[#283E2C] text-white text-xs font-bold shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               <ZoomIn className="size-4 text-[#E2EBE4]" />
-              <span>放大查看高清全景细节</span>
+              <span>放大查看高清全景细节 ({currentShot.title})</span>
             </button>
 
           </div>
@@ -348,10 +317,10 @@ export default function ProjectScreenshotGallery({
             <div className="w-full flex items-center justify-between px-2 pt-1">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-bold text-[var(--foreground)]">
-                  {currentShot.title || currentShot.alt}
+                  {currentCategory.name} · {currentShot.title}
                 </span>
                 <span className="text-xs text-[var(--muted)] font-mono">
-                  ({activeTab + 1}/{screenshots.length})
+                  ({selectedShotIndex + 1}/{currentScreenshots.length})
                 </span>
               </div>
 
@@ -372,7 +341,7 @@ export default function ProjectScreenshotGallery({
               {/* Prev Button */}
               <button
                 type="button"
-                onClick={() => setActiveTab((prev) => (prev > 0 ? prev - 1 : screenshots.length - 1))}
+                onClick={() => setSelectedShotIndex((prev) => (prev > 0 ? prev - 1 : currentScreenshots.length - 1))}
                 className="absolute left-4 z-10 inline-flex size-10 items-center justify-center rounded-full bg-white/95 dark:bg-[#23382C]/95 text-[var(--foreground)] shadow-md hover:scale-105 active:scale-95 transition-all border border-[var(--border-line-color)] cursor-pointer"
                 title="上一张 (←)"
                 aria-label="上一张"
@@ -393,7 +362,7 @@ export default function ProjectScreenshotGallery({
               {/* Next Button */}
               <button
                 type="button"
-                onClick={() => setActiveTab((prev) => (prev < screenshots.length - 1 ? prev + 1 : 0))}
+                onClick={() => setSelectedShotIndex((prev) => (prev < currentScreenshots.length - 1 ? prev + 1 : 0))}
                 className="absolute right-4 z-10 inline-flex size-10 items-center justify-center rounded-full bg-white/95 dark:bg-[#23382C]/95 text-[var(--foreground)] shadow-md hover:scale-105 active:scale-95 transition-all border border-[var(--border-line-color)] cursor-pointer"
                 title="下一张 (→)"
                 aria-label="下一张"
@@ -404,15 +373,15 @@ export default function ProjectScreenshotGallery({
 
             {/* 底部缩略圆点指示器 */}
             <div className="flex items-center gap-2 py-1">
-              {screenshots.map((s, idx) => (
+              {currentScreenshots.map((s, idx) => (
                 <button
                   key={s.src}
                   type="button"
-                  onClick={() => setActiveTab(idx)}
+                  onClick={() => setSelectedShotIndex(idx)}
                   className={`h-2 rounded-full transition-all cursor-pointer ${
-                    activeTab === idx ? "w-6 bg-[var(--accent-green)]" : "w-2 bg-[var(--border-line-color)] hover:bg-[var(--muted)]"
+                    selectedShotIndex === idx ? "w-6 bg-[var(--accent-green)]" : "w-2 bg-[var(--border-line-color)] hover:bg-[var(--muted)]"
                   }`}
-                  title={`切换到第 ${idx + 1} 张`}
+                  title={`切换到：${s.title}`}
                 />
               ))}
             </div>
@@ -424,17 +393,4 @@ export default function ProjectScreenshotGallery({
 
     </div>
   );
-}
-
-// 保留 ProjectScreenshotPreview 导出以兼容旧引用
-export function ProjectScreenshotPreview({
-  screenshot,
-  priority = false,
-  children,
-}: {
-  screenshot: Screenshot;
-  priority?: boolean;
-  children?: ReactNode;
-}) {
-  return <>{children}</>;
 }
