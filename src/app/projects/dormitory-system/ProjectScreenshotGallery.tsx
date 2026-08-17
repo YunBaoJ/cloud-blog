@@ -32,7 +32,7 @@ export default function ProjectScreenshotGallery({
   const currentShot = currentScreenshots[selectedShotIndex] || currentScreenshots[0];
   const CategoryIcon = CATEGORY_ICONS[currentCategory.id] || Shield;
 
-  // 切换大分类时重置子页面索引
+  // 切换大分类时重置子页面索引为第 0 张
   const handleCategoryChange = (idx: number) => {
     setSelectedCatIndex(idx);
     setSelectedShotIndex(0);
@@ -85,7 +85,7 @@ export default function ProjectScreenshotGallery({
       {/* Taobao-style Side-by-Side Showcase Structure */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* ===================== 左侧：macOS 拟真主视区 + 子页面缩略图切片 ===================== */}
+        {/* ===================== 左侧：macOS 拟真主视区 + 仅展示当前视角下的专属缩略图 ===================== */}
         <div className="lg:col-span-7 space-y-4">
           
           {/* macOS Simulated Browser Frame */}
@@ -148,17 +148,28 @@ export default function ProjectScreenshotGallery({
             </div>
           </div>
 
-          {/* E-Commerce Sub-pages Thumbnail Track (展示当前分类下的所有丰富子页面) */}
-          <div>
-            <div className="flex items-center justify-between mb-2 px-1">
+          {/* 只有点击右侧视角时，下方才会展示该视角对应的子图片列表 */}
+          <div key={currentCategory.id} className="animate-in fade-in duration-200 space-y-2">
+            <div className="flex items-center justify-between px-1">
               <span className="text-xs font-bold text-[#2D2B2C] dark:text-[#F0F5F1] flex items-center gap-1.5">
                 <CategoryIcon className="size-3.5 text-[#36513B] dark:text-[#7CD090]" />
-                <span>{currentCategory.name} · 功能子页面 ({currentScreenshots.length})</span>
+                <span>【{currentCategory.name}】专属界面截图 ({currentScreenshots.length} 张)：</span>
               </span>
-              <span className="text-[10px] text-[#7A736A]">鼠标悬停或点击秒切</span>
+              <span className="text-[10px] text-[#7A736A]">悬停或点击直接切换</span>
             </div>
 
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2">
+            {/* 动态自适应网格：根据当前角色的截图数量自适应排列 */}
+            <div
+              className={`grid gap-2.5 ${
+                currentScreenshots.length <= 3
+                  ? "grid-cols-3"
+                  : currentScreenshots.length <= 4
+                  ? "grid-cols-4"
+                  : currentScreenshots.length <= 6
+                  ? "grid-cols-3 sm:grid-cols-6"
+                  : "grid-cols-4 sm:grid-cols-4 md:grid-cols-7"
+              }`}
+            >
               {currentScreenshots.map((shot, idx) => {
                 const isActive = selectedShotIndex === idx;
 
@@ -167,8 +178,8 @@ export default function ProjectScreenshotGallery({
                     key={shot.src}
                     type="button"
                     onClick={() => setSelectedShotIndex(idx)}
-                    onMouseEnter={() => setSelectedShotIndex(idx)} // 悬停即切，极致流畅
-                    className={`group relative flex flex-col items-center gap-1 p-1 rounded-xl border transition-all text-center cursor-pointer bg-white/80 dark:bg-[#1C261F]/80 backdrop-blur-md ${
+                    onMouseEnter={() => setSelectedShotIndex(idx)} // 悬停即切，体验极致流畅
+                    className={`group relative flex flex-col items-center gap-1 p-1.5 rounded-xl border transition-all text-center cursor-pointer bg-white/80 dark:bg-[#1C261F]/80 backdrop-blur-md ${
                       isActive
                         ? "border-[#36513B] dark:border-[#7CD090] ring-2 ring-[#36513B]/20 dark:ring-[#7CD090]/30 shadow-md scale-[1.03]"
                         : "border-[#2D2B2C]/8 dark:border-white/10 opacity-70 hover:opacity-100 hover:border-[#36513B]/40"
@@ -194,7 +205,7 @@ export default function ProjectScreenshotGallery({
 
         </div>
 
-        {/* ===================== 右侧：角色大类规格切换与业务深度详情 ===================== */}
+        {/* ===================== 右侧：角色大类视角选择与业务深度详情 ===================== */}
         <div className="lg:col-span-5 space-y-6">
           
           {/* Detail Card (淘宝商品属性面板风格) */}
@@ -220,11 +231,11 @@ export default function ProjectScreenshotGallery({
               </p>
             </div>
 
-            {/* Spec Selector (4 大核心角色规格切换) */}
+            {/* Spec Selector (4 大核心角色规格切换：点击切换对应视角) */}
             <div className="space-y-3">
               <span className="text-xs font-bold text-[#2D2B2C] dark:text-[#F0F5F1] flex items-center gap-1.5">
                 <Layers className="size-3.5 text-[#36513B] dark:text-[#7CD090]" />
-                <span>选择系统工作台角色 (Role Spec)：</span>
+                <span>点击切换系统角色视角 (Role View)：</span>
               </span>
 
               <div className="grid grid-cols-2 gap-2.5">
@@ -236,16 +247,16 @@ export default function ProjectScreenshotGallery({
                       key={cat.id}
                       type="button"
                       onClick={() => handleCategoryChange(idx)}
-                      className={`flex items-center gap-2 p-3 rounded-2xl border text-left text-xs transition-all cursor-pointer ${
+                      className={`flex items-center gap-2.5 p-3 rounded-2xl border text-left text-xs transition-all cursor-pointer ${
                         isActive
-                          ? "border-[#36513B] dark:border-[#7CD090] bg-[#FAF7F2] dark:bg-[#23382C] text-[#36513B] dark:text-[#7CD090] font-bold shadow-xs scale-[1.02]"
+                          ? "border-[#36513B] dark:border-[#7CD090] bg-[#FAF7F2] dark:bg-[#23382C] text-[#36513B] dark:text-[#7CD090] font-bold shadow-xs scale-[1.02] ring-1 ring-[#36513B]/20"
                           : "border-[#2D2B2C]/8 dark:border-white/8 bg-white/50 dark:bg-white/5 text-[#5A5551] dark:text-[#9EB3A4] hover:bg-white hover:border-[#36513B]/30"
                       }`}
                     >
-                      <Icon className="size-4 shrink-0" />
+                      <Icon className={`size-4 shrink-0 ${isActive ? "text-[#36513B] dark:text-[#7CD090]" : "text-[#7A736A]"}`} />
                       <div className="truncate">
                         <div className="truncate">{cat.name}</div>
-                        <div className="text-[10px] font-normal text-[#7A736A]">{cat.screenshots.length}个详细页面</div>
+                        <div className="text-[10px] font-normal text-[#7A736A]">{cat.screenshots.length} 张详细截图</div>
                       </div>
                     </button>
                   );
@@ -257,7 +268,7 @@ export default function ProjectScreenshotGallery({
             <div className="space-y-3 pt-1">
               <span className="text-xs font-bold text-[#2D2B2C] dark:text-[#F0F5F1] flex items-center gap-1.5">
                 <ShieldCheck className="size-3.5 text-[#36513B] dark:text-[#7CD090]" />
-                <span>{currentCategory.name} · 核心业务闭环：</span>
+                <span>{currentCategory.name} · 业务特性：</span>
               </span>
 
               <ul className="space-y-2">
@@ -290,7 +301,7 @@ export default function ProjectScreenshotGallery({
               className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-[#36513B] hover:bg-[#283E2C] text-white text-xs font-bold shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               <ZoomIn className="size-4 text-[#E2EBE4]" />
-              <span>放大查看高清全景细节 ({currentShot.title})</span>
+              <span>放大查看高清全景 ({currentCategory.name} · {currentShot.title})</span>
             </button>
 
           </div>
@@ -393,4 +404,17 @@ export default function ProjectScreenshotGallery({
 
     </div>
   );
+}
+
+// 保留 ProjectScreenshotPreview 导出以兼容旧引用
+export function ProjectScreenshotPreview({
+  screenshot,
+  priority = false,
+  children,
+}: {
+  screenshot?: any;
+  priority?: boolean;
+  children?: ReactNode;
+}) {
+  return <>{children}</>;
 }
