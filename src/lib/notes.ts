@@ -106,9 +106,24 @@ function extractSmartSummary(rawContent: string, fallbackTitle: string): string 
   return fallbackTitle;
 }
 
-function cleanImagePath(rawPath: string): string {
-  if (!rawPath) return rawPath;
-  return rawPath.replace(/^(\.\.\/)+public\//, "/").replace(/^(\.\/)+public\//, "/");
+export function cleanImagePath(rawPath?: string | null): string {
+  if (!rawPath || typeof rawPath !== "string" || !rawPath.trim()) {
+    return "/og-cover.jpg";
+  }
+  let cleaned = rawPath.trim();
+  // 移除可能存在的多层相对路径或 public 前缀
+  cleaned = cleaned
+    .replace(/^(\.\.\/)+public\//, "/")
+    .replace(/^(\.\/)+public\//, "/")
+    .replace(/^public\//, "/");
+
+  if (cleaned.startsWith("http://") || cleaned.startsWith("https://")) {
+    return cleaned;
+  }
+  if (!cleaned.startsWith("/")) {
+    cleaned = `/${cleaned}`;
+  }
+  return cleaned;
 }
 
 /**
@@ -204,11 +219,10 @@ export function getAllNotes(): NoteItem[] {
       const { readTime: autoReadTime, wordCount } = calculateReadingStats(content);
       const readTime = data.readTime ? String(data.readTime).trim() : autoReadTime;
 
-      // 5. 封面图智能提取：若未提供则自动抓取正文第一张插图
+      // 5. 封面图智能提取：若未提供则自动抓取正文第一张插图，并进行绝对路径安全清洗
       const firstImg = extractFirstImage(content);
-      const coverImage = data.coverImage
-        ? String(data.coverImage).trim()
-        : firstImg?.src || "/og-cover.jpg";
+      const rawCover = data.coverImage ? String(data.coverImage).trim() : firstImg?.src || "/og-cover.jpg";
+      const coverImage = cleanImagePath(rawCover);
       const coverAlt = data.coverAlt
         ? String(data.coverAlt).trim()
         : firstImg?.alt || title;
