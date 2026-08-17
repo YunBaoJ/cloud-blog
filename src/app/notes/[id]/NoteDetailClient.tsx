@@ -638,7 +638,10 @@ export default function NoteDetailClient({ note, prevNote, nextNote, relatedNote
             </span>
             <span className="flex items-center gap-1">
               <Clock className="w-3.5 h-3.5" />
-              {note.readTime}
+              <span>{note.readTime}</span>
+              {Boolean(note.wordCount && note.wordCount > 0) && (
+                <span className="text-[11px] text-[var(--muted)]">· 约 {note.wordCount} 字</span>
+              )}
             </span>
             <span className="flex items-center gap-1">
               <Eye className="w-3.5 h-3.5" />
