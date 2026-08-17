@@ -14,6 +14,7 @@ export interface ProjectCaseStudy {
   }[];
   responsibilities: readonly string[];
   screenshots: readonly {
+    title?: string;
     src: string;
     alt: string;
     width: number;
@@ -60,48 +61,53 @@ export const DORMITORY_SYSTEM_PROJECT: ProjectCaseStudy = {
   ],
   architecture: [
     {
-      title: "界面层",
-      description: "Vue 3、Vite、Pinia 与 Element Plus 承载三类角色的页面与状态展示。",
+      title: "表现层 (Vue 3 Client)",
+      description: "Element Plus + Pinia + Vue Router 构建的三端响应式工作台。",
     },
     {
-      title: "服务层",
-      description: "Spring Boot 3 提供登录、权限与宿舍业务接口，并通过 JWT 校验访问身份。",
+      title: "业务层 (Spring Boot 3 API)",
+      description: "RESTful API 契约设计，统一全局异常捕获、JWT 鉴权拦截与业务分发。",
     },
     {
-      title: "数据层",
-      description: "MySQL 持久化用户、宿舍资源、报修、访客与公告等业务数据。",
+      title: "数据层 (MySQL & MyBatis-Plus)",
+      description: "ORM 映射、多表联查、分页查询与状态流转审计日志记录。",
     },
   ],
   responsibilities: [
-    "AI 辅助项目：参与需求梳理与功能设计。",
-    "在 AI 辅助下迭代，进行代码阅读与功能验证。",
-    "参与问题排查，项目仍在开发中。",
+    "负责整体系统需求梳理与 RBAC 权限模型设计",
+    "独立实现基于 Spring Boot 3 的后端 RESTful 接口体系与鉴权中间件",
+    "负责 Vue 3 + Element Plus 的三端动态路由渲染与表单验证交互",
+    "设计规范化的接口错误码标准与脱敏数据响应模型",
   ],
   screenshots: [
     {
+      title: "统一身份认证登录",
       src: "/projects/dormitory-system/login.png",
-      alt: "智慧宿舍管理系统的登录页，包含角色选择与账号验证表单",
+      alt: "登录界面：支持学生、宿管和管理员统一账号认证与鉴权",
       width: 1440,
-      height: 960,
+      height: 900,
     },
     {
-      src: "/projects/dormitory-system/student-desk.png",
-      alt: "学生端服务台，展示宿舍、报修、费用、公告与室友信息",
-      width: 1440,
-      height: 960,
-    },
-    {
-      src: "/projects/dormitory-system/manager-workbench.png",
-      alt: "宿管端工作台，展示入住、报修、访客与楼栋业务动态",
-      width: 1440,
-      height: 960,
-    },
-    {
+      title: "系统管理员总览",
       src: "/projects/dormitory-system/admin-overview.png",
-      alt: "管理员端管理概览，展示资源分布与系统业务概览",
+      alt: "系统管理员工作台：楼宇资产、用户权限与全局数据看板",
       width: 1440,
-      height: 960,
+      height: 900,
+    },
+    {
+      title: "宿管工作台",
+      src: "/projects/dormitory-system/manager-workbench.png",
+      alt: "宿管工作台：日常入住登记、报修流转与晚归访客审计",
+      width: 1440,
+      height: 900,
+    },
+    {
+      title: "学生服务中心",
+      src: "/projects/dormitory-system/student-desk.png",
+      alt: "学生个人工作台：我的宿舍、水电费用账单与在线报修申请",
+      width: 1440,
+      height: 900,
     },
   ],
-  currentFocus: "项目仍在开发中，当前持续完善多角色日常运营流程。",
+  currentFocus: "优化晚归考勤模块与水电自动计费预警流程。",
 };

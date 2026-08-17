@@ -1,141 +1,199 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Layers3, MonitorSmartphone } from "lucide-react";
+import { ArrowLeft, ArrowRight, Layers3, MonitorSmartphone, Server, Database, ShieldCheck, Cpu, Code2, CheckCircle2, Sparkles } from "lucide-react";
 import { DORMITORY_SYSTEM_PROJECT } from "@/data/projects";
-import ProjectScreenshotGallery, { ProjectScreenshotPreview } from "./ProjectScreenshotGallery";
+import ProjectScreenshotGallery from "./ProjectScreenshotGallery";
 
 export default function DormitorySystemProjectPage() {
   const project = DORMITORY_SYSTEM_PROJECT;
+
   return (
-    <main className="min-h-[100dvh] bg-transparent px-5 pb-24 pt-28 text-[var(--foreground)] sm:px-8 lg:px-12 lg:pb-32 lg:pt-32">
-      <div className="mx-auto max-w-6xl">
-        <header className="grid gap-10 border-b border-[var(--border-line-color)] pb-12 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:items-end lg:gap-16">
-          <div>
-            <div className="flex items-center gap-2 text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">
-              <Layers3 className="size-4" strokeWidth={1.8} aria-hidden="true" />
-              <span>项目案例</span>
-            </div>
-            <h1 className="mt-5 text-4xl font-light tracking-[-0.05em] sm:text-5xl">
-              {project.title}
-            </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--muted-foreground)] sm:text-base">
-              {project.summary}
-            </p>
-            <div className="mt-6 flex flex-wrap items-center gap-4">
-              <span className="rounded-full bg-[var(--surface-2)] px-3 py-1.5 text-xs font-semibold text-[var(--accent-green)] ring-1 ring-[var(--border-line-color)]">
+    <main className="min-h-[100dvh] bg-transparent px-4 pb-24 pt-28 text-[var(--foreground)] sm:px-8 lg:px-12 lg:pb-32 lg:pt-32">
+      <div className="mx-auto max-w-6xl space-y-16 sm:space-y-24">
+        
+        {/* Top Navigation Back */}
+        <div>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--muted)] hover:text-[var(--accent-green)] transition-colors"
+          >
+            <ArrowLeft className="size-4" />
+            <span>返回数字小屋首页</span>
+          </Link>
+        </div>
+
+        {/* 1. Project Hero Header */}
+        <header className="relative overflow-hidden rounded-[2.5rem] border border-[var(--border-line-color)] bg-[var(--surface)]/80 p-8 sm:p-12 lg:p-16 shadow-[0_20px_60px_rgba(45,43,44,0.06)] backdrop-blur-xl">
+          {/* Ambient Background Aura */}
+          <div className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(54,81,59,0.12)_0%,transparent_70%)]" />
+          <div className="pointer-events-none absolute -bottom-20 -left-20 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(140,74,49,0.10)_0%,transparent_70%)]" />
+
+          <div className="relative z-10 max-w-3xl space-y-6">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--accent-green)]/30 bg-[var(--accent-green)]/10 px-3.5 py-1 text-xs font-semibold text-[var(--accent-green)]">
+                <Layers3 className="size-3.5" />
+                <span>工程实战案例</span>
+              </span>
+              <span className="rounded-full bg-[var(--surface-2)] px-3 py-1 text-xs font-medium text-[var(--muted)] border border-[var(--border-line-color)]">
                 {project.status}
               </span>
+              <span className="rounded-full bg-[#E2EBE4] dark:bg-[#23382C] px-3 py-1 text-xs font-semibold text-[#36513B] dark:text-[#7CD090]">
+                RBAC 权限体系
+              </span>
+            </div>
+
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[var(--foreground)] leading-tight">
+              {project.title}
+            </h1>
+
+            <p className="text-base sm:text-lg leading-relaxed text-[var(--muted)]">
+              {project.summary}
+            </p>
+
+            {/* Quick Tech Highlights */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-[var(--border-line-color)]">
+              <div>
+                <span className="block text-[11px] font-mono text-[var(--muted)] uppercase tracking-wider">前端技术栈</span>
+                <span className="text-sm font-bold text-[var(--foreground)]">Vue 3 + Element Plus</span>
+              </div>
+              <div>
+                <span className="block text-[11px] font-mono text-[var(--muted)] uppercase tracking-wider">后端架构</span>
+                <span className="text-sm font-bold text-[var(--foreground)]">Spring Boot 3 + Java 17</span>
+              </div>
+              <div>
+                <span className="block text-[11px] font-mono text-[var(--muted)] uppercase tracking-wider">数据库持久化</span>
+                <span className="text-sm font-bold text-[var(--foreground)]">MySQL 8.0 + MyBatis</span>
+              </div>
+              <div>
+                <span className="block text-[11px] font-mono text-[var(--muted)] uppercase tracking-wider">工程规范</span>
+                <span className="text-sm font-bold text-[var(--foreground)]">RESTful API 契约</span>
+              </div>
             </div>
           </div>
-          <figure className="overflow-hidden rounded-[1.5rem] bg-[var(--surface)] ring-1 ring-[var(--border-line-color)] shadow-[0_18px_50px_rgba(45,43,44,0.08)]">
-            <ProjectScreenshotPreview screenshot={project.screenshots[0]} priority>
-              <Image
-                src={project.screenshots[0].src}
-                alt={project.screenshots[0].alt}
-                width={project.screenshots[0].width}
-                height={project.screenshots[0].height}
-                priority
-                sizes="(max-width: 1023px) 100vw, 55vw"
-                className="h-auto w-full"
-              />
-            </ProjectScreenshotPreview>
-          </figure>
         </header>
 
-        <section className="pt-14 sm:pt-18" aria-labelledby="project-screenshots-title">
-          <div className="flex items-end justify-between gap-6">
+        {/* 2. Interactive Screenshot Gallery Showcase */}
+        <section aria-labelledby="screenshots-title" className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2 text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">
-                <MonitorSmartphone className="size-4" strokeWidth={1.8} aria-hidden="true" />
-                <span>界面记录</span>
+              <div className="flex items-center gap-2 text-xs font-semibold text-[var(--accent-green)]">
+                <MonitorSmartphone className="size-4" />
+                <span>交互界面实景</span>
               </div>
-              <h2 id="project-screenshots-title" className="mt-3 text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
-                从登录到三类工作台
+              <h2 id="screenshots-title" className="mt-2 text-2xl sm:text-4xl font-bold tracking-tight text-[var(--foreground)]">
+                三类工作台多视角全景
               </h2>
             </div>
-            <p className="hidden text-right text-xs leading-5 text-[var(--muted-foreground)] sm:block">
-              本地开发环境截图，示例姓名已脱敏
+            <p className="text-xs text-[var(--muted)]">
+              本地开发真实环境截图 · 姓名及学号等敏感信息已全面脱敏
             </p>
           </div>
 
-          <ProjectScreenshotGallery screenshots={project.screenshots} featured={false} />
-          <p className="mt-4 text-xs leading-5 text-[var(--muted-foreground)] sm:hidden">
-            本地开发环境截图，示例姓名已脱敏
-          </p>
+          <ProjectScreenshotGallery screenshots={project.screenshots} />
         </section>
 
-        <section className="mt-20 border-y border-[var(--border-line-color)] py-10" aria-labelledby="project-architecture-title">
-          <div className="max-w-2xl">
-            <p className="text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">系统结构</p>
-            <h2 id="project-architecture-title" className="mt-3 text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
-              前后端分离的三层实现
+        {/* 3. System Architecture Layers */}
+        <section aria-labelledby="architecture-title" className="space-y-8 rounded-[2.5rem] border border-[var(--border-line-color)] bg-[var(--surface)]/70 p-8 sm:p-12 shadow-sm">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-[var(--accent-green)]">
+              <Cpu className="size-4" />
+              <span>系统架构设计</span>
+            </div>
+            <h2 id="architecture-title" className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
+              前后端分离的三层工程实现
+            </h2>
+            <p className="mt-2 text-sm text-[var(--muted)]">
+              清晰解耦的职责边界，为高可用与易维护提供架构支撑
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {project.architecture.map((layer, index) => {
+              const icons = [Code2, Server, Database];
+              const Icon = icons[index] || Server;
+              return (
+                <div
+                  key={layer.title}
+                  className="relative rounded-2xl border border-[var(--border-line-color)] bg-[var(--surface-2)]/60 p-6 space-y-4 hover:shadow-md transition-all group"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="h-10 w-10 rounded-xl bg-[var(--accent-green)]/10 text-[var(--accent-green)] flex items-center justify-center">
+                      <Icon className="size-5" />
+                    </div>
+                    <span className="font-mono text-xs font-bold text-[var(--accent-clay)]">
+                      Layer 0{index + 1}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="text-base font-bold text-[var(--foreground)] group-hover:text-[var(--accent-green)] transition-colors">
+                      {layer.title}
+                    </h3>
+                    <p className="mt-2 text-xs leading-relaxed text-[var(--muted)]">
+                      {layer.description}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* 4. Core Workflows Matrix */}
+        <section aria-labelledby="workflows-title" className="space-y-8">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-[var(--accent-green)]">
+              <ShieldCheck className="size-4" />
+              <span>核心业务闭环</span>
+            </div>
+            <h2 id="workflows-title" className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
+              全场景业务流程与权限控制
             </h2>
           </div>
-          <div className="mt-8 grid gap-6 lg:grid-cols-[repeat(3,minmax(0,1fr))] lg:gap-10">
-            {project.architecture.map((layer, index) => (
-              <div key={layer.title} className="relative pr-8 last:pr-0">
-                <p className="text-sm font-semibold text-[var(--foreground)]">{layer.title}</p>
-                <p className="mt-2 text-sm leading-7 text-[var(--muted-foreground)]">{layer.description}</p>
-                {index < project.architecture.length - 1 ? (
-                  <ArrowRight className="absolute right-0 top-1 hidden size-4 text-[var(--accent-apricot)] lg:block" strokeWidth={1.8} aria-hidden="true" />
-                ) : null}
+
+          <div className="grid gap-6 sm:grid-cols-2">
+            {project.workflows.map((workflow, index) => (
+              <div
+                key={workflow.title}
+                className="rounded-2xl border border-[var(--border-line-color)] bg-[var(--surface)] p-6 sm:p-8 space-y-3 shadow-xs hover:border-[var(--accent-green)]/40 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-xs font-bold text-[var(--accent-clay)] font-mono">
+                    <CheckCircle2 className="size-4 text-[var(--accent-green)]" />
+                    <span>Workflow 0{index + 1}</span>
+                  </span>
+                </div>
+                <h3 className="text-lg font-bold text-[var(--foreground)]">
+                  {workflow.title}
+                </h3>
+                <p className="text-xs leading-relaxed text-[var(--muted)]">
+                  {workflow.description}
+                </p>
               </div>
             ))}
           </div>
         </section>
 
-        <div className="mt-20 grid gap-16 lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.65fr)] lg:gap-24">
-          <section aria-labelledby="project-workflows-title">
-            <div className="flex items-center gap-2 text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">
-              <span>功能梳理</span>
-            </div>
-            <h2 id="project-workflows-title" className="mt-3 text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
-              已实现内容
-            </h2>
-            <div className="mt-8 divide-y divide-[var(--border-line-color)] border-y border-[var(--border-line-color)]">
-              {project.workflows.map((workflow, index) => (
-                <div key={workflow.title} className="grid gap-3 py-6 sm:grid-cols-[4rem_minmax(0,1fr)] sm:gap-6">
-                  <span className="text-xs font-semibold tracking-wide text-[var(--accent-apricot)]">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <div>
-                    <h3 className="text-lg font-semibold tracking-[-0.02em]">{workflow.title}</h3>
-                    <p className="mt-2 max-w-[52ch] text-sm leading-7 text-[var(--muted-foreground)]">
-                      {workflow.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <aside className="self-start rounded-[1.5rem] bg-[var(--surface)] p-7 ring-1 ring-[var(--border-line-color)] sm:p-8">
-            <p className="text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">技术实现</p>
-            <p className="mt-4 text-sm leading-7 text-[var(--muted-foreground)]">{project.stack.join(" · ")}</p>
-            <div className="mt-8 border-t border-[var(--border-line-color)] pt-6">
-              <p className="text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">当前进展</p>
-              <p className="mt-3 text-sm leading-7 text-[var(--foreground)]">{project.currentFocus}</p>
-            </div>
-            <div className="mt-8 border-t border-[var(--border-line-color)] pt-6">
-              <p className="text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">本人负责</p>
-              <ul className="mt-3 space-y-3 text-sm leading-7 text-[var(--foreground)]">
-                {project.responsibilities.map((responsibility) => (
-                  <li key={responsibility}>{responsibility}</li>
-                ))}
-              </ul>
-            </div>
-          </aside>
-        </div>
-
-        <div className="mt-20 border-t border-[var(--border-line-color)] pt-8">
+        {/* 5. Bottom Navigation Bar */}
+        <footer className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-12 border-t border-[var(--border-line-color)]">
           <Link
-            href="/about"
-            className="group inline-flex min-h-11 items-center gap-2 text-sm font-semibold outline-none transition-colors duration-200 hover:text-[var(--accent-green)] focus-visible:text-[var(--accent-green)] focus-visible:ring-2 focus-visible:ring-[var(--accent-green)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--background)] motion-reduce:transition-none"
+            href="/"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[var(--surface-2)] hover:bg-[var(--surface)] text-xs font-semibold text-[var(--foreground)] border border-[var(--border-line-color)] transition-all shadow-xs"
           >
-            <ArrowLeft className="size-4 transition-transform duration-200 group-hover:-translate-x-0.5 motion-reduce:transition-none" strokeWidth={1.8} aria-hidden="true" />
-            返回关于页
+            <ArrowLeft className="size-4" />
+            <span>返回首页</span>
           </Link>
-        </div>
+
+          <Link
+            href="/notes"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[var(--accent-green)] hover:bg-[#2A402F] text-xs font-semibold text-white transition-all shadow-md group"
+          >
+            <Sparkles className="size-4 text-[#7CD090]" />
+            <span>阅读技术随笔与架构思考</span>
+            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+          </Link>
+        </footer>
+
       </div>
     </main>
   );
