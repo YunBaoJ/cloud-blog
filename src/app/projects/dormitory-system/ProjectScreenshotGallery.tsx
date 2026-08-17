@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { X, ZoomIn, Shield, UserCheck, GraduationCap, KeyRound, CheckCircle2, Layers, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ZoomIn, ZoomOut, RotateCcw, Shield, UserCheck, GraduationCap, KeyRound, CheckCircle2, Layers, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { DORMITORY_CATEGORIES, type ProjectCategory } from "@/data/projects";
 
 const CATEGORY_ICONS: Record<string, any> = {
@@ -26,6 +26,12 @@ export default function ProjectScreenshotGallery({
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  // 弹窗大图缩放与平移状态
+  const [scale, setScale] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ startX: 0, startY: 0, panX: 0, panY: 0 });
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -41,17 +47,62 @@ export default function ProjectScreenshotGallery({
     (thumbPage + 1) * THUMBNAIL_PAGE_SIZE,
   );
 
+  // 重置缩放和平移
+  const resetZoom = () => {
+    setScale(1);
+    setPan({ x: 0, y: 0 });
+  };
+
   // 切换大分类时重置子页面索引与缩略图页码
   const handleCategoryChange = (idx: number) => {
     setSelectedCatIndex(idx);
     setSelectedShotIndex(0);
     setThumbPage(0);
+    resetZoom();
   };
 
-  // 选择具体截图时，自动同步所在缩略图页码
+  // 选择具体截图时，自动同步所在缩略图页码并重置缩放
   const handleSelectShot = (globalIdx: number) => {
     setSelectedShotIndex(globalIdx);
     setThumbPage(Math.floor(globalIdx / THUMBNAIL_PAGE_SIZE));
+    resetZoom();
+  };
+
+  // 滚轮缩放事件监听
+  const handleWheelZoom = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.2 : -0.2;
+    setScale((prev) => {
+      const next = Math.min(3.5, Math.max(1, +(prev + delta).toFixed(2)));
+      if (next === 1) setPan({ x: 0, y: 0 });
+      return next;
+    });
+  };
+
+  // 拖拽平移事件
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (scale <= 1 || e.button !== 0) return;
+    setIsDragging(true);
+    dragStartRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      panX: pan.x,
+      panY: pan.y,
+    };
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || scale <= 1) return;
+    const dx = e.clientX - dragStartRef.current.startX;
+    const dy = e.clientY - dragStartRef.current.startY;
+    setPan({
+      x: dragStartRef.current.panX + dx,
+      y: dragStartRef.current.panY + dy,
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
   };
 
   // 键盘快捷操作：数字 1-4 切换大分类，Esc 退出放大，左右箭头切图
@@ -61,6 +112,7 @@ export default function ProjectScreenshotGallery({
 
       if (e.key === "Escape" && isLightboxOpen) {
         setIsLightboxOpen(false);
+        resetZoom();
         return;
       }
 
@@ -92,6 +144,7 @@ export default function ProjectScreenshotGallery({
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
+      resetZoom();
     }
     return () => {
       document.body.style.overflow = "";
@@ -145,7 +198,7 @@ export default function ProjectScreenshotGallery({
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-300 group-hover:bg-black/15">
                 <div className="flex items-center gap-2 rounded-full bg-white/95 dark:bg-black/85 px-4 py-2 text-xs font-bold text-[#2D2B2C] dark:text-white opacity-0 backdrop-blur-md transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 translate-y-2 shadow-xl border border-[#2D2B2C]/10 dark:border-white/20">
                   <ZoomIn className="size-4 text-[#36513B] dark:text-[#7CD090]" />
-                  <span>点击查看高清大图</span>
+                  <span>点击放大 (支持滚轮无级缩放)</span>
                 </div>
               </div>
             </button>
@@ -341,7 +394,7 @@ export default function ProjectScreenshotGallery({
 
       </div>
 
-      {/* ===================== 全屏灯箱模态弹窗 (参考画廊：背景主题色 + 宣纸卡片) ===================== */}
+      {/* ===================== 全屏灯箱模态弹窗 (支持滚轮缩放 + 拖拽平移) ===================== */}
       {mounted && isLightboxOpen && createPortal(
         <div
           role="dialog"
@@ -352,10 +405,10 @@ export default function ProjectScreenshotGallery({
             if (e.target === e.currentTarget) setIsLightboxOpen(false);
           }}
         >
-          {/* 中间主题卡片容器 (参考画廊 bg-[var(--surface)]) */}
+          {/* 中间主题卡片容器 */}
           <div className="relative max-w-5xl w-full rounded-3xl bg-[var(--surface)] border border-[var(--border-line-color)] p-4 sm:p-6 shadow-[0_24px_70px_rgba(14,24,18,0.18)] flex flex-col items-center gap-3 text-[var(--foreground)]">
             
-            {/* Topbar: 视角信息 + 关闭按钮 */}
+            {/* Topbar: 视角信息 + 缩放状态栏 + 关闭按钮 */}
             <div className="w-full flex items-center justify-between px-1 pb-1">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-bold text-[var(--foreground)] tracking-tight">
@@ -366,52 +419,121 @@ export default function ProjectScreenshotGallery({
                 </span>
               </div>
 
-              {/* Close Button */}
-              <button
-                type="button"
-                onClick={() => setIsLightboxOpen(false)}
-                className="rounded-full p-2 text-[var(--muted)] ring-1 ring-[var(--border-line-color)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--foreground)] active:scale-[0.98] cursor-pointer"
-                aria-label="关闭预览"
-                title="关闭 (Esc)"
-              >
-                <X className="size-4" strokeWidth={2} />
-              </button>
+              {/* 缩放快捷控制与退出 */}
+              <div className="flex items-center gap-2">
+                {/* 缩放控制器胶囊 */}
+                <div className="flex items-center gap-1 rounded-full bg-[var(--surface)]/90 px-2 py-1 ring-1 ring-[var(--border-line-color)] text-[11px] text-[var(--muted)]">
+                  <button
+                    type="button"
+                    onClick={() => setScale((s) => Math.max(1, +(s - 0.25).toFixed(2)))}
+                    disabled={scale <= 1}
+                    className="p-1 hover:text-[var(--foreground)] disabled:opacity-30 transition-colors cursor-pointer"
+                    title="缩小"
+                  >
+                    <ZoomOut className="size-3.5" />
+                  </button>
+                  <span className="font-mono min-w-10 text-center font-bold text-[var(--foreground)]">
+                    {Math.round(scale * 100)}%
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setScale((s) => Math.min(3.5, +(s + 0.25).toFixed(2)))}
+                    disabled={scale >= 3.5}
+                    className="p-1 hover:text-[var(--foreground)] disabled:opacity-30 transition-colors cursor-pointer"
+                    title="放大"
+                  >
+                    <ZoomIn className="size-3.5" />
+                  </button>
+                  {scale > 1 && (
+                    <button
+                      type="button"
+                      onClick={resetZoom}
+                      className="p-1 hover:text-[var(--foreground)] transition-colors border-l border-[var(--border-line-color)] pl-1.5 ml-0.5 cursor-pointer"
+                      title="重置缩放 (100%)"
+                    >
+                      <RotateCcw className="size-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Close Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsLightboxOpen(false)}
+                  className="rounded-full p-2 text-[var(--muted)] ring-1 ring-[var(--border-line-color)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--foreground)] active:scale-[0.98] cursor-pointer"
+                  aria-label="关闭预览"
+                  title="关闭 (Esc)"
+                >
+                  <X className="size-4" strokeWidth={2} />
+                </button>
+              </div>
             </div>
 
-            {/* 核心大图展示槽 (参考画廊 bg-[var(--surface-2)]) */}
-            <div className="relative w-full flex items-center justify-center overflow-hidden rounded-2xl bg-[var(--surface-2)] border border-[var(--border-line-color)] p-3 sm:p-5 shadow-inner min-h-[50vh]">
+            {/* 核心大图展示槽 (支持滚轮上下缩放 + 按住鼠标拖拽平移 + 双击快速缩放) */}
+            <div
+              onWheel={handleWheelZoom}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onDoubleClick={() => {
+                if (scale === 1) {
+                  setScale(1.8);
+                } else {
+                  resetZoom();
+                }
+              }}
+              className={`relative w-full flex items-center justify-center overflow-hidden rounded-2xl bg-[var(--surface-2)] border border-[var(--border-line-color)] p-3 sm:p-5 shadow-inner min-h-[52vh] ${
+                scale > 1
+                  ? isDragging
+                    ? "cursor-grabbing"
+                    : "cursor-grab"
+                  : "cursor-zoom-in"
+              }`}
+              title="鼠标滚轮上下滚动可无级缩放，按住可拖拽平移，双击快速缩放"
+            >
               {/* Prev Button */}
               <button
                 type="button"
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   const nextIdx = selectedShotIndex > 0 ? selectedShotIndex - 1 : currentScreenshots.length - 1;
                   handleSelectShot(nextIdx);
                 }}
-                className="absolute left-4 z-10 inline-flex size-10 items-center justify-center rounded-full bg-[var(--surface)]/90 text-[var(--foreground)] shadow-md hover:scale-105 active:scale-95 transition-all ring-1 ring-[var(--border-line-color)] cursor-pointer"
+                className="absolute left-4 z-20 inline-flex size-10 items-center justify-center rounded-full bg-[var(--surface)]/90 text-[var(--foreground)] shadow-md hover:scale-105 active:scale-95 transition-all ring-1 ring-[var(--border-line-color)] cursor-pointer"
                 title="上一张 (←)"
                 aria-label="上一张"
               >
                 <ChevronLeft className="size-5" />
               </button>
 
-              {/* Screenshot Image */}
-              <Image
-                src={currentShot.src}
-                alt={currentShot.alt}
-                width={currentShot.width || 1440}
-                height={currentShot.height || 900}
-                priority
-                className="max-h-[72vh] w-auto h-auto object-contain mx-auto rounded-lg select-none shadow-[0_8px_24px_rgba(0,0,0,0.08)]"
-              />
+              {/* Screenshot Image with Smooth Transform */}
+              <div
+                className="transition-transform duration-100 ease-out select-none flex items-center justify-center"
+                style={{
+                  transform: `translate(${pan.x}px, ${pan.y}px) scale(${scale})`,
+                }}
+              >
+                <Image
+                  src={currentShot.src}
+                  alt={currentShot.alt}
+                  width={currentShot.width || 1440}
+                  height={currentShot.height || 900}
+                  priority
+                  draggable={false}
+                  className="max-h-[70vh] w-auto h-auto object-contain mx-auto rounded-lg select-none shadow-[0_8px_24px_rgba(0,0,0,0.08)] pointer-events-none"
+                />
+              </div>
 
               {/* Next Button */}
               <button
                 type="button"
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   const nextIdx = selectedShotIndex < currentScreenshots.length - 1 ? selectedShotIndex + 1 : 0;
                   handleSelectShot(nextIdx);
                 }}
-                className="absolute right-4 z-10 inline-flex size-10 items-center justify-center rounded-full bg-[var(--surface)]/90 text-[var(--foreground)] shadow-md hover:scale-105 active:scale-95 transition-all ring-1 ring-[var(--border-line-color)] cursor-pointer"
+                className="absolute right-4 z-20 inline-flex size-10 items-center justify-center rounded-full bg-[var(--surface)]/90 text-[var(--foreground)] shadow-md hover:scale-105 active:scale-95 transition-all ring-1 ring-[var(--border-line-color)] cursor-pointer"
                 title="下一张 (→)"
                 aria-label="下一张"
               >
@@ -419,19 +541,24 @@ export default function ProjectScreenshotGallery({
               </button>
             </div>
 
-            {/* 底部缩略圆点指示器 */}
-            <div className="flex items-center gap-2 py-1">
-              {currentScreenshots.map((s, idx) => (
-                <button
-                  key={s.src}
-                  type="button"
-                  onClick={() => handleSelectShot(idx)}
-                  className={`h-2 rounded-full transition-all cursor-pointer ${
-                    selectedShotIndex === idx ? "w-6 bg-[var(--accent-green)]" : "w-2 bg-[var(--border-line-color)] hover:bg-[var(--muted)]"
-                  }`}
-                  title={`切换到：${s.title}`}
-                />
-              ))}
+            {/* 底部缩略圆点指示器 + 滚轮提示 */}
+            <div className="w-full flex items-center justify-between px-1 text-[11px] text-[var(--muted)]">
+              <span className="hidden sm:inline">
+                💡 鼠标滚轮上下滚动缩放 · 双击快速切换 1.8x · 放大后按住可拖拽
+              </span>
+              <div className="flex items-center gap-2 mx-auto sm:mx-0 py-1">
+                {currentScreenshots.map((s, idx) => (
+                  <button
+                    key={s.src}
+                    type="button"
+                    onClick={() => handleSelectShot(idx)}
+                    className={`h-2 rounded-full transition-all cursor-pointer ${
+                      selectedShotIndex === idx ? "w-6 bg-[var(--accent-green)]" : "w-2 bg-[var(--border-line-color)] hover:bg-[var(--muted)]"
+                    }`}
+                    title={`切换到：${s.title}`}
+                  />
+                ))}
+              </div>
             </div>
 
           </div>
