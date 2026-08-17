@@ -377,7 +377,7 @@ function ArticleMarkdownRenderer({ content, fontSizeLevel }: { content: string; 
       const alt = imgMatch[1];
       const src = imgMatch[2];
       elements.push(
-        <figure key={`img-${idx}`} className="my-8 space-y-2">
+        <figure key={`img-${idx}`} className="my-6 space-y-2 not-prose">
           <div className="overflow-hidden rounded-2xl border border-[var(--border-line-color)] bg-[var(--surface-2)] shadow-md">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -401,31 +401,31 @@ function ArticleMarkdownRenderer({ content, fontSizeLevel }: { content: string; 
     if (trimmed.startsWith("# ")) {
       return;
     } else if (trimmed === "---") {
-      elements.push(<hr key={idx} className="my-8 border-[#2D2B2C]/10 dark:border-white/10" />);
+      elements.push(<hr key={idx} className="my-6 border-[#2D2B2C]/10 dark:border-white/10" />);
     } else if (trimmed.startsWith("### ")) {
       const headingId = slugifyTitle(trimmed, headingIndex++);
       elements.push(
-        <h3 id={headingId} key={idx} className={`${h3Size} text-[#2D2B2C] dark:text-[#F0F5F1] pt-6 pb-2 border-b border-[#2D2B2C]/8 dark:border-white/10 scroll-mt-28`}>
+        <h3 id={headingId} key={idx} className={`${h3Size} text-[#2D2B2C] dark:text-[#F0F5F1] pt-5 pb-1.5 border-b border-[#2D2B2C]/8 dark:border-white/10 scroll-mt-28`}>
           {renderFormattedInlineText(trimmed.replace("### ", ""))}
         </h3>
       );
     } else if (trimmed.startsWith("## ")) {
       const headingId = slugifyTitle(trimmed, headingIndex++);
       elements.push(
-        <h2 id={headingId} key={idx} className={`${h2Size} text-[#2D2B2C] dark:text-[#F0F5F1] pt-8 pb-3 border-b border-[#2D2B2C]/10 dark:border-white/10 flex items-center gap-2.5 scroll-mt-28`}>
-          <span className="w-2.5 h-6 bg-[#36513B] dark:bg-[#7CD090] rounded-full inline-block" />
+        <h2 id={headingId} key={idx} className={`${h2Size} text-[#2D2B2C] dark:text-[#F0F5F1] pt-7 pb-2 border-b border-[#2D2B2C]/10 dark:border-white/10 flex items-center gap-2.5 scroll-mt-28`}>
+          <span className="w-2.5 h-6 bg-[#36513B] dark:bg-[#7CD090] rounded-full inline-block shrink-0" />
           {renderFormattedInlineText(trimmed.replace("## ", ""))}
         </h2>
       );
     } else if (trimmed.startsWith("> ")) {
       elements.push(
-        <blockquote key={idx} className="my-6 border-l-2 border-[#36513B]/60 bg-[#FAF7F2] py-3.5 pl-5 italic text-[#4A4541] dark:border-[#7CD090]/60 dark:bg-[#23382C] dark:text-[#AEC2B4]">
+        <blockquote key={idx} className="my-4 border-l-3 border-[#36513B]/70 bg-[#FAF7F2] py-3 pl-4 italic text-[#4A4541] dark:border-[#7CD090]/70 dark:bg-[#1E2D22] dark:text-[#C4D9CA] rounded-r-xl">
           {renderFormattedInlineText(trimmed.replace("> ", ""))}
         </blockquote>
       );
     } else {
       elements.push(
-        <p key={idx} className="leading-relaxed sm:leading-[1.85] font-normal tracking-wide">
+        <p key={idx} className="leading-relaxed sm:leading-[1.85] font-normal tracking-wide text-justify indent-[2em] text-[#2D2B2C]/90 dark:text-[#E8F0EA]/90">
           {renderFormattedInlineText(trimmed)}
         </p>
       );
@@ -437,7 +437,7 @@ function ArticleMarkdownRenderer({ content, fontSizeLevel }: { content: string; 
     elements.push(<CodeBlock key="code-final" code={codeBuffer.join("\n")} lang={currentLang} />);
   }
 
-  return <div className="space-y-6">{elements}</div>;
+  return <div className="space-y-4">{elements}</div>;
 }
 
 export default function NoteDetailClient({ note, prevNote, nextNote, relatedNotes }: NoteDetailClientProps) {
