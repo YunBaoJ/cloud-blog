@@ -371,6 +371,33 @@ function ArticleMarkdownRenderer({ content, fontSizeLevel }: { content: string; 
 
     flushList(idx);
 
+    // 1. Markdown Images ![alt](url)
+    const imgMatch = trimmed.match(/^!\[(.*?)\]\((.*?)\)$/);
+    if (imgMatch) {
+      const alt = imgMatch[1];
+      const src = imgMatch[2];
+      elements.push(
+        <figure key={`img-${idx}`} className="my-8 space-y-2">
+          <div className="overflow-hidden rounded-2xl border border-[var(--border-line-color)] bg-[var(--surface-2)] shadow-md">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={src}
+              alt={alt}
+              className="w-full h-auto object-cover max-h-[550px]"
+              loading="lazy"
+            />
+          </div>
+          {alt && (
+            <figcaption className="text-center text-xs text-[var(--muted)] pt-1 font-medium">
+              ▲ {alt}
+            </figcaption>
+          )}
+        </figure>
+      );
+      return;
+    }
+
+    // 2. Headings & Blocks
     if (trimmed.startsWith("# ")) {
       return;
     } else if (trimmed === "---") {
