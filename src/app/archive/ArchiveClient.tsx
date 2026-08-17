@@ -208,7 +208,6 @@ export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
                           <span className="px-2 py-0.5 rounded-full bg-[#E2EBE4] text-[#36513B] font-semibold">
                             {note.category}
                           </span>
-                          <span className="text-[#B0A99F]">{note.readTime}</span>
                         </div>
                         <h3 className="text-sm sm:text-base font-bold text-[#2D2B2C] group-hover:text-[#36513B] transition-colors leading-snug">
                           {note.title}

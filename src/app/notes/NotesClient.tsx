@@ -2,7 +2,7 @@
 
 import Footer from "@/components/Footer";
 import type { NoteItem } from "@/lib/notes";
-import { ArrowRight, BookOpen, Clock, Search } from "lucide-react";
+import { ArrowRight, BookOpen, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -180,11 +180,7 @@ export default function NotesClient({ initialNotes }: NotesClientProps) {
                       {note.summary}
                     </p>
 
-                    <div className="mt-4 flex items-center justify-between gap-6">
-                      <span className="inline-flex items-center gap-1.5 text-xs text-[var(--muted)]">
-                        <Clock className="size-3.5" strokeWidth={1.7} aria-hidden="true" />
-                        {note.readTime}
-                      </span>
+                    <div className="mt-4 flex items-center justify-end">
                       <span className="inline-flex min-h-9 items-center gap-2 text-sm font-semibold text-[var(--foreground)] transition-[gap,color] duration-200 group-hover:gap-3.5 group-hover:text-[var(--accent-green)] group-focus-visible:gap-3.5 group-focus-visible:text-[var(--accent-green)] motion-reduce:transition-none">
                         阅读全文
                         <ArrowRight className="size-4" strokeWidth={1.8} aria-hidden="true" />

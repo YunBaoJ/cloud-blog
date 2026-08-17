@@ -11,64 +11,15 @@ export interface NoteItem {
   summary: string;
   category: string;
   date: string;
-  readTime: string;
-  wordCount?: number;
+  readTime?: string;
   iconName: string;
   coverImage?: string;
   coverAlt?: string;
   tags: string[];
   content: string;
-  views: number;
-  likes: number;
+  views?: number;
+  likes?: number;
   featured?: boolean;
-}
-
-/**
- * 确定性哈希，生成稳定自然且不跳变的阅读量和点赞数
- */
-function deterministicMetric(id: string, minimum: number, range: number): number {
-  const seed = [...id].reduce((sum, character) => sum + character.charCodeAt(0), 0);
-  return minimum + (seed % range);
-}
-
-/**
- * 智能计算中文字数、英文单词数与预估阅读时长
- */
-function calculateReadingStats(rawContent: string): { readTime: string; wordCount: number } {
-  if (!rawContent || !rawContent.trim()) {
-    return { readTime: "1 min read", wordCount: 0 };
-  }
-
-  // 1. 去除代码块和图片标记，统计正文纯文本字数
-  const textWithoutCode = rawContent
-    .replace(/```[\s\S]*?```/g, "")
-    .replace(/!\[.*?\]\(.*?\)/g, "")
-    .replace(/<.*?>/g, "");
-
-  // 中文字符数
-  const chineseMatch = textWithoutCode.match(/[\u4e00-\u9fa5]/g);
-  const chineseChars = chineseMatch ? chineseMatch.length : 0;
-
-  // 英文及数字词数
-  const englishMatch = textWithoutCode.match(/\b[a-zA-Z0-9_-]+\b/g);
-  const englishWords = englishMatch ? englishMatch.length : 0;
-
-  // 代码块行数（阅读代码通常比普通文本稍慢）
-  const codeBlocks = rawContent.match(/```[\s\S]*?```/g) || [];
-  const codeLines = codeBlocks.reduce((acc, block) => acc + block.split("\n").length, 0);
-
-  const totalWords = chineseChars + englishWords;
-
-  // 中文约 320字/分钟，英文约 180词/分钟，代码约 20行/分钟
-  const readingMinutes = Math.max(
-    1,
-    Math.ceil(chineseChars / 320 + englishWords / 180 + codeLines / 25)
-  );
-
-  return {
-    readTime: `${readingMinutes} min read`,
-    wordCount: totalWords,
-  };
 }
 
 /**
@@ -215,11 +166,7 @@ export function getAllNotes(): NoteItem[] {
         ? String(data.summary).trim()
         : extractSmartSummary(content, title);
 
-      // 4. 字数与阅读时长智能精确计算
-      const { readTime: autoReadTime, wordCount } = calculateReadingStats(content);
-      const readTime = data.readTime ? String(data.readTime).trim() : autoReadTime;
-
-      // 5. 封面图智能提取：若未提供则自动抓取正文第一张插图，并进行绝对路径安全清洗
+      // 4. 封面图智能提取：若未提供则自动抓取正文第一张插图，并进行绝对路径安全清洗
       const firstImg = extractFirstImage(content);
       const rawCover = data.coverImage ? String(data.coverImage).trim() : firstImg?.src || "/og-cover.jpg";
       const coverImage = cleanImagePath(rawCover);
@@ -227,7 +174,7 @@ export function getAllNotes(): NoteItem[] {
         ? String(data.coverAlt).trim()
         : firstImg?.alt || title;
 
-      // 6. 分类与标签智能兜底
+      // 5. 分类与标签智能兜底
       const category = data.category ? String(data.category).trim() : "随笔";
       let tags: string[] = [];
       if (Array.isArray(data.tags)) {
@@ -239,7 +186,7 @@ export function getAllNotes(): NoteItem[] {
         tags = [category];
       }
 
-      // 7. 日期智能兜底：未填则取文件的系统修改时间
+      // 6. 日期智能兜底：未填则取文件的系统修改时间
       const date = formatValidDate(data.date, fileStat.mtime);
 
       return {
@@ -248,15 +195,11 @@ export function getAllNotes(): NoteItem[] {
         summary,
         category,
         date,
-        readTime,
-        wordCount,
         iconName: data.iconName || "Code2",
         coverImage,
         coverAlt,
         tags,
         content: content || "",
-        views: data.views ?? deterministicMetric(id, 200, 800),
-        likes: data.likes ?? deterministicMetric(id, 10, 80),
         featured: Boolean(data.featured),
       } satisfies NoteItem;
     });

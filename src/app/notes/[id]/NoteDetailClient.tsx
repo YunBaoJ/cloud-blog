@@ -634,20 +634,9 @@ export default function NoteDetailClient({ note, prevNote, nextNote, relatedNote
           </h1>
 
           <div className="note-header-anim flex items-center justify-center sm:justify-start gap-4 text-xs text-[#7A736A] dark:text-[#9EB3A4] font-mono">
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5" />
-              {note.date}
-            </span>
-            <span className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" />
-              <span>{note.readTime}</span>
-              {Boolean(note.wordCount && note.wordCount > 0) && (
-                <span className="text-[11px] text-[var(--muted)]">· 约 {note.wordCount} 字</span>
-              )}
-            </span>
-            <span className="flex items-center gap-1">
-              <Eye className="w-3.5 h-3.5" />
-              {note.views} 阅读
+              <span>{note.date}</span>
             </span>
           </div>
         </div>

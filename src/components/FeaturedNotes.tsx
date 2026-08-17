@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import type { NoteItem } from "@/lib/notes";
-import { Code2, Camera, Sparkles, Clock, Calendar, ArrowRight, BookOpen, Tag } from "lucide-react";
+import { Code2, Camera, Sparkles, Calendar, ArrowRight, BookOpen, Tag } from "lucide-react";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -123,16 +123,10 @@ export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
             </div>
 
             <div className="pt-6 mt-6 border-t border-[#2D2B2C]/5 flex items-center justify-between text-xs text-[#7A736A] font-medium">
-              <div className="flex items-center gap-4">
-                <span className="flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-[#36513B]" />
-                  {mainFeaturedNote.date}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5" />
-                  {mainFeaturedNote.readTime}
-                </span>
-              </div>
+              <span className="flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-[#36513B]" />
+                {mainFeaturedNote.date}
+              </span>
 
               <span className="text-[#36513B] font-bold group-hover:underline inline-flex items-center gap-1">
                 阅读全文 <ArrowRight className="w-3.5 h-3.5" />
@@ -171,10 +165,7 @@ export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
                     <Calendar className="w-3 h-3" />
                     <span>{note.date}</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="w-3 h-3" />
-                    <span>{note.readTime}</span>
-                  </div>
+                  <span className="text-[#36513B] font-semibold group-hover:underline">阅读全文</span>
                 </div>
               </Link>
             ))}
