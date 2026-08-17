@@ -75,8 +75,12 @@ export default function RootLayout({
       lang="zh-CN"
       className="scroll-smooth"
       data-scroll-behavior="smooth"
+      suppressHydrationWarning
     >
-      <body className="antialiased selection:bg-[#E2EBE4] selection:text-[#36513B] min-h-screen bg-[linear-gradient(135deg,rgb(236,240,235)_0%,rgb(242,243,237)_40%,rgb(247,245,238)_100%)] dark:bg-[#142219]">
+      <body
+        suppressHydrationWarning
+        className="antialiased selection:bg-[#E2EBE4] selection:text-[#36513B] min-h-screen bg-[linear-gradient(135deg,rgb(236,240,235)_0%,rgb(242,243,237)_40%,rgb(247,245,238)_100%)] dark:bg-[#142219]"
+      >
         {/* Global Immersive Fixed Wallpaper Ambient Overlay across ALL pages */}
         <div 
           className="fixed inset-0 pointer-events-none z-0 opacity-[0.12] dark:opacity-[0.18] transition-opacity duration-700 bg-cover bg-center bg-no-repeat"

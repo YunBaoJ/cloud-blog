@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, ImageIcon, X } from "lucide-react";
 import gsap from "gsap";
@@ -195,10 +196,12 @@ export default function GalleryClient() {
                                   图片暂时无法载入，请检查文件路径。
                                 </div>
                               ) : (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
+                                <Image
                                   src={photo.src}
                                   alt={photo.title}
+                                  width={photo.width}
+                                  height={photo.height}
+                                  sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw"
                                   loading={index < 3 ? "eager" : "lazy"}
                                   onError={() => markImageFailed(photo.id)}
                                   className="h-auto w-full object-cover transition-transform duration-500 motion-reduce:transition-none group-hover:scale-[1.025] group-focus-visible:scale-[1.025]"
@@ -274,7 +277,7 @@ export default function GalleryClient() {
 
             <div className="flex max-h-[46dvh] flex-col overflow-y-auto p-6 sm:p-8 lg:max-h-[90dvh]">
               <div className="flex items-center justify-between gap-4 border-b border-[var(--border-line-color)] pb-4 text-[10px] font-mono tracking-[0.14em] text-[var(--muted)]">
-                <span>DEV SHEET // STATIC</span>
+                <span>作品档案</span>
                 <button
                   ref={closeButtonRef}
                   type="button"
@@ -295,15 +298,22 @@ export default function GalleryClient() {
 
               <div className="mt-8 space-y-6">
                 <div>
-                  <p className="text-[10px] font-mono font-semibold tracking-[0.16em] text-[var(--accent-green)]">[01] WORK PARAMETERS</p>
+                  <p className="text-[10px] font-mono font-semibold tracking-[0.16em] text-[var(--accent-green)]">[01] 作品信息</p>
                   <div className="mt-3 space-y-3 rounded-lg border border-[var(--border-line-color)] p-4 text-xs text-[var(--muted)]">
-                    <div className="flex justify-between gap-4"><span>MEDIUM</span><span>{selectedPhoto.categoryLabel}</span></div>
-                    <div className="flex justify-between gap-4"><span>SOURCE</span><span>{selectedPhoto.source}</span></div>
-                    <div className="flex justify-between gap-4"><span>ARCHIVED</span><span>{selectedPhoto.date}</span></div>
+                    <div className="flex justify-between gap-4"><span>类型</span><span>{selectedPhoto.categoryLabel}</span></div>
+                    <div className="flex justify-between gap-4"><span>来源</span><span>{selectedPhoto.source}</span></div>
+                    {selectedPhoto.sourceUrl ? (
+                      <div className="flex justify-between gap-4"><span>原址</span><a href={selectedPhoto.sourceUrl} target="_blank" rel="noreferrer" className="text-[var(--accent-green)] underline underline-offset-2">查看原址</a></div>
+                    ) : (
+                      <p className="border-t border-[var(--border-line-color)] pt-3 leading-5">
+                        {selectedPhoto.attributionNote ?? "收藏作品仅作个人展示，原作者与原始链接待补。"}
+                      </p>
+                    )}
+                    <div className="flex justify-between gap-4"><span>收录</span><span>{selectedPhoto.date}</span></div>
                   </div>
                 </div>
                 <div>
-                  <p className="text-[10px] font-mono font-semibold tracking-[0.16em] text-[var(--accent-green)]">[02] ARCHIVE NOTE</p>
+                  <p className="text-[10px] font-mono font-semibold tracking-[0.16em] text-[var(--accent-green)]">[02] 浏览说明</p>
                   <div className="mt-3 rounded-lg border border-[var(--border-line-color)] p-4 text-xs leading-6 text-[var(--muted)]">
                     使用左右按钮、键盘方向键或横向滑动浏览；双击图片可快速缩放。
                   </div>

@@ -8,7 +8,7 @@ import {
   Gamepad2,
   Images,
 } from "lucide-react";
-import { GALLERY_PHOTOS, PLAYGROUND_ITEMS } from "@/data/siteContent";
+import { GALLERY_PHOTOS, NOW_UPDATES, PLAYGROUND_ITEMS } from "@/data/siteContent";
 import { getAllNotes } from "@/lib/notes";
 import { buildActivityItems } from "./activity.mts";
 
@@ -80,6 +80,21 @@ export default function NowPage() {
                 </div>
               ))}
             </dl>
+
+            {NOW_UPDATES.length > 0 && (
+              <section className="mt-6 rounded-3xl border border-white/70 bg-[var(--surface)]/72 p-5 shadow-[0_16px_45px_rgba(51,72,58,0.06)] backdrop-blur-md dark:border-white/10" aria-labelledby="now-update-title">
+                <p id="now-update-title" className="text-xs font-semibold text-[var(--accent-green)]">正在做</p>
+                <ol className="mt-4 space-y-4">
+                  {NOW_UPDATES.slice(0, 3).map((update) => (
+                    <li key={`${update.date}-${update.title}`}>
+                      <time dateTime={update.date} className="text-[11px] text-[var(--muted)]">{formatDate(update.date)}</time>
+                      <h2 className="mt-1 text-sm font-semibold tracking-[-0.02em]">{update.title}</h2>
+                      <p className="mt-1 text-sm leading-6 text-[var(--muted)]">{update.summary}</p>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )}
           </aside>
 
           <section aria-labelledby="recent-activity-title">

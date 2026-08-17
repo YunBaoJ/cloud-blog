@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useRef, useState, useEffect } from "react";
 import { BookOpen, Gamepad2, ArrowRight, ArrowDown, Feather, Sparkles, Image as ImageIcon, Check, Palette } from "lucide-react";
 import TextType from "@/components/ui/TextType";
 import gsap from "gsap";
@@ -11,12 +11,6 @@ import { useGSAP } from "@gsap/react";
 gsap.registerPlugin(useGSAP);
 
 const STATIC_DESCRIPTION = "凌晨四点，我看见海棠花未眠。";
-const DEFAULT_WALLPAPER = "/hero-kimono-golden.png";
-const WALLPAPER_STORAGE_KEY = "sora_hero_bg";
-const WALLPAPER_EVENT = "sora-hero-background-change";
-const DEFAULT_FILTER = "cinema";
-const FILTER_STORAGE_KEY = "sora_hero_filter";
-const FILTER_EVENT = "sora-hero-filter-change";
 
 // Available wallpapers for Hero (Exact files from user download folder)
 const WALLPAPERS = [
@@ -27,27 +21,8 @@ const WALLPAPERS = [
   { id: "classic", name: "🌸 月色花枝", src: "/bg-image.png" },
 ];
 
-function subscribeToWallpaper(callback: () => void) {
-  window.addEventListener("storage", callback);
-  window.addEventListener(WALLPAPER_EVENT, callback);
-  return () => {
-    window.removeEventListener("storage", callback);
-    window.removeEventListener(WALLPAPER_EVENT, callback);
-  };
-}
-
-function getWallpaperSnapshot() {
-  return localStorage.getItem(WALLPAPER_STORAGE_KEY) ?? DEFAULT_WALLPAPER;
-}
-
 // Filter presets — each has image CSS filter + scrim overlay gradient
 const FILTERS = [
-  {
-    id: "soft",
-    name: "☁️ 轻柔",
-    imgFilter: "brightness(0.88)",
-    scrim: "linear-gradient(180deg,rgba(0,0,0,0.08) 0%,rgba(0,0,0,0.04) 50%,rgba(0,0,0,0.22) 100%)",
-  },
   {
     id: "cinema",
     name: "🎬 电影",
@@ -56,6 +31,12 @@ const FILTERS = [
       "linear-gradient(90deg,rgba(15,20,18,0.72) 0%,rgba(15,20,18,0.35) 45%,rgba(15,20,18,0.08) 80%)",
       "linear-gradient(180deg,rgba(15,20,18,0.18) 0%,transparent 40%,rgba(15,20,18,0.55) 100%)",
     ].join(","),
+  },
+  {
+    id: "soft",
+    name: "☁️ 轻柔",
+    imgFilter: "brightness(0.88)",
+    scrim: "linear-gradient(180deg,rgba(0,0,0,0.08) 0%,rgba(0,0,0,0.04) 50%,rgba(0,0,0,0.22) 100%)",
   },
   {
     id: "sunset",
@@ -78,41 +59,28 @@ const FILTERS = [
   },
 ];
 
-function subscribeToFilter(callback: () => void) {
-  window.addEventListener("storage", callback);
-  window.addEventListener(FILTER_EVENT, callback);
-  return () => {
-    window.removeEventListener("storage", callback);
-    window.removeEventListener(FILTER_EVENT, callback);
-  };
-}
-
-function getFilterSnapshot() {
-  return localStorage.getItem(FILTER_STORAGE_KEY) ?? DEFAULT_FILTER;
-}
-
 export default function Hero() {
   const heroRef = useRef<HTMLDivElement>(null);
-  const currentBg = useSyncExternalStore(
-    subscribeToWallpaper,
-    getWallpaperSnapshot,
-    () => DEFAULT_WALLPAPER,
-  );
-  const currentFilter = useSyncExternalStore(
-    subscribeToFilter,
-    getFilterSnapshot,
-    () => DEFAULT_FILTER,
-  );
+  const [currentBg, setCurrentBg] = useState<string>("/hero-kimono-golden.png");
+  const [currentFilter, setCurrentFilter] = useState<string>("cinema");
   const [showPicker, setShowPicker] = useState<boolean>(false);
   const [pickerTab, setPickerTab] = useState<"wall" | "filter">("wall");
+
+  useEffect(() => {
+    const savedBg = localStorage.getItem("sora_hero_bg");
+    if (savedBg) setCurrentBg(savedBg);
+    const savedFilter = localStorage.getItem("sora_hero_filter");
+    if (savedFilter) setCurrentFilter(savedFilter);
+  }, []);
+
   const handleSelectBg = (src: string) => {
-    localStorage.setItem(WALLPAPER_STORAGE_KEY, src);
-    window.dispatchEvent(new Event(WALLPAPER_EVENT));
+    setCurrentBg(src);
+    localStorage.setItem("sora_hero_bg", src);
   };
 
   const handleSelectFilter = (id: string) => {
-    localStorage.setItem(FILTER_STORAGE_KEY, id);
-    window.dispatchEvent(new Event(FILTER_EVENT));
+    setCurrentFilter(id);
+    localStorage.setItem("sora_hero_filter", id);
   };
 
   const activeFilter = FILTERS.find((f) => f.id === currentFilter) ?? FILTERS[0];
@@ -282,7 +250,7 @@ export default function Hero() {
             </p>
           </div>
 
-          {/* Action Capsule Buttons (Shrunk to refined size) */}
+          {/* Action Capsule Buttons */}
           <div className="hero-anim-item flex flex-wrap items-center gap-3.5 pt-2">
             <Link
               href="/notes"

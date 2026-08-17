@@ -15,8 +15,16 @@ export interface GalleryPhoto {
   width: number;
   height: number;
   source: string;
+  sourceUrl?: string;
+  attributionNote?: string;
   date: string;
   story: string;
+}
+
+export interface NowUpdate {
+  date: string;
+  title: string;
+  summary: string;
 }
 
 export const GALLERY_PHOTOS: GalleryPhoto[] = [
@@ -139,6 +147,15 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
     source: "Spring Blogs 图库",
     date: "2025-09-02",
     story: "繁星与薄雾覆盖林地，深蓝色调让画面像一段安静的夜间散步。",
+  },
+];
+
+// Edit this list when there is a short personal update that does not belong to a note or gallery entry.
+export const NOW_UPDATES: NowUpdate[] = [
+  {
+    date: "2026-08-16",
+    title: "整理数字小屋",
+    summary: "收束首页内容，继续整理画廊与笔记的展示体验。",
   },
 ];
 

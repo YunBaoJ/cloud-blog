@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import NextImage from "next/image";
 import { RotateCcw, ZoomIn, ZoomOut } from "lucide-react";
 import type { GalleryPhoto } from "@/data/siteContent";
 import { clampPan, clampZoom, getSwipeDirection, type Point } from "@/lib/galleryInteraction.mts";
@@ -192,8 +193,16 @@ export default function GalleryArtworkViewer({
               aria-current={isActive ? "true" : undefined}
               className={`relative h-12 w-16 shrink-0 overflow-hidden rounded-md bg-[var(--surface)] ring-2 ring-offset-2 ring-offset-[var(--surface-2)] transition-opacity ${isActive ? "ring-[var(--accent-green)]" : "ring-transparent opacity-55 hover:opacity-100"}`}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={thumbnail.src} alt="" loading="lazy" className="h-full w-full object-cover" />
+              <NextImage
+                src={thumbnail.src}
+                alt=""
+                width={thumbnail.width}
+                height={thumbnail.height}
+                sizes="64px"
+                loading="lazy"
+                onError={() => onImageError(thumbnail.id)}
+                className="h-full w-full object-cover"
+              />
             </button>
           );
         })}
