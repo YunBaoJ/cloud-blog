@@ -1,4 +1,14 @@
-# 知识库名称：文化遗产数字化路演与互动系统专属知识库
+---
+id: "heritage-digitalization-interactive-system"
+title: "文化遗产数字化路演与互动系统工程规范与知识库"
+summary: "深度解析传统文化数字再生项目的全局视觉约束、敦煌飞天意象、青绿山水色调以及基于 Three.js + MediaPipe 的 Web 空间手势交互系统架构。"
+date: "2026-08-18"
+category: "工程实战"
+tags: ["Three.js", "MediaPipe", "WebGL", "数字文博", "交互系统"]
+iconName: "Sparkles"
+---
+
+# 文化遗产数字化路演与互动系统工程规范与知识库
 
 ## 1. 项目全局约束与视觉规范 (最高优先级)
 

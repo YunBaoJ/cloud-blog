@@ -13,6 +13,7 @@ interface NotesClientProps {
 
 const categories = [
   { label: "全部", value: "全部" },
+  { label: "实战", value: "工程实战" },
   { label: "代码", value: "代码与思考" },
   { label: "生活", value: "生活与摄影" },
   { label: "设计", value: "前端与设计" },
@@ -56,9 +57,12 @@ export default function NotesClient({ initialNotes }: NotesClientProps) {
           </div>
 
           <div className="mx-auto flex max-w-[68.75rem] flex-col gap-4 py-6 md:flex-row md:items-center md:justify-between">
-            <div className="grid w-full grid-cols-2 gap-2 sm:grid-cols-4 md:w-auto" aria-label="文章分类">
+            <div className="flex flex-wrap items-center gap-2 md:w-auto" aria-label="文章分类">
               {categories.map((category) => {
                 const isActive = selectedCategory === category.value;
+                const count = category.value === "全部"
+                  ? initialNotes.length
+                  : initialNotes.filter((n) => n.category === category.value).length;
 
                 return (
                   <button
@@ -66,13 +70,20 @@ export default function NotesClient({ initialNotes }: NotesClientProps) {
                     type="button"
                     aria-pressed={isActive}
                     onClick={() => setSelectedCategory(category.value)}
-                    className={`min-h-11 rounded-full border px-4 text-sm font-semibold transition-[color,background-color,border-color,transform] duration-200 active:translate-y-px motion-reduce:transition-none ${
+                    className={`inline-flex min-h-10 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs sm:text-sm font-semibold transition-[color,background-color,border-color,transform] duration-200 active:translate-y-px motion-reduce:transition-none cursor-pointer ${
                       isActive
-                        ? "border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)]"
+                        ? "border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)] shadow-xs"
                         : "border-[var(--border-line-color)] bg-[var(--surface)]/70 text-[var(--muted)] hover:border-[var(--accent-green)]/40 hover:text-[var(--foreground)]"
                     }`}
                   >
-                    {category.label}
+                    <span>{category.label}</span>
+                    <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full transition-colors ${
+                      isActive
+                        ? "bg-[var(--background)]/20 text-[var(--background)]"
+                        : "bg-[var(--surface-2)] text-[var(--muted)]"
+                    }`}>
+                      {count}
+                    </span>
                   </button>
                 );
               })}

@@ -33,7 +33,8 @@ export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
     });
   }, { scope: mainRef, dependencies: [selectedCategory, selectedTag, searchQuery] });
 
-  const categories = ["全部", "代码与思考", "生活与摄影", "前端与设计"];
+  const dynamicCategories = Array.from(new Set(notesList.map((n) => n.category).filter(Boolean)));
+  const categories = ["全部", ...dynamicCategories];
 
   const allTags = Array.from(
     new Set(notesList.flatMap((note) => note.tags || []))
