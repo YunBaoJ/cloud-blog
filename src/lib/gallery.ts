@@ -51,8 +51,8 @@ function formatPhotoTitle(rawFileName: string): string {
   const base = rawFileName
     .replace(/\.[^/.]+$/, "") // 去掉后缀
     .replace(/^【.*?】/, "") // 去掉【哲风壁纸】等标签
-    .replace(/^搜图神器_\d+\.?\./, "精选作品-") // 清理搜图神器前缀
-    .replace(/[._-]+/g, " ")
+    .replace(/^搜图神器_\d+/, "视觉插画") // 清理搜图神器前缀
+    .replace(/[._-]+/g, " · ")
     .trim();
 
   return base || "画廊精选作品";

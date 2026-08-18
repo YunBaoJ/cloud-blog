@@ -15,7 +15,7 @@ import GalleryArtworkViewer from "./GalleryArtworkViewer";
 
 gsap.registerPlugin(useGSAP);
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 60;
 
 export default function GalleryClient({ initialPhotos = GALLERY_PHOTOS }: { initialPhotos?: GalleryPhoto[] }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
