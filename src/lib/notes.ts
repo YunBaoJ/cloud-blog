@@ -158,9 +158,20 @@ export function getAllNotes(): NoteItem[] {
   }
 
   const fileNames = fs.readdirSync(notesDirectory);
-  const allNotesData = fileNames
-    .filter((fileName) => fileName.endsWith(".md"))
-    .map((fileName) => {
+  const allNotesData: NoteItem[] = [];
+
+  for (const fileName of fileNames) {
+    // 过滤掉隐藏文件、临时编辑文件与非 md 文件
+    if (
+      !fileName.endsWith(".md") ||
+      fileName.startsWith(".") ||
+      fileName.startsWith("~") ||
+      fileName.endsWith(".tmp")
+    ) {
+      continue;
+    }
+
+    try {
       const fileBaseName = fileName.replace(/\.md$/, "");
       const fullPath = path.join(notesDirectory, fileName);
       const fileContents = fs.readFileSync(fullPath, "utf8");
@@ -210,7 +221,7 @@ export function getAllNotes(): NoteItem[] {
       // 6. 日期智能兜底：未填则取文件的系统修改时间
       const date = formatValidDate(data.date, fileStat.mtime);
 
-      return {
+      allNotesData.push({
         id,
         title,
         summary,
@@ -222,8 +233,11 @@ export function getAllNotes(): NoteItem[] {
         tags,
         content: content || "",
         featured: Boolean(data.featured),
-      } satisfies NoteItem;
-    });
+      });
+    } catch (err) {
+      console.warn(`[Notes Loader] 暂无法读取文件 ${fileName}，已安全跳过:`, err);
+    }
+  }
 
   // 按日期从新到旧严格排序
   return allNotesData.sort((a, b) => (a.date < b.date ? 1 : -1));
