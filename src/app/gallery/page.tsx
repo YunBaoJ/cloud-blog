@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import GalleryClient from "./GalleryClient";
+import { getAllGalleryPhotos } from "@/lib/gallery";
 
 export const metadata: Metadata = {
   title: "作品画廊",
@@ -12,9 +13,11 @@ export const metadata: Metadata = {
 };
 
 export default function GalleryPage() {
+  const initialPhotos = getAllGalleryPhotos();
+
   return (
     <Suspense fallback={null}>
-      <GalleryClient />
+      <GalleryClient initialPhotos={initialPhotos} />
     </Suspense>
   );
 }

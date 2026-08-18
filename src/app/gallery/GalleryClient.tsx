@@ -17,7 +17,7 @@ gsap.registerPlugin(useGSAP);
 
 const PAGE_SIZE = 12;
 
-export default function GalleryClient() {
+export default function GalleryClient({ initialPhotos = GALLERY_PHOTOS }: { initialPhotos?: GalleryPhoto[] }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(() => new Set());
   const mounted = useMounted();
@@ -30,7 +30,7 @@ export default function GalleryClient() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const filteredPhotos = GALLERY_PHOTOS;
+  const filteredPhotos = initialPhotos;
   const selectedPhotoId = searchParams.get(GALLERY_WORK_PARAM);
   const selectedPhoto = selectedPhotoId
     ? filteredPhotos.find((photo) => photo.id === selectedPhotoId) ?? null
