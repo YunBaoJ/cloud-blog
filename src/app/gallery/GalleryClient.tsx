@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight, ImageIcon, X } from "lucide-react";
+import { ImageIcon, X } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Footer from "@/components/Footer";
@@ -58,11 +58,11 @@ export default function GalleryClient({ initialPhotos = GALLERY_PHOTOS }: { init
     { dependencies: [selectedPhoto], revertOnUpdate: true },
   );
 
-  const openPhoto = useCallback((photo: GalleryPhoto) => {
-    triggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  const openPhoto = (photo: GalleryPhoto) => {
+    triggerRef.current = document.activeElement as HTMLElement | null;
     openedFromGalleryRef.current = true;
     router.push(getGalleryWorkHref(photo.id), { scroll: false });
-  }, [router]);
+  };
 
   const replacePhoto = useCallback((photo: GalleryPhoto) => {
     router.replace(getGalleryWorkHref(photo.id), { scroll: false });
@@ -74,47 +74,55 @@ export default function GalleryClient({ initialPhotos = GALLERY_PHOTOS }: { init
       router.back();
       return;
     }
-    router.replace(pathname, { scroll: false });
+    router.push(pathname, { scroll: false });
   }, [pathname, router]);
 
   useEffect(() => {
-    const siteRoot = document.getElementById("site-root");
-    document.body.style.overflow = selectedPhoto ? "hidden" : "";
-    if (selectedPhoto) {
-      siteRoot?.setAttribute("inert", "");
-      window.requestAnimationFrame(() => closeButtonRef.current?.focus());
-    } else {
-      siteRoot?.removeAttribute("inert");
-      if (previousPhotoIdRef.current) triggerRef.current?.focus();
+    if (selectedPhoto && !previousPhotoIdRef.current) {
+      window.requestAnimationFrame(() => {
+        closeButtonRef.current?.focus();
+      });
+    } else if (!selectedPhoto && previousPhotoIdRef.current) {
+      triggerRef.current?.focus();
     }
     previousPhotoIdRef.current = selectedPhoto?.id ?? null;
+  }, [selectedPhoto]);
+
+  useEffect(() => {
+    if (!selectedPhoto) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = "";
-      siteRoot?.removeAttribute("inert");
+      document.body.style.overflow = previousOverflow;
     };
   }, [selectedPhoto]);
 
   useEffect(() => {
     if (!selectedPhoto) return;
 
-    const showPrevious = () => {
-      if (currentIndex > 0) replacePhoto(filteredPhotos[currentIndex - 1]);
-    };
-    const showNext = () => {
-      if (currentIndex < filteredPhotos.length - 1) replacePhoto(filteredPhotos[currentIndex + 1]);
-    };
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closePhoto();
-      if (event.key === "ArrowLeft") showPrevious();
-      if (event.key === "ArrowRight") showNext();
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closePhoto();
+        return;
+      }
+      if (event.key === "ArrowLeft" && currentIndex > 0) {
+        event.preventDefault();
+        replacePhoto(filteredPhotos[currentIndex - 1]);
+        return;
+      }
+      if (event.key === "ArrowRight" && currentIndex < filteredPhotos.length - 1) {
+        event.preventDefault();
+        replacePhoto(filteredPhotos[currentIndex + 1]);
+        return;
+      }
       if (event.key !== "Tab" || !modalContentRef.current) return;
 
-      const focusable = Array.from(
-        modalContentRef.current.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-        ),
+      const focusable = modalContentRef.current.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
       );
-      if (focusable.length === 0) return;
+      if (!focusable.length) return;
+
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
       if (event.shiftKey && document.activeElement === first) {
@@ -134,14 +142,6 @@ export default function GalleryClient({ initialPhotos = GALLERY_PHOTOS }: { init
 
   const markImageFailed = (id: string) => {
     setFailedImageIds((current) => new Set(current).add(id));
-  };
-
-  const showPrevious = () => {
-    if (currentIndex > 0) replacePhoto(filteredPhotos[currentIndex - 1]);
-  };
-
-  const showNext = () => {
-    if (currentIndex < filteredPhotos.length - 1) replacePhoto(filteredPhotos[currentIndex + 1]);
   };
 
   return (
@@ -178,7 +178,6 @@ export default function GalleryClient({ initialPhotos = GALLERY_PHOTOS }: { init
                     className={`space-y-10 ${columnIndex === 1 ? "md:pt-20" : columnIndex === 2 ? "md:pt-10" : ""}`}
                   >
                     {column.map(({ photo, index }) => {
-                      const hasFailed = failedImageIds.has(photo.id);
                       return (
                         <article
                           key={photo.id}
@@ -187,26 +186,19 @@ export default function GalleryClient({ initialPhotos = GALLERY_PHOTOS }: { init
                           <button
                             type="button"
                             onClick={() => openPhoto(photo)}
-                            className="group block w-full text-left outline-none"
+                            className="group block w-full text-left outline-none cursor-pointer"
                             aria-label={`查看作品：${photo.title}`}
                           >
                             <div className="relative overflow-hidden rounded-xl bg-[var(--surface-2)] shadow-[0_4px_18px_rgba(51,72,58,0.08)] dark:shadow-none">
-                              {hasFailed ? (
-                                <div className="flex aspect-[4/3] items-center justify-center px-6 text-center text-sm leading-6 text-[var(--muted)]">
-                                  图片暂时无法载入，请检查文件路径。
-                                </div>
-                              ) : (
-                                <Image
-                                  src={photo.src}
-                                  alt={photo.title}
-                                  width={photo.width}
-                                  height={photo.height}
-                                  sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw"
-                                  loading={index < 3 ? "eager" : "lazy"}
-                                  onError={() => markImageFailed(photo.id)}
-                                  className="h-auto w-full object-cover transition-transform duration-500 motion-reduce:transition-none group-hover:scale-[1.025] group-focus-visible:scale-[1.025]"
-                                />
-                              )}
+                              <Image
+                                src={photo.src}
+                                alt={photo.title}
+                                width={photo.width}
+                                height={photo.height}
+                                sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw"
+                                loading={index < 6 ? "eager" : "lazy"}
+                                className="h-auto w-full object-cover transition-transform duration-500 motion-reduce:transition-none group-hover:scale-[1.025] group-focus-visible:scale-[1.025]"
+                              />
                             </div>
                             <div className="px-1 pb-1 pt-4">
                               <div className="relative h-px bg-[var(--border-line-color)]">
@@ -232,18 +224,6 @@ export default function GalleryClient({ initialPhotos = GALLERY_PHOTOS }: { init
                 <ImageIcon className="mx-auto size-8 text-[var(--accent-green)]" strokeWidth={1.6} />
                 <h2 className="mt-4 text-lg font-bold">这个分类还没有作品</h2>
                 <p className="mt-2 text-sm text-[var(--muted)]">添加新图片后，它会自动出现在这里。</p>
-              </div>
-            )}
-
-            {visibleCount < filteredPhotos.length && (
-              <div className="mt-3 flex justify-center">
-                <button
-                  type="button"
-                  onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
-                  className="rounded-full bg-[var(--accent-green)] px-5 py-2.5 text-sm font-bold text-[#F0F5F1] transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.98] motion-reduce:transition-none"
-                >
-                  加载更多作品
-                </button>
               </div>
             )}
           </div>
@@ -318,27 +298,6 @@ export default function GalleryClient({ initialPhotos = GALLERY_PHOTOS }: { init
                     使用左右按钮、键盘方向键或横向滑动浏览；双击图片可快速缩放。
                   </div>
                 </div>
-              </div>
-
-              <div className="mt-auto flex items-center justify-between gap-3 pt-8">
-                <button
-                  type="button"
-                  onClick={showPrevious}
-                  disabled={currentIndex <= 0}
-                  className="inline-flex items-center gap-1 rounded-full px-3 py-2 text-sm font-semibold text-[var(--foreground)] ring-1 ring-[var(--border-line-color)] transition-colors hover:bg-[var(--surface-2)] disabled:cursor-not-allowed disabled:opacity-35 active:scale-[0.98]"
-                >
-                  <ChevronLeft className="size-4" strokeWidth={1.8} />
-                  上一幅
-                </button>
-                <button
-                  type="button"
-                  onClick={showNext}
-                  disabled={currentIndex >= filteredPhotos.length - 1}
-                  className="inline-flex items-center gap-1 rounded-full bg-[var(--accent-green)] px-3 py-2 text-sm font-bold text-[#F0F5F1] transition-colors hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-35 active:scale-[0.98]"
-                >
-                  下一幅
-                  <ChevronRight className="size-4" strokeWidth={1.8} />
-                </button>
               </div>
             </div>
           </div>

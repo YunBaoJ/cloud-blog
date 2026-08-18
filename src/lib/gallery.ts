@@ -45,6 +45,35 @@ const TITLE_TRANSLATION_MAP: Record<string, { title: string; story: string; cate
 };
 
 /**
+ * 快速读取图片二进制头部获取准确物理尺寸
+ */
+function getImageDimensions(filePath: string): { width: number; height: number } {
+  try {
+    const buffer = fs.readFileSync(filePath);
+    // PNG 格式
+    if (buffer.length > 24 && buffer.toString("ascii", 1, 4) === "PNG") {
+      return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
+    }
+    // JPEG 格式
+    if (buffer.length > 10 && buffer[0] === 0xFF && buffer[1] === 0xD8) {
+      let offset = 2;
+      while (offset < buffer.length) {
+        if (buffer[offset] !== 0xFF) break;
+        const marker = buffer[offset + 1];
+        if (marker === 0xC0 || marker === 0xC2) {
+          return { height: buffer.readUInt16BE(offset + 5), width: buffer.readUInt16BE(offset + 7) };
+        }
+        const len = buffer.readUInt16BE(offset + 2);
+        offset += 2 + len;
+      }
+    }
+  } catch (err) {
+    console.warn(`无法读取图片尺寸：${filePath}`, err);
+  }
+  return { width: 1920, height: 1080 };
+}
+
+/**
  * 格式化清理文件名生成优雅标题
  */
 function formatPhotoTitle(rawFileName: string): string {
@@ -82,7 +111,6 @@ export function getAllGalleryPhotos(): GalleryPhoto[] {
 
   const existingMap = new Map<string, GalleryPhoto>();
   GALLERY_PHOTOS.forEach((photo) => {
-    // 归一化路径匹配
     const key = photo.src.replace(/^\/gallery\//, "").toLowerCase();
     existingMap.set(key, photo);
   });
@@ -101,10 +129,16 @@ export function getAllGalleryPhotos(): GalleryPhoto[] {
     const fullPath = path.join(galleryDir, fileName);
     const fileStat = fs.statSync(fullPath);
     const dateStr = fileStat.mtime.toISOString().split("T")[0];
+    const { width, height } = getImageDimensions(fullPath);
 
-    // 如果已经在预置列表里配置过详细信息，优先保留
+    // 如果已经在预置列表里配置过详细信息，优先保留并更新真实尺寸
     if (existingMap.has(key)) {
-      resultPhotos.push(existingMap.get(key)!);
+      const p = existingMap.get(key)!;
+      resultPhotos.push({
+        ...p,
+        width: p.width || width,
+        height: p.height || height,
+      });
       continue;
     }
 
@@ -117,8 +151,8 @@ export function getAllGalleryPhotos(): GalleryPhoto[] {
         category: customInfo.category,
         categoryLabel: customInfo.categoryLabel,
         src: `/gallery/${fileName}`,
-        width: 2400,
-        height: 1600,
+        width,
+        height,
         source: "相册精选",
         date: dateStr,
         story: customInfo.story,
@@ -136,8 +170,8 @@ export function getAllGalleryPhotos(): GalleryPhoto[] {
       category,
       categoryLabel,
       src: `/gallery/${fileName}`,
-      width: 2400,
-      height: 1600,
+      width,
+      height,
       source: "画廊收藏",
       date: dateStr,
       story: `${title}。静止的光影与色彩定格在这一瞬间。`,
