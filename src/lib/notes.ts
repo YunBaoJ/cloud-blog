@@ -2,6 +2,7 @@ import "server-only";
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import { GALLERY_PHOTOS } from "@/data/siteContent";
 
 const notesDirectory = path.join(process.cwd(), "content/notes");
 
@@ -105,6 +106,21 @@ function extractFirstImage(rawContent: string): { src: string; alt: string } | n
 }
 
 /**
+ * 根据文章 ID 确定性挑选画廊中的精选照片作为默认封面
+ */
+function pickGalleryCover(id: string): { src: string; alt: string } {
+  if (!GALLERY_PHOTOS || GALLERY_PHOTOS.length === 0) {
+    return { src: "/og-cover.jpg", alt: "文章精选封面" };
+  }
+  const seed = [...id].reduce((sum, c) => sum + c.charCodeAt(0), 0);
+  const photo = GALLERY_PHOTOS[seed % GALLERY_PHOTOS.length];
+  return {
+    src: photo.src,
+    alt: photo.title || "画廊精选封面",
+  };
+}
+
+/**
  * 从正文中提取首个 H1 标题
  */
 function extractH1Title(rawContent: string): string | null {
@@ -166,13 +182,18 @@ export function getAllNotes(): NoteItem[] {
         ? String(data.summary).trim()
         : extractSmartSummary(content, title);
 
-      // 4. 封面图智能提取：若未提供则自动抓取正文第一张插图，并进行绝对路径安全清洗
+      // 4. 封面图智能提取：若未指定且正文中无图，自动从画廊精选照片中按 ID 哈希均匀挑选
       const firstImg = extractFirstImage(content);
-      const rawCover = data.coverImage ? String(data.coverImage).trim() : firstImg?.src || "/og-cover.jpg";
+      const fallbackGallery = pickGalleryCover(id);
+
+      const rawCover = data.coverImage
+        ? String(data.coverImage).trim()
+        : firstImg?.src || fallbackGallery.src;
       const coverImage = cleanImagePath(rawCover);
+
       const coverAlt = data.coverAlt
         ? String(data.coverAlt).trim()
-        : firstImg?.alt || title;
+        : firstImg?.alt || (data.coverImage ? title : fallbackGallery.alt);
 
       // 5. 分类与标签智能兜底
       const category = data.category ? String(data.category).trim() : "随笔";
