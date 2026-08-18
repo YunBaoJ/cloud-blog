@@ -24,6 +24,93 @@ export interface NoteItem {
 }
 
 /**
+ * 文件夹名称至标准分类名称的智能映射字典（支持中英文与常见别名）
+ */
+const FOLDER_CATEGORY_MAP: Record<string, string> = {
+  // 英文/缩写目录映射
+  engineering: "工程实战",
+  projects: "工程实战",
+  project: "工程实战",
+  practice: "工程实战",
+  code: "代码与思考",
+  tech: "代码与思考",
+  coding: "代码与思考",
+  dev: "代码与思考",
+  life: "生活与摄影",
+  photography: "生活与摄影",
+  photo: "生活与摄影",
+  daily: "生活与摄影",
+  design: "前端与设计",
+  frontend: "前端与设计",
+  ui: "前端与设计",
+  ux: "前端与设计",
+
+  // 中文目录直接映射
+  实战: "工程实战",
+  工程: "工程实战",
+  工程实战: "工程实战",
+  代码: "代码与思考",
+  技术: "代码与思考",
+  代码与思考: "代码与思考",
+  生活: "生活与摄影",
+  摄影: "生活与摄影",
+  生活与摄影: "生活与摄影",
+  设计: "前端与设计",
+  前端: "前端与设计",
+  前端与设计: "前端与设计",
+};
+
+/**
+ * 根据文件夹名智能解析分类
+ */
+function resolveCategoryFromFolder(dirName: string): string {
+  if (!dirName) return "随笔";
+  const normalized = dirName.toLowerCase().trim();
+  return FOLDER_CATEGORY_MAP[normalized] || dirName;
+}
+
+interface DiscoveredFile {
+  fullPath: string;
+  relativePath: string;
+  dirName: string;
+  fileName: string;
+}
+
+/**
+ * 递归扫描 content/notes 目录及所有子分类目录中的 Markdown 文件
+ */
+function scanMarkdownFilesRecursively(dir: string, baseDir: string = dir): DiscoveredFile[] {
+  let results: DiscoveredFile[] = [];
+  if (!fs.existsSync(dir)) return results;
+
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      // 忽略隐藏目录与特殊前缀目录
+      if (!entry.name.startsWith(".") && !entry.name.startsWith("_") && entry.name !== "node_modules") {
+        results = results.concat(scanMarkdownFilesRecursively(fullPath, baseDir));
+      }
+    } else if (entry.isFile() && entry.name.endsWith(".md")) {
+      // 过滤临时文件与隐藏文件
+      if (!entry.name.startsWith(".") && !entry.name.startsWith("~") && !entry.name.endsWith(".tmp")) {
+        const relativePath = path.relative(baseDir, fullPath).replace(/\\/g, "/");
+        const dirName = path.dirname(relativePath) === "." ? "" : path.basename(path.dirname(relativePath));
+        results.push({
+          fullPath,
+          relativePath,
+          dirName,
+          fileName: entry.name,
+        });
+      }
+    }
+  }
+  return results;
+}
+
+/**
  * 智能提取正文第一段作为摘要（自动清除 Markdown 语法标记）
  */
 function extractSmartSummary(rawContent: string, fallbackTitle: string): string {
@@ -150,36 +237,25 @@ function formatValidDate(dateInput: unknown, fallbackMtime: Date): string {
 
 /**
  * 获取全部文章列表（自动按发布时间降序）
- * 包含极其严谨的零配置智能容错与自动化元数据补全
+ * 包含极其严谨的零配置智能容错、多级子目录分类支持与自动化元数据补全
  */
 export function getAllNotes(): NoteItem[] {
   if (!fs.existsSync(notesDirectory)) {
     throw new Error(`文章目录不存在：${notesDirectory}`);
   }
 
-  const fileNames = fs.readdirSync(notesDirectory);
+  const discoveredFiles = scanMarkdownFilesRecursively(notesDirectory);
   const allNotesData: NoteItem[] = [];
 
-  for (const fileName of fileNames) {
-    // 过滤掉隐藏文件、临时编辑文件与非 md 文件
-    if (
-      !fileName.endsWith(".md") ||
-      fileName.startsWith(".") ||
-      fileName.startsWith("~") ||
-      fileName.endsWith(".tmp")
-    ) {
-      continue;
-    }
-
+  for (const fileInfo of discoveredFiles) {
     try {
-      const fileBaseName = fileName.replace(/\.md$/, "");
-      const fullPath = path.join(notesDirectory, fileName);
-      const fileContents = fs.readFileSync(fullPath, "utf8");
-      const fileStat = fs.statSync(fullPath);
+      const fileBaseName = fileInfo.fileName.replace(/\.md$/, "");
+      const fileContents = fs.readFileSync(fileInfo.fullPath, "utf8");
+      const fileStat = fs.statSync(fileInfo.fullPath);
 
       const { data, content } = matter(fileContents);
 
-      // 1. id 智能兜底：优先 frontmatter.id，若未填写则使用文件名
+      // 1. id 智能兜底：优先 frontmatter.id，若未填写则使用文件名（去除.md）
       const id = data.id ? String(data.id).trim() : fileBaseName;
 
       // 2. title 智能兜底：优先 frontmatter.title，次选正文首个 # 标题，若仍无则格式化文件名
@@ -206,8 +282,13 @@ export function getAllNotes(): NoteItem[] {
         ? String(data.coverAlt).trim()
         : firstImg?.alt || (data.coverImage ? title : fallbackGallery.alt);
 
-      // 5. 分类与标签智能兜底
-      const category = data.category ? String(data.category).trim() : "随笔";
+      // 5. 分类与标签智能识别：
+      //    优先级：Frontmatter.category > 所在子目录名称 > 默认"随笔"
+      let category = data.category ? String(data.category).trim() : "";
+      if (!category) {
+        category = resolveCategoryFromFolder(fileInfo.dirName);
+      }
+
       let tags: string[] = [];
       if (Array.isArray(data.tags)) {
         tags = data.tags.map(String);
@@ -235,7 +316,7 @@ export function getAllNotes(): NoteItem[] {
         featured: Boolean(data.featured),
       });
     } catch (err) {
-      console.warn(`[Notes Loader] 暂无法读取文件 ${fileName}，已安全跳过:`, err);
+      console.warn(`[Notes Loader] 暂无法读取文件 ${fileInfo.fileName}，已安全跳过:`, err);
     }
   }
 
