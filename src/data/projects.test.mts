@@ -1,20 +1,23 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { DORMITORY_SYSTEM_PROJECT } from "./projects.ts";
+import { DORMITORY_CATEGORIES, DORMITORY_SYSTEM_PROJECT } from "./projects.ts";
 
 test("宿舍系统案例保持可核对的开发中状态与真实截图", () => {
   assert.equal(DORMITORY_SYSTEM_PROJECT.slug, "dormitory-system");
   assert.equal(DORMITORY_SYSTEM_PROJECT.status, "开发中");
-  assert.equal(DORMITORY_SYSTEM_PROJECT.screenshots.length, 4);
+  assert.equal(
+    DORMITORY_SYSTEM_PROJECT.screenshots.length,
+    DORMITORY_CATEGORIES.flatMap((category) => category.screenshots).length,
+  );
   assert.deepEqual(
     DORMITORY_SYSTEM_PROJECT.workflows.map((item) => item.title),
-    ["角色访问", "学生服务", "宿舍运营", "管理维护"],
+    ["角色访问与鉴权", "学生综合服务", "楼栋运营枢纽", "全局资源管理"],
   );
   assert.ok(DORMITORY_SYSTEM_PROJECT.stack.includes("Spring Boot 3"));
   assert.ok(DORMITORY_SYSTEM_PROJECT.stack.includes("Vue 3"));
   assert.deepEqual(
     DORMITORY_SYSTEM_PROJECT.architecture.map((item) => item.title),
-    ["界面层", "服务层", "数据层"],
+    ["表现层 (Vue 3 Client)", "业务层 (Spring Boot 3 API)", "数据层 (MySQL & MyBatis-Plus)"],
   );
-  assert.equal(DORMITORY_SYSTEM_PROJECT.responsibilities.length, 3);
+  assert.equal(DORMITORY_SYSTEM_PROJECT.responsibilities.length, 4);
 });
