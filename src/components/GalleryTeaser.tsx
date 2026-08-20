@@ -61,12 +61,12 @@ export default function GalleryTeaser() {
         </div>
 
         {/* Polaroid Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
+        <div className="grid justify-items-center grid-cols-1 gap-6 pt-4 md:grid-cols-3">
           {FEATURED_ARTWORKS.map((photo, index) => (
             <Link
               key={photo.id}
               href="/gallery"
-              className={`gallery-card-anim group relative bg-white p-5 rounded-2xl shadow-[0_8px_30px_rgba(45,43,44,0.06)] hover:shadow-[0_20px_40px_rgba(45,43,44,0.12)] transition-all duration-500 transform ${rotations[index]} hover:rotate-0 hover:-translate-y-2 flex flex-col justify-between`}
+              className={`gallery-card-anim group relative w-full max-w-[320px] bg-white p-4 rounded-2xl shadow-[0_8px_30px_rgba(45,43,44,0.06)] hover:shadow-[0_20px_40px_rgba(45,43,44,0.12)] transition-all duration-500 transform ${rotations[index]} hover:rotate-0 hover:-translate-y-2 flex flex-col justify-between`}
             >
               {/* Semi-transparent Washi Tape (和纸胶带) */}
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-[#F5E8D3]/85 border border-[#E8D7BE]/70 rotate-[-1deg] backdrop-blur-2xs shadow-2xs z-10 pointer-events-none rounded-xs flex items-center justify-center">

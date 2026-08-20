@@ -24,28 +24,29 @@ const COVER_IMAGES: Record<string, { src: string; position?: string }> = {
   "next-record": { src: "/gallery/【用户壁纸】蓝发-少女特写.jpg", position: "object-center" },
 };
 
-function ProjectCard({ item, liftOnHover = false }: { item: ProjectArchiveItem; liftOnHover?: boolean }) {
+function ProjectCard({ item, liftOnHover = false, size = "home" }: { item: ProjectArchiveItem; liftOnHover?: boolean; size?: "home" | "index" }) {
   const details = CARD_DETAILS[item.id] ?? { footer: "持续记录", title: item.title };
   const cover = COVER_IMAGES[item.id];
-  const cardClass = `group relative block isolate h-[250px] w-[350px] shrink-0 overflow-hidden rounded-[22px] border border-[#26352A]/13 bg-[#FFFEF9] shadow-[0_19px_32px_rgba(38,53,42,0.15)] transition-[transform,box-shadow] duration-300 motion-reduce:transition-none ${
+  const isIndex = size === "index";
+  const cardClass = `group relative block isolate ${isIndex ? "h-[292px] w-full max-w-[414px]" : "h-[250px] w-[350px] shrink-0"} overflow-hidden rounded-[22px] border border-[#26352A]/13 bg-[#FFFEF9] shadow-[0_19px_32px_rgba(38,53,42,0.15)] transition-[transform,box-shadow] duration-300 motion-reduce:transition-none ${
     liftOnHover ? "hover:-translate-y-2 hover:shadow-[0_28px_42px_rgba(38,53,42,0.2)]" : ""
   }`;
 
   const content = (
     <>
-      <div className="relative h-[142px] overflow-hidden bg-[#36513B]">
-        {cover && <Image src={cover.src} alt="" fill sizes="350px" className={`object-cover ${cover.position ?? "object-center"}`} />}
+      <div className={`relative ${isIndex ? "h-[166px]" : "h-[142px]"} overflow-hidden bg-[#36513B]`}>
+        {cover && <Image src={cover.src} alt="" fill sizes={isIndex ? "(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 414px" : "350px"} className={`object-cover ${cover.position ?? "object-center"}`} />}
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,28,0.08),rgba(20,38,28,0.36))]" />
         <span className="absolute left-4 top-4 rounded-full bg-[#FFFEF9]/92 px-2.5 py-1 text-[10px] font-bold text-[#36513B] shadow-sm">
           {item.status}
         </span>
       </div>
-      <div className="flex h-[108px] flex-col justify-between bg-[#FFFEF9] px-4 py-3.5">
+      <div className={`flex ${isIndex ? "h-[126px] px-5 py-4" : "h-[108px] px-4 py-3.5"} flex-col justify-between bg-[#FFFEF9]`}>
         <div className="flex items-center justify-between gap-3 font-mono text-[10px] font-bold tracking-[0.1em] text-[#748176]">
           <span>{item.serial}</span>
           <span className="text-[#D79B7B]">{item.kind === "published" ? "OPEN" : "PLANNING"}</span>
         </div>
-        <h3 className="text-[19px] font-semibold leading-tight tracking-[-0.04em] text-[#26352A]">{details.title}</h3>
+        <h3 className={`${isIndex ? "text-[21px]" : "text-[19px]"} font-semibold leading-tight tracking-[-0.04em] text-[#26352A]`}>{details.title}</h3>
         <div className="flex items-center justify-between border-t border-[#36513B]/12 pt-2 text-[11px] text-[#6D7C6E]">
           <span>{details.footer}</span>
           <span className="font-semibold text-[#36513B]">{item.href ? "查看 →" : "待续"}</span>
@@ -71,12 +72,12 @@ const STACK_POSITIONS = [
 
 export default function ProjectArchiveStack({ items, variant = "home" }: ProjectArchiveStackProps) {
   if (variant === "index") {
-    return <div className="grid justify-center gap-5 sm:grid-cols-2 xl:grid-cols-3">{items.map((item) => <ProjectCard key={item.id} item={item} liftOnHover />)}</div>;
+    return <div className="grid justify-center gap-6 sm:grid-cols-2 xl:grid-cols-3">{items.map((item) => <ProjectCard key={item.id} item={item} liftOnHover size="index" />)}</div>;
   }
 
   return (
     <>
-      <div className="relative mx-auto hidden h-[350px] max-w-[1180px] lg:block" aria-label="从左到右扇开的项目档案">
+      <div className="relative mx-auto hidden h-[390px] max-w-[1180px] lg:block" aria-label="从左到右扇开的项目档案">
         <div className="pointer-events-none absolute inset-x-[8%] bottom-[35px] h-[46px] rounded-[50%] bg-[#304831]/14 blur-[18px]" aria-hidden="true" />
         {items.map((item, index) => (
           <div key={item.id} className={`absolute transition-transform duration-300 motion-reduce:transition-none ${STACK_POSITIONS[index]}`}>

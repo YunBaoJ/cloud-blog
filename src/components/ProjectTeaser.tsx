@@ -3,7 +3,7 @@ import { PROJECT_ARCHIVE_ITEMS } from "@/data/projects";
 
 export default function ProjectTeaser() {
   return (
-    <section className="w-full border-t border-[#36513B]/16 bg-transparent px-4 py-16 dark:border-white/16 sm:px-6 md:py-20 lg:px-8">
+    <section className="w-full border-t border-[#36513B]/16 bg-transparent px-4 py-20 dark:border-white/16 sm:px-6 md:py-28 lg:px-8">
       <div className="mx-auto max-w-[1180px]">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between sm:gap-10">
           <div>

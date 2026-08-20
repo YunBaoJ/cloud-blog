@@ -1,30 +1,44 @@
 "use client";
 
-import { useRef } from "react";
-import type { NoteItem } from "@/lib/notes";
-import { Code2, Camera, Sparkles, Calendar, ArrowRight, Tag } from "lucide-react";
 import Link from "next/link";
+import { useRef, useState } from "react";
+import { ArrowRight, Calendar, Camera, Code2, Sparkles } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import type { NoteItem } from "@/lib/notes";
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+gsap.registerPlugin(ScrollTrigger);
 
 interface FeaturedNotesProps {
   initialNotes: NoteItem[];
 }
 
+function NoteIcon({ iconName }: { iconName: string }) {
+  const className = "h-5 w-5";
+
+  switch (iconName) {
+    case "Code2":
+      return <Code2 className={`${className} text-[#36513B]`} aria-hidden="true" />;
+    case "Camera":
+      return <Camera className={`${className} text-[#A46A4D]`} aria-hidden="true" />;
+    default:
+      return <Sparkles className={`${className} text-[#718F6E]`} aria-hidden="true" />;
+  }
+}
+
 export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const featuredNotesList = initialNotes;
+  const sectionRef = useRef<HTMLElement>(null);
+  const notes = initialNotes.slice(0, 3);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useGSAP(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    gsap.from(".note-card-anim", {
-      y: 25,
+
+    gsap.from(".featured-note-entry", {
+      y: 18,
       opacity: 0,
-      scale: 0.98,
-      duration: 0.5,
+      duration: 0.45,
       stagger: 0.08,
       ease: "power2.out",
       clearProps: "all",
@@ -35,140 +49,73 @@ export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
     });
   }, { scope: sectionRef });
 
-  const getIcon = (iconName: string) => {
-    switch (iconName) {
-      case "Code2":
-        return <Code2 className="w-5 h-5 text-[#36513B]" />;
-      case "Camera":
-        return <Camera className="w-5 h-5 text-[#8C4A31]" />;
-      default:
-        return <Sparkles className="w-5 h-5 text-[#2A5270]" />;
-    }
-  };
-
-  const mainFeaturedNote = featuredNotesList[0];
-  const sideNotes = featuredNotesList.slice(1, 3);
+  if (notes.length === 0) return null;
 
   return (
-    <section ref={sectionRef} id="notes" className="relative w-full py-20 md:py-28 px-4 bg-transparent border-t border-[#36513B]/16 dark:border-white/16">
-      {/* Soft Pine & Bamboo Ambient Background Glow */}
-      <div className="absolute top-1/3 right-10 w-96 h-96 bg-[#36513B]/10 blur-3xl rounded-full pointer-events-none" />
-
-      <div className="relative z-10 max-w-6xl mx-auto space-y-12">
-        {/* Section Header */}
-        <div className="note-card-anim flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div className="space-y-3">
-            <p className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#6F7E70]">01 / SELECTED NOTES</p>
-            <h2 className="font-[family-name:var(--section-heading-font)] text-5xl font-semibold leading-[0.9] tracking-[-0.1em] text-[#26352A] dark:text-[#F0F5F1] sm:text-6xl">
-              精选<em className="ml-1 font-[family-name:var(--section-heading-font)] not-italic font-medium">笔记</em>
-            </h2>
-            <p className="text-sm sm:text-base text-[#5A5551] max-w-lg font-normal">
-              在严谨的代码逻辑与惬意的小屋生活之间，记录每一个值得长久留存的思考。
-            </p>
-          </div>
-
-          <Link
-            href="/notes"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#36513B] hover:text-[#283E2C] transition-colors group"
-          >
-            <span>进入笔记列表页 (24篇)</span>
-            <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
-          </Link>
+    <section ref={sectionRef} id="notes" className="w-full border-t border-[#36513B]/16 bg-transparent px-4 py-16 dark:border-white/16 sm:px-6 md:py-20 lg:px-8">
+      <div className="mx-auto max-w-[1180px]">
+        <div className="featured-note-entry max-w-2xl">
+          <h2 className="font-[family-name:var(--section-heading-font)] text-5xl font-semibold leading-[0.9] tracking-[-0.1em] text-[#26352A] dark:text-[#F0F5F1] sm:text-6xl">
+            精选<em className="ml-1 font-[family-name:var(--section-heading-font)] not-italic font-medium">笔记</em>
+          </h2>
+          <p className="mt-4 max-w-xl text-sm leading-7 text-[#627161] dark:text-[#9EB3A4] sm:text-base">
+            从工程实践到日常感受，展开一页，读完一个此刻仍值得保留的想法。
+          </p>
         </div>
 
-        {/* Asymmetric Bento Grid (Left: Large Highlighted Card, Right: Stacked Cards) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
-          {/* Main Featured Note (Left 7 Cols) */}
-          <Link
-            href="/notes"
-            className="note-card-anim lg:col-span-7 group relative bg-white/90 backdrop-blur-xs rounded-3xl p-8 border border-white/90 shadow-[0_4px_24px_rgba(45,43,44,0.04)] hover:-translate-y-1.5 hover:shadow-[0_16px_36px_rgba(45,43,44,0.09)] transition-all duration-300 flex flex-col justify-between"
-          >
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E2EBE4] text-[#36513B] text-xs font-bold">
-                  {getIcon(mainFeaturedNote.iconName)}
-                  <span>主打推荐</span>
-                </div>
-                <span className="text-xs font-semibold text-[#8C4A31] bg-[#FAF0EA] px-3 py-1 rounded-full">
-                  {mainFeaturedNote.category}
-                </span>
-              </div>
+        <div className="featured-note-entry mt-10 overflow-hidden rounded-[22px] border border-[#36513B]/14 bg-[#FFFEF9]/82 shadow-[0_18px_38px_rgba(38,53,42,0.08)] dark:border-white/14 dark:bg-[#1D2920]/78">
+          <div className="grid grid-cols-1 lg:grid-cols-3">
+            {notes.map((note, index) => {
+              const isActive = activeIndex === index;
 
-              <div className="space-y-3">
-                <h3 className="text-xl sm:text-2xl font-extrabold text-[#2D2B2C] group-hover:text-[#36513B] transition-colors leading-snug">
-                  {mainFeaturedNote.title}
-                </h3>
-                <p className="text-sm sm:text-base text-[#5A5551] leading-relaxed font-normal">
-                  {mainFeaturedNote.summary}
-                </p>
-              </div>
+              return (
+                <Link
+                  key={note.id}
+                  href={`/notes/${note.id}`}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  onFocus={() => setActiveIndex(index)}
+                  className={`featured-note-entry group relative flex min-h-[286px] flex-col p-6 transition-[background-color,transform,box-shadow] duration-300 motion-reduce:transition-none sm:p-7 lg:min-h-[332px] lg:p-8 ${
+                    index > 0 ? "border-t border-[#36513B]/12 lg:border-l lg:border-t-0 dark:border-white/12" : ""
+                  } ${
+                    isActive
+                      ? "z-10 bg-[#E4E9DD]/72 shadow-[0_14px_28px_rgba(38,53,42,0.1)] lg:-translate-y-2 dark:bg-[#314132]/82"
+                      : "bg-transparent hover:bg-[#F6F4EC]/76 dark:hover:bg-white/5"
+                  }`}
+                >
+                  <span className={`absolute left-0 top-7 h-11 w-[3px] rounded-r-full transition-colors duration-300 motion-reduce:transition-none ${isActive ? "bg-[#718F6E]" : "bg-transparent group-hover:bg-[#9DB289]"}`} aria-hidden="true" />
 
-              {/* Tags list */}
-              <div className="flex flex-wrap gap-2 pt-2">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FAF7F2] text-[11px] font-mono text-[#7A736A] border border-[#2D2B2C]/5">
-                  <Tag className="w-3 h-3 text-[#36513B]" />
-                  <span>Next.js App Router</span>
-                </span>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FAF7F2] text-[11px] font-mono text-[#7A736A] border border-[#2D2B2C]/5">
-                  <span>性能优化</span>
-                </span>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FAF7F2] text-[11px] font-mono text-[#7A736A] border border-[#2D2B2C]/5">
-                  <span>架构设计</span>
-                </span>
-              </div>
-            </div>
-
-            <div className="pt-6 mt-6 border-t border-[#2D2B2C]/5 flex items-center justify-between text-xs text-[#7A736A] font-medium">
-              <span className="flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-[#36513B]" />
-                {mainFeaturedNote.date}
-              </span>
-
-              <span className="text-[#36513B] font-bold group-hover:underline inline-flex items-center gap-1">
-                阅读全文 <ArrowRight className="w-3.5 h-3.5" />
-              </span>
-            </div>
-          </Link>
-
-          {/* Right Column Stacked Notes (Right 5 Cols) */}
-          <div className="lg:col-span-5 flex flex-col gap-6 justify-between">
-            {sideNotes.map((note: NoteItem) => (
-              <Link
-                key={note.id}
-                href="/notes"
-                className="note-card-anim group relative bg-white/90 backdrop-blur-xs rounded-3xl p-6 border border-white/90 shadow-[0_4px_24px_rgba(45,43,44,0.04)] hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(45,43,44,0.07)] transition-all duration-300 flex flex-col justify-between flex-1"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-[#FAF7F2] text-[#7A736A] border border-white/80">
+                  <div className="flex items-center justify-between gap-4 text-[11px] font-medium text-[#748176] dark:text-[#A7B5AA]">
+                    <span className="inline-flex items-center gap-2">
+                      <NoteIcon iconName={note.iconName} />
                       {note.category}
                     </span>
-                    <div className="w-8 h-8 rounded-lg bg-white border border-white/80 flex items-center justify-center shadow-2xs">
-                      {getIcon(note.iconName)}
-                    </div>
+                    <span className="shrink-0">{note.date}</span>
                   </div>
 
-                  <h3 className="text-base font-bold text-[#2D2B2C] group-hover:text-[#36513B] transition-colors leading-snug line-clamp-2">
-                    {note.title}
-                  </h3>
-                  <p className="text-xs text-[#5A5551] line-clamp-2 leading-relaxed font-normal">
-                    {note.summary}
-                  </p>
-                </div>
-
-                <div className="pt-4 mt-4 border-t border-[#2D2B2C]/5 flex items-center justify-between text-[11px] text-[#7A736A]">
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="w-3 h-3" />
-                    <span>{note.date}</span>
+                  <div className="mt-8">
+                    <p className="font-mono text-[10px] font-semibold tracking-[0.12em] text-[#8A9A88]">{String(index + 1).padStart(2, "0")}</p>
+                    <h3 className="mt-3 text-[22px] font-semibold leading-snug tracking-[-0.045em] text-[#26352A] transition-colors duration-300 group-hover:text-[#36513B] dark:text-[#F0F5F1] sm:text-2xl">
+                      {note.title}
+                    </h3>
+                    <p className={`mt-4 text-sm leading-7 text-[#627161] transition-[max-height,opacity] duration-300 motion-reduce:transition-none dark:text-[#A7B5AA] ${isActive ? "max-h-24 opacity-100" : "max-h-14 overflow-hidden opacity-75"}`}>
+                      {note.summary}
+                    </p>
                   </div>
-                  <span className="text-[#36513B] font-semibold group-hover:underline">阅读全文</span>
-                </div>
-              </Link>
-            ))}
+
+                  <div className="mt-auto flex items-center justify-between border-t border-[#36513B]/12 pt-5 text-sm font-semibold text-[#36513B] dark:border-white/12 dark:text-[#B8CEB4]">
+                    <span className="inline-flex items-center gap-1.5 text-[#748176] dark:text-[#A7B5AA]"><Calendar className="h-3.5 w-3.5" aria-hidden="true" />{note.readTime ?? "阅读笔记"}</span>
+                    <span className="inline-flex items-center gap-1.5">阅读全文 <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none" aria-hidden="true" /></span>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
-
         </div>
+
+        <Link href="/notes" className="featured-note-entry mt-7 inline-flex items-center gap-2 text-sm font-semibold text-[#36513B] transition-colors hover:text-[#26352A] dark:text-[#B8CEB4] dark:hover:text-white">
+          查看全部笔记
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        </Link>
       </div>
     </section>
   );
