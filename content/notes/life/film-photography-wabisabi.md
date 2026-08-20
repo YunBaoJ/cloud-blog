@@ -7,8 +7,6 @@ readTime: "6 min read"
 category: "生活与摄影"
 tags: ["胶片摄影", "Wabi-Sabi", "美学思考", "富士胶卷"]
 iconName: "Camera"
-coverImage: "/gallery/bamboo.jpg"
-coverAlt: "晨雾中幽静的竹林溪流"
 featured: true
 ---
 

@@ -17,11 +17,11 @@ const CARD_DETAILS: Record<string, { footer: string; title: ReactNode }> = {
 };
 
 const COVER_IMAGES: Record<string, { src: string; position?: string }> = {
-  "dormitory-system": { src: "/gallery/user-wallpaper-4.png", position: "object-center" },
-  "portfolio-archive": { src: "/gallery/user-wallpaper-2.jpg", position: "object-center" },
-  "linux-practice": { src: "/gallery/【哲风壁纸】发丝-手绘少女.png", position: "object-center" },
-  "service-observability": { src: "/gallery/【哲风壁纸】剪影-壁纸-天空.png", position: "object-center" },
-  "next-record": { src: "/gallery/user-wallpaper-3.jpg", position: "object-center" },
+  "dormitory-system": { src: "/gallery/【搜图壁纸】四格-卡通.png", position: "object-center" },
+  "portfolio-archive": { src: "/gallery/【哲风壁纸】剪影-壁纸-天空.png", position: "object-center" },
+  "linux-practice": { src: "/gallery/【哲风壁纸】二次元-卡通.png", position: "object-center" },
+  "service-observability": { src: "/gallery/【用户壁纸】持剑-黑发少女.jpg", position: "object-center" },
+  "next-record": { src: "/gallery/【用户壁纸】蓝发-少女特写.jpg", position: "object-center" },
 };
 
 function ProjectCard({ item, liftOnHover = false }: { item: ProjectArchiveItem; liftOnHover?: boolean }) {
@@ -62,11 +62,11 @@ function ProjectCard({ item, liftOnHover = false }: { item: ProjectArchiveItem; 
 }
 
 const STACK_POSITIONS = [
-  "left-0 bottom-[54px] z-10 -rotate-[8deg] hover:z-40 hover:-translate-y-5 hover:-rotate-[5deg]",
-  "left-[18%] bottom-[54px] z-20 -rotate-[4deg] hover:z-40 hover:-translate-y-5 hover:-rotate-[2deg]",
-  "left-[36%] bottom-[54px] z-30 hover:z-40 hover:-translate-y-6",
-  "left-[54%] bottom-[54px] z-20 rotate-[4deg] hover:z-40 hover:-translate-y-5 hover:rotate-[2deg]",
-  "left-[72%] bottom-[54px] z-10 rotate-[8deg] hover:z-40 hover:-translate-y-5 hover:rotate-[5deg]",
+  "left-0 bottom-[54px] z-10 -rotate-[8deg] hover:z-[60] hover:-translate-y-5 hover:-rotate-[5deg]",
+  "left-[18%] bottom-[54px] z-20 -rotate-[4deg] hover:z-[60] hover:-translate-y-5 hover:-rotate-[2deg]",
+  "left-[36%] bottom-[54px] z-30 hover:z-[60] hover:-translate-y-6",
+  "left-[54%] bottom-[54px] z-40 rotate-[4deg] hover:z-[60] hover:-translate-y-5 hover:rotate-[2deg]",
+  "left-[72%] bottom-[54px] z-50 rotate-[8deg] hover:z-[60] hover:-translate-y-5 hover:rotate-[5deg]",
 ];
 
 export default function ProjectArchiveStack({ items, variant = "home" }: ProjectArchiveStackProps) {

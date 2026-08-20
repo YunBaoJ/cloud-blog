@@ -5,45 +5,6 @@ import { GALLERY_PHOTOS, type GalleryPhoto } from "@/data/siteContent";
 
 const galleryDir = path.join(process.cwd(), "public/gallery");
 
-const TITLE_TRANSLATION_MAP: Record<string, { title: string; story: string; category: "daily" | "scenery" | "collection"; categoryLabel: string }> = {
-  "bamboo": {
-    title: "竹林幽径 · 晨间漫步",
-    story: "修竹摇曳与斑驳光影，晨间的微风掠过带来静心的清凉。",
-    category: "scenery",
-    categoryLabel: "自然与空间",
-  },
-  "coffee": {
-    title: "手冲咖啡 · 慢萃时光",
-    story: "水流注入深褐粉层泛起的金色油脂，是唤醒晨光的静默仪式。",
-    category: "daily",
-    categoryLabel: "日常光线",
-  },
-  "latte": {
-    title: "拿铁拉花 · 温暖午后",
-    story: "醇厚奶泡与咖啡交融的纹理，记录下一段安静温暖的午后独处。",
-    category: "daily",
-    categoryLabel: "日常光线",
-  },
-  "nature": {
-    title: "森林秘境 · 绿意盎然",
-    story: "林木深处的繁茂生机与穿透树冠的光束，是自然最诚挚的馈赠。",
-    category: "scenery",
-    categoryLabel: "自然与空间",
-  },
-  "reading": {
-    title: "翻阅书页 · 沉浸阅读",
-    story: "书桌前泛黄的书页与指尖滑过的触感，让思绪在文字间自由流淌。",
-    category: "daily",
-    categoryLabel: "思考角落",
-  },
-  "sunset": {
-    title: "暮色霞光 · 归途黄昏",
-    story: "地平线渐次晕开的暖橙与紫雾，为喧嚣的一天缓缓拉下温柔的序幕。",
-    category: "scenery",
-    categoryLabel: "自然与天空",
-  },
-};
-
 /**
  * 快速读取图片二进制头部获取准确物理尺寸
  */
@@ -138,24 +99,6 @@ export function getAllGalleryPhotos(): GalleryPhoto[] {
         ...p,
         width: p.width || width,
         height: p.height || height,
-      });
-      continue;
-    }
-
-    // 检查是否有预设精修文案映射
-    const customInfo = TITLE_TRANSLATION_MAP[baseName.toLowerCase()];
-    if (customInfo) {
-      resultPhotos.push({
-        id: `photo-${baseName}`,
-        title: customInfo.title,
-        category: customInfo.category,
-        categoryLabel: customInfo.categoryLabel,
-        src: `/gallery/${fileName}`,
-        width,
-        height,
-        source: "相册精选",
-        date: dateStr,
-        story: customInfo.story,
       });
       continue;
     }
