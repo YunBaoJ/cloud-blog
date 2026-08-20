@@ -41,6 +41,16 @@ export interface ProjectCaseStudy {
   currentFocus: string;
 }
 
+export interface ProjectArchiveItem {
+  id: string;
+  serial: string;
+  title: string;
+  summary: string;
+  status: "开发中" | "筹备中" | "留白";
+  kind: "published" | "planning" | "notebook";
+  href?: string;
+}
+
 export const DORMITORY_CATEGORIES: readonly ProjectCategory[] = [
   {
     id: "login",
@@ -360,3 +370,47 @@ export const DORMITORY_SYSTEM_PROJECT: ProjectCaseStudy = {
   screenshots: DORMITORY_CATEGORIES.flatMap((c) => c.screenshots),
   currentFocus: "优化晚归考勤模块与水电自动计费预警流程。",
 };
+
+export const PROJECT_ARCHIVE_ITEMS = [
+  {
+    id: "dormitory-system",
+    serial: "CASE 01 / IN PROGRESS",
+    title: "智慧宿舍管理系统",
+    summary: "多角色宿舍日常管理与服务流程整理。",
+    status: "开发中",
+    kind: "published",
+    href: "/projects/dormitory-system",
+  },
+  {
+    id: "portfolio-archive",
+    serial: "CASE 02 / PLANNING",
+    title: "个人作品归档工具",
+    summary: "用于整理作品与过程记录的下一项计划。",
+    status: "筹备中",
+    kind: "planning",
+  },
+  {
+    id: "linux-practice",
+    serial: "CASE 03 / PLANNING",
+    title: "Linux 运维练习集",
+    summary: "围绕命令、排障与复盘建立的学习记录。",
+    status: "筹备中",
+    kind: "planning",
+  },
+  {
+    id: "service-observability",
+    serial: "CASE 04 / PLANNING",
+    title: "小型服务监控面板",
+    summary: "用于练习服务观察与状态呈现的计划。",
+    status: "筹备中",
+    kind: "planning",
+  },
+  {
+    id: "next-record",
+    serial: "CASE 05 / NOTEBOOK",
+    title: "下一件待记录的事",
+    summary: "为下一段真实实践预留的位置。",
+    status: "留白",
+    kind: "notebook",
+  },
+] as const satisfies readonly ProjectArchiveItem[];

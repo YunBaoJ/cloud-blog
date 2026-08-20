@@ -40,7 +40,7 @@ export default function Footer() {
   const currentQuote = INSPIRATIONS[quoteIndex];
 
   return (
-    <footer className="w-full bg-[#FAF7F2] dark:bg-[#141C16] text-[#5A5551] dark:text-[#9EB3A4] pt-16 pb-12 border-t border-[#2D2B2C]/8 dark:border-white/10 transition-colors">
+    <footer className="w-full bg-[#FAF7F2] dark:bg-[#141C16] text-[#5A5551] dark:text-[#9EB3A4] pt-16 pb-12 border-t border-[#36513B]/16 dark:border-white/16 transition-colors">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Replacement: Daily Inspiration & Wisdom Card */}
         <div className="p-8 sm:p-10 rounded-3xl bg-[#E2EBE4]/60 dark:bg-[#1E2721]/80 border border-[#36513B]/15 dark:border-white/10 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">

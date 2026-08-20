@@ -12,6 +12,7 @@
   --accent-clay: #8C4A31;
   --nav-bg: rgba(242, 243, 237, 0.85);
   --nav-border: rgba(255, 255, 255, 0.6);
+  --section-heading-font: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
 .dark {
@@ -396,4 +397,3 @@ body {
     transform: none;
   }
 }
-

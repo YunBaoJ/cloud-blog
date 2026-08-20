@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ImageIcon, ArrowRight, Calendar } from "lucide-react";
+import { ArrowRight, Calendar } from "lucide-react";
 import { GALLERY_PHOTOS } from "@/data/siteContent";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -34,20 +34,17 @@ export default function GalleryTeaser() {
     });
   }, { scope: containerRef });
   return (
-    <section ref={containerRef} className="relative w-full py-20 md:py-28 px-4 bg-transparent overflow-hidden">
+    <section ref={containerRef} className="relative w-full py-20 md:py-28 px-4 bg-transparent border-t border-[#36513B]/16 dark:border-white/16 overflow-hidden">
       {/* Background Pine & Bamboo Accent */}
       <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-[#36513B]/8 blur-3xl rounded-full pointer-events-none" />
 
       <div className="relative z-10 max-w-6xl mx-auto space-y-12">
         {/* Header */}
         <div className="gallery-card-anim flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FAF0EA] text-[#8C4A31] text-xs font-semibold tracking-wide shadow-2xs">
-              <ImageIcon className="w-3.5 h-3.5" />
-              <span>视觉收藏</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#2D2B2C] tracking-tight">
-              作品画廊 (Gallery)
+          <div className="space-y-3">
+            <p className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#6F7E70]">02 / VISUAL ARCHIVE</p>
+            <h2 className="font-[family-name:var(--section-heading-font)] text-5xl font-semibold leading-[0.9] tracking-[-0.1em] text-[#26352A] dark:text-[#F0F5F1] sm:text-6xl">
+              作品<em className="ml-1 font-[family-name:var(--section-heading-font)] not-italic font-medium">画廊</em>
             </h2>
             <p className="text-sm sm:text-base text-[#5A5551] max-w-lg font-normal">
               收录插画、动漫与日常灵感；每一张作品都可以从这里展开。

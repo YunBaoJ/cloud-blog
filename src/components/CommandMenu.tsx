@@ -56,7 +56,7 @@ const NAVIGATION_RESULTS = [
   { title: "小屋主页", path: "/", category: "页面导航", icon: Compass },
   { title: "随笔笔记", path: "/notes", category: "页面导航", icon: BookOpen },
   { title: "作品画廊", path: "/gallery", category: "页面导航", icon: ImageIcon },
-  { title: "项目案例", path: "/projects/dormitory-system", category: "页面导航", icon: Layers3 },
+  { title: "项目档案", path: "/projects", category: "页面导航", icon: Layers3 },
   { title: "游乐场", path: "/playground", category: "页面导航", icon: Sparkles },
   { title: "文章归档", path: "/archive", category: "页面导航", icon: Archive },
   { title: "关于小屋", path: "/about", category: "页面导航", icon: User },

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { DORMITORY_CATEGORIES, DORMITORY_SYSTEM_PROJECT } from "./projects.ts";
+import { DORMITORY_CATEGORIES, DORMITORY_SYSTEM_PROJECT, PROJECT_ARCHIVE_ITEMS } from "./projects.ts";
 
 test("宿舍系统案例保持可核对的开发中状态与真实截图", () => {
   assert.equal(DORMITORY_SYSTEM_PROJECT.slug, "dormitory-system");
@@ -20,4 +20,13 @@ test("宿舍系统案例保持可核对的开发中状态与真实截图", () =>
     ["表现层 (Vue 3 Client)", "业务层 (Spring Boot 3 API)", "数据层 (MySQL & MyBatis-Plus)"],
   );
   assert.equal(DORMITORY_SYSTEM_PROJECT.responsibilities.length, 4);
+});
+
+test("项目档案仅链接已公开的真实案例", () => {
+  assert.equal(PROJECT_ARCHIVE_ITEMS.length, 5);
+  assert.equal(PROJECT_ARCHIVE_ITEMS.filter((item) => item.status === "开发中").length, 1);
+  assert.deepEqual(
+    PROJECT_ARCHIVE_ITEMS.filter((item) => "href" in item && item.href).map((item) => item.id),
+    ["dormitory-system"],
+  );
 });

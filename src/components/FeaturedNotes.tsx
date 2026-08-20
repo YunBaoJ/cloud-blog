@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import type { NoteItem } from "@/lib/notes";
-import { Code2, Camera, Sparkles, Calendar, ArrowRight, BookOpen, Tag } from "lucide-react";
+import { Code2, Camera, Sparkles, Calendar, ArrowRight, Tag } from "lucide-react";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -50,20 +50,17 @@ export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
   const sideNotes = featuredNotesList.slice(1, 3);
 
   return (
-    <section ref={sectionRef} id="notes" className="relative w-full py-20 md:py-28 px-4 bg-transparent">
+    <section ref={sectionRef} id="notes" className="relative w-full py-20 md:py-28 px-4 bg-transparent border-t border-[#36513B]/16 dark:border-white/16">
       {/* Soft Pine & Bamboo Ambient Background Glow */}
       <div className="absolute top-1/3 right-10 w-96 h-96 bg-[#36513B]/10 blur-3xl rounded-full pointer-events-none" />
 
       <div className="relative z-10 max-w-6xl mx-auto space-y-12">
         {/* Section Header */}
         <div className="note-card-anim flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#E2EBE4] text-[#36513B] text-xs font-semibold tracking-wide shadow-2xs">
-              <BookOpen className="w-3.5 h-3.5" />
-              <span>记录与沉淀</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#2D2B2C] tracking-tight">
-              近期精选笔记 (Featured Notes)
+          <div className="space-y-3">
+            <p className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#6F7E70]">01 / SELECTED NOTES</p>
+            <h2 className="font-[family-name:var(--section-heading-font)] text-5xl font-semibold leading-[0.9] tracking-[-0.1em] text-[#26352A] dark:text-[#F0F5F1] sm:text-6xl">
+              精选<em className="ml-1 font-[family-name:var(--section-heading-font)] not-italic font-medium">笔记</em>
             </h2>
             <p className="text-sm sm:text-base text-[#5A5551] max-w-lg font-normal">
               在严谨的代码逻辑与惬意的小屋生活之间，记录每一个值得长久留存的思考。

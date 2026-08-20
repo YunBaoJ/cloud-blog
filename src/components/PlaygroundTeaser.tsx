@@ -1,7 +1,7 @@
 "use client";
 
 import { PLAYGROUND_ITEMS, PlaygroundItem } from "@/data/siteContent";
-import { Sparkles, Gamepad2, Grid, Bot, ArrowRight, Dices, Award } from "lucide-react";
+import { Gamepad2, Grid, Bot, ArrowRight, Dices, Award } from "lucide-react";
 import Link from "next/link";
 
 export default function PlaygroundTeaser() {
@@ -25,18 +25,15 @@ export default function PlaygroundTeaser() {
   return (
     <section
       id="playground"
-      className="relative w-full py-20 md:py-28 px-4 bg-transparent"
+      className="relative w-full py-20 md:py-28 px-4 bg-transparent border-t border-[#36513B]/16 dark:border-white/16"
     >
       <div className="relative z-10 max-w-6xl mx-auto space-y-12">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FDEEE9] text-[#C46A4A] text-xs font-semibold tracking-wide shadow-2xs">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>迷你游戏中心</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#2D2B2C] tracking-tight">
-              灵感游乐场 (Playground)
+          <div className="space-y-3">
+            <p className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#6F7E70]">03 / PLAYGROUND</p>
+            <h2 className="font-[family-name:var(--section-heading-font)] text-5xl font-semibold leading-[0.9] tracking-[-0.1em] text-[#26352A] dark:text-[#F0F5F1] sm:text-6xl">
+              灵感<em className="ml-1 font-[family-name:var(--section-heading-font)] not-italic font-medium">游乐场</em>
             </h2>
             <p className="text-sm sm:text-base text-[#5A5551] max-w-lg font-normal">
               贪吃蛇、2048、数字华容道、五子棋与中国象棋 AI 对弈，为创作之余寻找轻松灵感。

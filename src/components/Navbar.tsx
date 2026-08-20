@@ -111,7 +111,7 @@ export default function Navbar() {
 
           {/* 4. 项目案例 */}
           <Link
-            href="/projects/dormitory-system"
+            href="/projects"
             aria-label="项目"
             className={`hidden min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-full px-2 py-1.5 text-xs font-medium transition-all sm:min-h-0 sm:min-w-0 sm:px-3 md:flex ${isActive("/projects") ? "bg-white text-[#2D2B2C] shadow-2xs font-semibold" : "text-[#5A5551] hover:text-[#2D2B2C] hover:bg-white/70"}`}
           >
@@ -195,7 +195,7 @@ export default function Navbar() {
               className="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-44 space-y-1 rounded-2xl border border-[var(--nav-border)] bg-[var(--surface)]/96 p-2 text-[var(--foreground)] shadow-[0_16px_40px_rgba(38,53,42,0.18)] backdrop-blur-2xl md:hidden"
             >
               {[
-                { href: "/projects/dormitory-system", label: "项目", icon: Layers3 },
+                { href: "/projects", label: "项目", icon: Layers3 },
                 { href: "/now", label: "近况", icon: Clock3 },
                 { href: "/archive", label: "归档", icon: Archive },
                 { href: "/about", label: "关于", icon: User },
