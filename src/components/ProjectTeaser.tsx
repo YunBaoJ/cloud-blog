@@ -21,7 +21,7 @@ export default function ProjectTeaser() {
           <ProjectArchiveStack items={PROJECT_ARCHIVE_ITEMS} />
         </div>
 
-        <div className="hidden grid-cols-5 gap-1 font-mono text-[10px] text-[#708071] lg:grid">
+        <div className="mt-8 hidden grid-cols-5 gap-1 font-mono text-[10px] text-[#708071] lg:grid">
           <span className="font-bold text-[#466145]">01 / DORMITORY</span>
           <span>02 / ARCHIVE</span>
           <span>03 / LINUX</span>

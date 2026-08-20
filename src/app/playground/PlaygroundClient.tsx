@@ -9,70 +9,105 @@ import Game2048 from "@/components/games/Game2048";
 import SlidePuzzle from "@/components/games/SlidePuzzle";
 import Gomoku from "@/components/games/Gomoku";
 import Xiangqi from "@/components/games/Xiangqi";
-import { X, Play, Sparkles } from "lucide-react";
+import {
+  X,
+  Play,
+  Sparkles,
+  Volume2,
+  Battery,
+  Wifi,
+  Menu,
+  Gamepad2,
+  Settings,
+  HelpCircle,
+  Trophy,
+  RotateCcw,
+  Coins,
+  Maximize2,
+  Minimize2,
+} from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useMounted } from "@/lib/useMounted";
 import GameModalControls from "@/components/games/GameModalControls";
 import { GameActivityProvider } from "@/components/games/GameActivityContext";
+import { playGameSound, triggerGameHaptic } from "@/lib/gameSounds";
 
 gsap.registerPlugin(useGSAP);
 
-type GameId = "snake" | "2048" | "puzzle" | "gomoku" | "xiangqi";
+export type GameId = "xiangqi" | "gomoku" | "snake" | "2048" | "puzzle";
 
-const GAMES: {
+export const GAMES: {
   id: GameId;
+  index: string;
   name: string;
   nameEn: string;
   cover: string;
-  desc: string;
+  genre: string;
+  publisher: string;
+  version: string;
+  players: string;
   tip: string;
-  tag: string;
 }[] = [
   {
-    id: "snake",
-    name: "贪吃蛇",
-    nameEn: "Snake",
-    cover: "/game-snake.jpg",
-    desc: "操控蛇身不断成长，别撞上自己的尾巴。",
-    tip: "方向键 / WASD · 触摸滑动",
-    tag: "经典",
-  },
-  {
-    id: "2048",
-    name: "2048",
-    nameEn: "Merge",
-    cover: "/game-2048.jpg",
-    desc: "滑动方块合并相同数字，目标合成 2048。",
-    tip: "方向键 / WASD · 触摸滑动",
-    tag: "益智",
-  },
-  {
-    id: "puzzle",
-    name: "华容道",
-    nameEn: "Slide Puzzle",
-    cover: "/game-puzzle.jpg",
-    desc: "滑动数字方块还原正确顺序，挑战最少步数。",
-    tip: "点击相邻方块移动",
-    tag: "挑战",
+    id: "xiangqi",
+    index: "01",
+    name: "中国象棋 AI",
+    nameEn: "Xiangqi Master",
+    cover: "/playground/game-xiangqi.jpg",
+    genre: "策略博弈 · 楚河汉界",
+    publisher: "Kasumi Studio",
+    version: "v2.4.0",
+    players: "1 - 2 玩家 (含 AI 军师)",
+    tip: "方向键 / 鼠标点选",
   },
   {
     id: "gomoku",
+    index: "02",
     name: "五子棋",
-    nameEn: "Gomoku",
-    cover: "/game-gomoku.jpg",
-    desc: "黑白对弈，五子连珠，支持单人 AI 对弈与双人对战。",
-    tip: "单人 / 双人模式可选",
-    tag: "对弈",
+    nameEn: "Gomoku Zen",
+    cover: "/playground/game-gomoku.jpg",
+    genre: "经典连珠 · 15×15",
+    publisher: "Kasumi Studio",
+    version: "v1.8.2",
+    players: "1 - 2 玩家 (含启发式 AI)",
+    tip: "方向键 / 鼠标点选",
   },
   {
-    id: "xiangqi",
-    name: "中国象棋",
-    nameEn: "Xiangqi AI",
-    cover: "/game-xiangqi.jpg",
-    desc: "楚河汉界，运筹帷幄，支持单人 AI 博弈与 AI 军师步进。",
-    tip: "单人 AI / 步进模式可选",
-    tag: "博弈",
+    id: "snake",
+    index: "03",
+    name: "草墨贪吃蛇",
+    nameEn: "Cyber Snake",
+    cover: "/playground/game-snake.jpg",
+    genre: "复古街机 · 敏捷走位",
+    publisher: "Retro Pixel",
+    version: "v1.2.0",
+    players: "1 玩家",
+    tip: "WASD / 方向键 · 触屏滑动",
+  },
+  {
+    id: "2048",
+    index: "04",
+    name: "2048",
+    nameEn: "Merge 2048",
+    cover: "/playground/game-2048.jpg",
+    genre: "脑力益智 · 指数合成",
+    publisher: "Puzzle Lab",
+    version: "v1.0.5",
+    players: "1 玩家",
+    tip: "WASD / 方向键 · 触屏滑动",
+  },
+  {
+    id: "puzzle",
+    index: "05",
+    name: "数字华容道",
+    nameEn: "Slide 15",
+    cover: "/playground/game-puzzle.jpg",
+    genre: "机械解谜 · 几何复位",
+    publisher: "Logic Works",
+    version: "v1.1.0",
+    players: "1 玩家",
+    tip: "点击相邻方块滑动",
   },
 ];
 
@@ -87,7 +122,7 @@ function subscribeToHash(callback: () => void) {
 
 function getGameFromHash(): GameId | null {
   const id = window.location.hash.slice(1);
-  return GAMES.some((game) => game.id === id) ? id as GameId : null;
+  return GAMES.some((game) => game.id === id) ? (id as GameId) : null;
 }
 
 // ── Game Modal — rendered via portal to document.body ──────────────
@@ -102,71 +137,72 @@ function GameModal({
   isOpen: boolean;
   close: () => void;
 }) {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) setIsFullscreen(false);
+  }, [isOpen]);
+
   return createPortal(
     <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 9999,
-        display: isOpen ? "flex" : "none",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "16px",
-        backgroundColor: "rgba(45,43,44,0.55)",
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
-      }}
+      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 dark:bg-black/70 backdrop-blur-md transition-all duration-200 ${
+        isFullscreen ? "p-0" : "p-2.5 sm:p-6"
+      }`}
+      style={{ display: isOpen ? "flex" : "none" }}
       aria-hidden={!isOpen}
       onClick={(e) => {
         if (e.target === e.currentTarget) close();
       }}
     >
       <div
-        style={{
-          position: "relative",
-          width: "100%",
-          minWidth: 0,
-          maxWidth: "720px",
-          maxHeight: "90dvh",
-          display: "flex",
-          flexDirection: "column",
-          borderRadius: "24px",
-          overflow: "hidden",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.3)",
-          background: "var(--modal-bg, #FAF7F2)",
-          animation: "modal-in 0.18s ease",
-        }}
-        className="bg-[#FAF7F2] dark:bg-[#1A2A1E]"
+        className={`relative flex flex-col overflow-hidden bg-[#FAF7F2] dark:bg-[#18261D] border border-[var(--border-line-color)] shadow-[0_24px_80px_rgba(0,0,0,0.3)] transition-all duration-200 ${
+          isFullscreen
+            ? "w-full h-full rounded-none"
+            : "w-full max-w-3xl max-h-[94dvh] sm:max-h-[90dvh] rounded-3xl animate-modal-in"
+        }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#2D2B2C]/8 dark:border-white/8 flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-bold text-[#2D2B2C] dark:text-[#F0F5F1]">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-[var(--border-line-color)] bg-[var(--surface)]/80 dark:bg-[#1B2D22]/80 backdrop-blur-md shrink-0">
+          <div className="flex items-center gap-2.5">
+            <span className="text-base font-bold text-[var(--foreground)]">
               {activeInfo?.name}
             </span>
-            <span className="text-xs font-mono text-[#B0A99F] dark:text-[#4A6B55]">
+            <span className="text-xs font-mono text-[var(--muted)]">
               {activeInfo?.nameEn}
             </span>
+            {activeInfo?.genre && (
+              <span className="text-[11px] px-2 py-0.5 rounded-md bg-[var(--accent-green)]/10 text-[var(--accent-green)] font-medium">
+                {activeInfo.genre}
+              </span>
+            )}
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 sm:gap-2">
             <GameModalControls />
             <button
+              onClick={() => setIsFullscreen((prev) => !prev)}
+              className="p-1.5 sm:p-2 rounded-xl text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-black/5 dark:hover:bg-white/8 transition-colors cursor-pointer"
+              title={isFullscreen ? "退出全屏" : "全屏沉浸"}
+              aria-label={isFullscreen ? "退出全屏" : "全屏沉浸"}
+            >
+              {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
+            </button>
+            <button
               onClick={close}
-              className="p-2 rounded-xl text-[#7A736A] hover:text-[#2D2B2C] dark:hover:text-[#F0F5F1] hover:bg-[#2D2B2C]/6 dark:hover:bg-white/8 transition-all"
+              className="p-1.5 sm:p-2 rounded-xl text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-black/5 dark:hover:bg-white/8 transition-colors cursor-pointer"
               aria-label="关闭"
             >
-              <X className="w-4 h-4" />
+              <X className="size-4" />
             </button>
           </div>
         </div>
 
         {/* Game content */}
         <GameActivityProvider active={isOpen}>
-          <div className="min-w-0 overflow-y-auto p-2 sm:p-5" key={activeGame}>
-            {activeGame === "snake"   && <SnakeGame />}
-            {activeGame === "2048"    && <Game2048 />}
-            {activeGame === "puzzle"  && <SlidePuzzle />}
-            {activeGame === "gomoku"  && <Gomoku />}
+          <div className="min-w-0 overflow-y-auto overscroll-contain p-2.5 sm:p-5 flex-1" key={activeGame}>
+            {activeGame === "snake" && <SnakeGame />}
+            {activeGame === "2048" && <Game2048 />}
+            {activeGame === "puzzle" && <SlidePuzzle />}
+            {activeGame === "gomoku" && <Gomoku />}
             {activeGame === "xiangqi" && <Xiangqi />}
           </div>
         </GameActivityProvider>
@@ -174,8 +210,11 @@ function GameModal({
 
       <style>{`
         @keyframes modal-in {
-          from { opacity: 0; transform: scale(0.95) translateY(8px); }
+          from { opacity: 0; transform: scale(0.96) translateY(6px); }
           to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-modal-in {
+          animation: modal-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
       `}</style>
     </div>,
@@ -183,156 +222,651 @@ function GameModal({
   );
 }
 
-// ── Main page ──────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────────────
+// 🕹️ 主页面组件：【复古实体掌机游戏工作站】(Handheld Console Station)
+// ──────────────────────────────────────────────────────────────────
 export default function PlaygroundClient() {
-  const activeGame = useSyncExternalStore(subscribeToHash, getGameFromHash, () => null);
-  const [retainedGame, setRetainedGame] = useState<GameId | null>(null);
-  const mounted = useMounted();
-  const gridRef = useRef<HTMLDivElement>(null);
+  const isMounted = useMounted();
+  const rawHashGame = useSyncExternalStore(
+    subscribeToHash,
+    getGameFromHash,
+    () => null
+  );
 
-  useGSAP(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    gsap.from(".game-card-anim", {
-      y: 25,
-      opacity: 0,
-      scale: 0.96,
-      duration: 0.5,
-      stagger: 0.08,
-      ease: "power2.out",
-      clearProps: "all",
-    });
-  }, { scope: gridRef });
+  const [activeModalGame, setActiveModalGame] = useState<GameId | null>(null);
+  const [selectedIdx, setSelectedIdx] = useState(0);
+  const [isPoweredOn, setIsPoweredOn] = useState(false);
+  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+  const [currentTime, setCurrentTime] = useState("12:00");
+  const [credits, setCredits] = useState(2);
+  const pageRef = useRef<HTMLDivElement>(null);
 
-  const openGame = useCallback((id: GameId) => {
-    setRetainedGame(id);
-    window.location.hash = id;
+  const activeGameInfo = GAMES[selectedIdx];
+
+  // Hash change auto-triggers game
+  useEffect(() => {
+    if (rawHashGame) {
+      setActiveModalGame(rawHashGame);
+      const foundIdx = GAMES.findIndex((g) => g.id === rawHashGame);
+      if (foundIdx !== -1) {
+        setSelectedIdx(foundIdx);
+        setIsPoweredOn(true);
+      }
+    }
+  }, [rawHashGame]);
+
+  // Real-time clock for console status bar
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, "0");
+      const m = String(now.getMinutes()).padStart(2, "0");
+      setCurrentTime(`${h}:${m}`);
+    };
+    updateTime();
+    const timer = setInterval(updateTime, 10000);
+    return () => clearInterval(timer);
   }, []);
 
-  const close = useCallback(() => {
-    if (activeGame) setRetainedGame(activeGame);
-    history.replaceState(null, "", window.location.pathname);
-    window.dispatchEvent(new HashChangeEvent("hashchange"));
-  }, [activeGame]);
+  const openGame = useCallback((gameId: GameId) => {
+    playGameSound("puzzle-move");
+    triggerGameHaptic("medium");
+    setActiveModalGame(gameId);
+    window.location.hash = gameId;
+  }, []);
 
-  // Escape key
+  const closeGame = useCallback(() => {
+    setActiveModalGame(null);
+    if (window.location.hash) {
+      window.history.pushState(null, "", window.location.pathname);
+    }
+  }, []);
+
+  const powerOn = useCallback(() => {
+    playGameSound("2048-win");
+    triggerGameHaptic("victory");
+    setIsPoweredOn(true);
+  }, []);
+
+  const prevGame = useCallback(() => {
+    playGameSound("puzzle-move");
+    triggerGameHaptic("soft");
+    if (!isPoweredOn) {
+      setIsPoweredOn(true);
+      return;
+    }
+    setSelectedIdx((prev) => (prev === 0 ? GAMES.length - 1 : prev - 1));
+  }, [isPoweredOn]);
+
+  const nextGame = useCallback(() => {
+    playGameSound("puzzle-move");
+    triggerGameHaptic("soft");
+    if (!isPoweredOn) {
+      setIsPoweredOn(true);
+      return;
+    }
+    setSelectedIdx((prev) => (prev === GAMES.length - 1 ? 0 : prev + 1));
+  }, [isPoweredOn]);
+
+  // Global Keyboard Gamepad Shortcuts
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") close(); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [close]);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (activeModalGame || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
 
-  // Lock body scroll
-  useEffect(() => {
-    document.body.style.overflow = activeGame ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [activeGame]);
+      if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") {
+        e.preventDefault();
+        prevGame();
+      } else if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") {
+        e.preventDefault();
+        nextGame();
+      } else if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        if (!isPoweredOn) {
+          powerOn();
+        } else {
+          openGame(activeGameInfo.id);
+        }
+      } else if (e.key === "c" || e.key === "C") {
+        e.preventDefault();
+        playGameSound("2048-merge");
+        triggerGameHaptic("medium");
+        setCredits((c) => Math.min(99, c + 1));
+        if (!isPoweredOn) setIsPoweredOn(true);
+      } else if (e.key === "h" || e.key === "H" || e.key === "?") {
+        e.preventDefault();
+        if (isPoweredOn) {
+          playGameSound("puzzle-move");
+          triggerGameHaptic("soft");
+          setIsOptionsOpen((prev) => !prev);
+        }
+      } else if (e.key === "Escape") {
+        if (isOptionsOpen) {
+          setIsOptionsOpen(false);
+        } else if (isPoweredOn) {
+          setIsPoweredOn(false);
+        }
+      }
+    };
 
-  const renderedGame = activeGame ?? retainedGame;
-  const activeInfo = GAMES.find((g) => g.id === renderedGame);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeModalGame, isPoweredOn, isOptionsOpen, activeGameInfo, prevGame, nextGame, openGame, powerOn]);
+
+  useGSAP(
+    () => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      gsap.from(".playground-page-anim", {
+        y: 28,
+        opacity: 0,
+        scale: 0.98,
+        duration: 0.6,
+        stagger: 0.08,
+        ease: "power2.out",
+      });
+    },
+    { scope: pageRef }
+  );
 
   return (
-    <>
-      <main className="min-h-screen bg-transparent text-[var(--foreground)]">
-
-        {/* Header Section */}
-        <section className="px-5 pb-9 pt-28 sm:px-8 lg:px-12 lg:pt-32">
-          <div className="mx-auto max-w-6xl">
-            <div className="max-w-3xl">
-            <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">
-              <Sparkles className="size-4" strokeWidth={1.8} />
-              <span>游乐场</span>
-            </div>
-
-            <h1 className="break-words text-4xl font-light tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
-              游乐场
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
-              工作余暇的放松驿站。提供贪吃蛇、2048、数字华容道、五子棋 AI 与中国象棋 AI 等 5 款精巧小游戏，支持键盘与移动端触摸操控。
-            </p>
-            </div>
-            <div className="mt-12 border-t border-[var(--border-line-color)] pt-4 text-xs text-[var(--muted)]">共 {GAMES.length} 款小游戏</div>
+    <div ref={pageRef} className="min-h-screen flex flex-col justify-between select-none">
+      <main className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 sm:pt-32 pb-20 space-y-12">
+        
+        {/* Page Header */}
+        <div className="playground-page-anim space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs font-bold text-[#7CD090] tracking-widest uppercase">
+              // RETRO HANDHELD ARCADE
+            </span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#36513B]/10 dark:bg-white/10 text-[#36513B] dark:text-[#7CD090] font-mono">
+              POCKET CONSOLE · 1998
+            </span>
           </div>
-        </section>
+          <h1 className="font-[family-name:var(--section-heading-font)] text-5xl sm:text-6xl font-extrabold text-[#26352A] dark:text-[#F0F5F1] tracking-tight">
+            掌机<em className="ml-1 font-[family-name:var(--section-heading-font)] not-italic font-medium">游乐场</em>
+          </h1>
+          <p className="text-sm sm:text-base text-[#5A5551] dark:text-[#9EB3A4] max-w-2xl leading-relaxed">
+            独立复古掌机与东方博弈实验工坊。插卡即玩、投币开机，在沉思与编码之余换一种轻松的指尖把玩心流。
+          </p>
+        </div>
 
-        {/* Game Cards Grid — Spacious 3-column Layout */}
-        <section ref={gridRef} className="py-16 pb-24 px-6 sm:px-12 lg:px-20 max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-9">
-            {GAMES.map((game) => (
-              <div
-                key={game.id}
-                onClick={() => openGame(game.id)}
-                className="game-card-anim group relative bg-white dark:bg-[#1E2721]/90 rounded-3xl overflow-hidden border border-[#2D2B2C]/8 dark:border-white/10 shadow-[0_8px_30px_rgba(45,43,44,0.05)] hover:shadow-[0_20px_45px_rgba(45,43,44,0.14)] dark:hover:shadow-[0_20px_45px_rgba(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-2 flex flex-col justify-between cursor-pointer"
-              >
-                {/* Cover Image Box — 16:10 Wide Aspect Ratio */}
-                <div className="relative aspect-[16/10] overflow-hidden bg-[#F0EDE6] dark:bg-[#23382C] border-b border-[#2D2B2C]/5 dark:border-white/5">
-                  <Image
-                    src={game.cover}
-                    alt={game.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
+        {/* ================================================================= */}
+        {/* 🎮 独立路由页面专属实体掌机 (Standalone Dedicated Handheld Console) */}
+        {/* ================================================================= */}
+        <div className="playground-page-anim relative mx-auto w-full max-w-5xl pt-7 sm:pt-8">
+          
+          {/* 顶部 L1 / R1 实体肩键 (Elevated Shoulder Triggers) */}
+          <div className="absolute top-0 inset-x-12 sm:inset-x-24 flex justify-between z-0 pointer-events-auto select-none">
+            <button
+              type="button"
+              onClick={prevGame}
+              className="h-8 sm:h-9 px-6 sm:px-8 rounded-t-2xl sm:rounded-t-3xl bg-[#26352A] dark:bg-[#152319] text-white/95 text-xs font-mono font-bold tracking-wider hover:bg-[#36513B] active:translate-y-1 transition-all shadow-[0_-4px_12px_rgba(0,0,0,0.15)] border-t-2 border-x-2 border-white/25 flex items-center gap-2 cursor-pointer group"
+              title="切换到上一个游戏 [ L1 ]"
+            >
+              <span className="group-hover:-translate-x-0.5 transition-transform text-[#7CD090]">◀</span>
+              <span>[ L1 ]</span>
+              <span className="hidden sm:inline text-[10px] text-white/60">PREV</span>
+            </button>
+            <button
+              type="button"
+              onClick={nextGame}
+              className="h-8 sm:h-9 px-6 sm:px-8 rounded-t-2xl sm:rounded-t-3xl bg-[#26352A] dark:bg-[#152319] text-white/95 text-xs font-mono font-bold tracking-wider hover:bg-[#36513B] active:translate-y-1 transition-all shadow-[0_-4px_12px_rgba(0,0,0,0.15)] border-t-2 border-x-2 border-white/25 flex items-center gap-2 cursor-pointer group"
+              title="切换到下一个游戏 [ R1 ]"
+            >
+              <span className="hidden sm:inline text-[10px] text-white/60">NEXT</span>
+              <span>[ R1 ]</span>
+              <span className="group-hover:translate-x-0.5 transition-transform text-[#7CD090]">▶</span>
+            </button>
+          </div>
 
-                  {/* Dark Overlay with Play Icon on Hover */}
-                  <div className="absolute inset-0 bg-black/40 backdrop-blur-3xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <div className="w-14 h-14 rounded-full bg-white/90 dark:bg-[#36513B] text-[#36513B] dark:text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                      <Play className="w-6 h-6 fill-current ml-1" />
+          {/* 掌机双握把机身外壳 (Ergonomic Dual-Grip Chassis) */}
+          <div className="relative z-10 rounded-[2.8rem] sm:rounded-[3.8rem] bg-[#EAE6DC] dark:bg-[#16231A] p-3 sm:p-5 sm:px-7 border-4 border-[#26352A]/20 dark:border-white/18 shadow-[0_24px_70px_rgba(38,53,42,0.2)] dark:shadow-[0_24px_70px_rgba(0,0,0,0.5)] flex flex-col md:flex-row items-center gap-4 sm:gap-6 justify-between">
+            
+            {/* ============================================================= */}
+            {/* 左侧握把区：极简模拟摇杆 + 呼吸灯 (Left Grip) */}
+            {/* ============================================================= */}
+            <div className="hidden md:flex flex-col items-center justify-between h-[340px] w-20 shrink-0 py-3 select-none">
+              {/* Power LED */}
+              <div className="flex items-center gap-1.5">
+                <span
+                  className={`size-2 rounded-full transition-all ${
+                    isPoweredOn
+                      ? "bg-[#7CD090] animate-pulse shadow-[0_0_8px_#7CD090]"
+                      : "bg-amber-400/80 animate-ping shadow-[0_0_8px_#FBBF24]"
+                  }`}
+                />
+                <span className="font-mono text-[9px] font-bold text-[#6F7E70] tracking-widest uppercase">
+                  {isPoweredOn ? "ONLINE" : "INSERT"}
+                </span>
+              </div>
+
+              {/* 实体掌机模拟摇杆 (Analog Thumbstick) */}
+              <div className="flex flex-col items-center gap-2">
+                <button
+                  type="button"
+                  onClick={nextGame}
+                  className="group relative size-16 rounded-full bg-[#26352A] dark:bg-[#0D150F] shadow-[inset_0_2px_4px_rgba(255,255,255,0.1),0_6px_14px_rgba(0,0,0,0.3)] flex items-center justify-center p-1.5 active:scale-95 transition-all cursor-pointer"
+                  title="点击摇杆向右切盘"
+                >
+                  <div className="size-full rounded-full bg-gradient-to-br from-[#36513B] to-[#1E2E23] border border-white/15 shadow-inner flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <div className="size-6 rounded-full border border-white/20 bg-black/20" />
+                  </div>
+                </button>
+                <span className="font-mono text-[9px] text-[#7A736A] dark:text-[#9EB3A4]">STICK</span>
+              </div>
+
+              {/* 左扬声器微孔 */}
+              <div className="grid grid-cols-3 gap-1 opacity-35">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="size-1 rounded-full bg-[#26352A] dark:bg-white" />
+                ))}
+              </div>
+            </div>
+
+            {/* ============================================================= */}
+            {/* 中央屏幕：街机待机投币 VS 游戏机运行主界面 (Display) */}
+            {/* ============================================================= */}
+            <div className="relative flex-1 w-full min-h-[360px] sm:min-h-[400px] rounded-[1.8rem] sm:rounded-[2.4rem] bg-[#0A0D0B] p-4 sm:p-6 shadow-[inset_0_4px_32px_rgba(0,0,0,0.98)] border border-white/10 overflow-hidden flex flex-col justify-between select-none">
+              
+              {!isPoweredOn ? (
+                /* ========================================================= */
+                /* 🪙 状态 1：街机待机/投币演示画面 (Attract Mode / Insert Coin) */
+                /* ========================================================= */
+                <div className="relative z-10 flex-1 flex flex-col justify-between py-2 text-center animate-in fade-in duration-300">
+                  
+                  {/* Arcade Top Score Bar */}
+                  <div className="flex items-center justify-between text-[10px] font-mono text-white/50 border-b border-white/10 pb-2 px-1">
+                    <span className="text-[#7CD090] font-bold">1P: 002480</span>
+                    <span className="text-amber-400 font-bold tracking-wider">HIGH SCORE: 999990</span>
+                    <span className="text-white/70">CREDIT: 0{credits}</span>
+                  </div>
+
+                  {/* Arcade Center Neon Title & Insert Coin Prompt */}
+                  <div className="space-y-4 py-6">
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-mono tracking-[0.3em] text-[#7CD090] uppercase font-bold">
+                        ★ KASUMI ARCADE SYSTEM 1998 ★
+                      </p>
+                      <h3 className="text-3xl sm:text-5xl font-black text-white tracking-wider font-mono drop-shadow-[0_0_20px_rgba(124,208,144,0.4)]">
+                        INSERT COIN
+                      </h3>
+                      <p className="text-xs font-mono text-white/60 pt-1">
+                        请投币或载入下方实体卡带开机
+                      </p>
+                    </div>
+
+                    {/* Blinking Push Start / Insert Coin */}
+                    <div className="pt-2">
+                      <button
+                        type="button"
+                        onClick={powerOn}
+                        className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-amber-400 hover:bg-amber-300 text-[#121413] text-xs font-black tracking-widest uppercase transition-all shadow-[0_0_24px_rgba(251,191,36,0.5)] animate-pulse hover:scale-105 active:scale-95 cursor-pointer"
+                      >
+                        <Coins className="size-4" />
+                        <span>▶ PUSH [START] TO PLAY</span>
+                      </button>
                     </div>
                   </div>
 
-                  {/* Tag Pill */}
-                  <span className="absolute top-3 left-3 text-xs font-bold px-3 py-1 rounded-full bg-black/50 backdrop-blur-md text-white font-mono border border-white/20">
-                    {game.tag}
-                  </span>
+                  {/* Arcade Bottom Copyright & Tips */}
+                  <div className="text-[10px] font-mono text-white/40 border-t border-white/10 pt-2 flex items-center justify-between px-1">
+                    <span>© 2026 KASUMI STUDIO</span>
+                    <span>点击下方卡带或按 START 键载入</span>
+                  </div>
+
                 </div>
-
-                {/* Card Body */}
-                <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-xl font-bold text-[#2D2B2C] dark:text-[#F0F5F1] group-hover:text-[#36513B] dark:group-hover:text-[#7CD090] transition-colors">
-                        {game.name}
-                      </h2>
-                      <span className="text-xs font-mono text-[#7A736A] dark:text-[#9EB3A4] font-semibold">
-                        {game.nameEn}
-                      </span>
+              ) : (
+                /* ========================================================= */
+                /* 🕹️ 状态 2：游戏机正式运行与卡带轮播界面 (Console Running OS) */
+                /* ========================================================= */
+                <div className="relative z-10 flex-1 flex flex-col justify-between animate-in fade-in zoom-in-95 duration-200">
+                  
+                  {/* 1. 真实主机顶部状态栏 */}
+                  <div className="flex items-center justify-between text-[11px] font-mono text-white/70 border-b border-white/10 pb-2.5 px-2">
+                    <div className="flex items-center gap-2">
+                      <div className="size-5 rounded-full bg-[#36513B] text-[#7CD090] flex items-center justify-center font-bold text-[10px] border border-[#7CD090]/40">
+                        K
+                      </div>
+                      <span className="font-bold text-white text-[11px]">Cloud OS</span>
+                      <span className="size-1.5 rounded-full bg-[#7CD090]" />
                     </div>
-                    <p className="text-xs sm:text-sm text-[#5A5551] dark:text-[#9EB3A4] leading-relaxed font-normal">
-                      {game.desc}
-                    </p>
+
+                    <div className="flex items-center gap-3">
+                      <span className="font-bold tracking-wider text-white text-xs">{currentTime}</span>
+                      <Wifi className="size-3.5 text-[#7CD090]" />
+                      <div className="flex items-center gap-1 text-[#7CD090]">
+                        <Battery className="size-4" />
+                        <span className="text-[10px] font-bold">100%</span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="pt-3 border-t border-[#2D2B2C]/6 dark:border-white/8 flex items-center justify-between text-xs text-[#7A736A] dark:text-[#9EB3A4]">
-                    <span className="font-mono text-[11px] bg-[#FAF7F2] dark:bg-[#142219] px-2.5 py-1 rounded-lg border border-[#2D2B2C]/5 dark:border-white/5">
-                      {game.tip}
-                    </span>
+                  {/* 2. 真实主机游戏卡带封面轮播舞台 */}
+                  <div className="py-3 sm:py-5 flex flex-col items-center justify-center">
+                    <div className="flex items-center justify-center gap-3 sm:gap-4.5 w-full overflow-x-hidden px-2">
+                      {GAMES.map((game, idx) => {
+                        const isSelected = selectedIdx === idx;
+                        return (
+                          <div
+                            key={game.id}
+                            onClick={() => setSelectedIdx(idx)}
+                            className={`relative rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer shrink-0 ${
+                              isSelected
+                                ? "size-28 sm:size-36 ring-4 ring-white shadow-[0_0_30px_rgba(255,255,255,0.4)] -translate-y-2 z-20 scale-105"
+                                : "size-20 sm:size-24 opacity-40 hover:opacity-75 z-10 border border-white/20"
+                            }`}
+                          >
+                            <Image
+                              src={game.cover}
+                              alt={game.name}
+                              fill
+                              sizes="150px"
+                              className="object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                            
+                            {isSelected && (
+                              <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/60 backdrop-blur-md text-[9px] font-mono text-[#7CD090] font-bold">
+                                0{idx + 1}
+                              </div>
+                            )}
+                            <span className="absolute bottom-1.5 left-2 right-2 text-[10px] sm:text-xs font-bold text-white truncate">
+                              {game.name}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
 
+                    {/* 选中游戏的元信息 */}
+                    <div className="pt-4 text-center space-y-1">
+                      <div className="flex items-center justify-center gap-2">
+                        <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                          {activeGameInfo.name}
+                        </h3>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-white/70">
+                          {activeGameInfo.version}
+                        </span>
+                      </div>
+                      <p className="text-xs font-mono text-[#7CD090]">
+                        {activeGameInfo.publisher} · {activeGameInfo.genre} · {activeGameInfo.players}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 3. 底部按键指南栏 */}
+                  <div className="pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 px-2 text-[11px] font-mono text-white/70">
+                    <div className="flex items-center gap-2 text-white/50 text-[10px]">
+                      <span className="px-1.5 py-0.5 rounded bg-white/10 text-white font-bold">[ L / R ]</span>
+                      <span>选择游戏</span>
+                    </div>
+
+                    <div className="flex items-center gap-4 text-[10px] sm:text-[11px]">
+                      <div className="flex items-center gap-1.5 text-white/90 font-semibold">
+                        <span className="size-4 rounded-full bg-[#36513B] text-[#7CD090] border border-[#7CD090] flex items-center justify-center font-bold text-[10px]">
+                          ?
+                        </span>
+                        <span>HELP 帮助</span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 text-[#7CD090] font-bold">
+                        <span className="size-4 rounded-full bg-[#7CD090] text-[#121413] flex items-center justify-center font-black text-[9px] shadow-[0_0_8px_#7CD090]">
+                          A
+                        </span>
+                        <span>START 启动</span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              )}
+
+              {/* 4. 帮助指南抽屉面板 */}
+              {isOptionsOpen && isPoweredOn && (
+                <div className="absolute inset-0 z-30 bg-black/85 backdrop-blur-md p-6 flex flex-col justify-between animate-in fade-in zoom-in-95 duration-200">
+                  <div className="flex items-center justify-between border-b border-white/15 pb-3">
+                    <div className="flex items-center gap-2">
+                      <HelpCircle className="size-4 text-[#7CD090]" />
+                      <span className="font-bold text-white text-sm">帮助指南 · {activeGameInfo.name}</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-white/50">按右侧 [ ? ] 键关闭</span>
+                  </div>
+
+                  <div className="space-y-2.5 max-w-md mx-auto w-full py-2">
                     <button
                       type="button"
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#36513B] dark:bg-[#2E4D36] text-white text-xs font-bold hover:bg-[#283E2C] dark:hover:bg-[#385E42] active:scale-95 transition-all shadow-2xs"
+                      onClick={() => {
+                        setIsOptionsOpen(false);
+                        openGame(activeGameInfo.id);
+                      }}
+                      className="w-full p-3 rounded-xl bg-white/10 border border-white/15 flex items-center justify-between text-xs text-white hover:bg-white/20 transition-colors cursor-pointer"
                     >
-                      <Play className="w-3.5 h-3.5 fill-current" />
-                      <span>开始游戏</span>
+                      <span className="flex items-center gap-2">
+                        <Play className="size-3.5 text-[#7CD090] fill-current" />
+                        <strong>立即启动游戏</strong>
+                      </span>
+                      <span className="text-[10px] text-[#7CD090] font-mono">按 PLAY / A 键</span>
                     </button>
+                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between text-xs text-white/80">
+                      <span className="flex items-center gap-2">
+                        <HelpCircle className="size-3.5 text-white/60" />
+                        <span>操作方式</span>
+                      </span>
+                      <span className="text-[10px] text-white/50 font-mono">{activeGameInfo.tip}</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between text-xs text-white/80">
+                      <span className="flex items-center gap-2">
+                        <Trophy className="size-3.5 text-amber-400" />
+                        <span>游戏类型与版本</span>
+                      </span>
+                      <span className="text-[10px] text-white/50 font-mono">{activeGameInfo.genre} · {activeGameInfo.version}</span>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-white/15 pt-2 flex items-center justify-between text-[10px] font-mono text-white/40">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsOptionsOpen(false);
+                        setIsPoweredOn(false);
+                      }}
+                      className="text-red-400 hover:text-red-300 flex items-center gap-1 cursor-pointer"
+                    >
+                      <RotateCcw className="size-3" />
+                      <span>关机并返回待机画面</span>
+                    </button>
+                    <span>KASUMI CONSOLE OS · 2026</span>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </section>
+              )}
 
-        <Footer />
+            </div>
+
+            {/* ============================================================= */}
+            {/* 右侧握把区：实体 HELP 帮助键 + PLAY 确认键 (Right Grip Buttons) */}
+            {/* ============================================================= */}
+            <div className="hidden md:flex flex-col items-center justify-between h-[340px] w-20 shrink-0 py-3 select-none">
+              {/* Online Badge */}
+              <div className="flex items-center gap-1 text-[#6F7E70]">
+                <Wifi className="size-3.5" />
+                <span className="font-mono text-[9px] font-bold">ONLINE</span>
+              </div>
+
+              {/* 实体双按键：HELP 帮助按键 + PLAY 确认开玩按键 */}
+              <div className="flex flex-col items-center gap-5">
+                {/* 1. 实体 HELP 帮助按键 (?) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!isPoweredOn) {
+                      setIsPoweredOn(true);
+                    } else {
+                      setIsOptionsOpen((prev) => !prev);
+                    }
+                  }}
+                  className={`size-12 rounded-2xl transition-all flex flex-col items-center justify-center gap-0.5 border cursor-pointer active:scale-90 ${
+                    isOptionsOpen
+                      ? "bg-[#36513B] text-white border-[#7CD090] shadow-[0_0_14px_rgba(124,208,144,0.4)] ring-2 ring-[#7CD090]/40"
+                      : "bg-[#26352A] dark:bg-[#0D150F] text-[#7CD090] border-white/15 hover:bg-[#36513B] shadow-md hover:border-[#7CD090]/50"
+                  }`}
+                  title="呼出/收起帮助指南 (?)"
+                  aria-label="呼出帮助指南"
+                >
+                  <span className="font-bold text-base leading-none">?</span>
+                  <span className="font-mono text-[8px] font-bold tracking-tighter">HELP</span>
+                </button>
+
+                {/* 2. 实体 PLAY 确认开玩按键 (A) */}
+                {isPoweredOn ? (
+                  <button
+                    type="button"
+                    onClick={() => openGame(activeGameInfo.id)}
+                    className="size-12 rounded-full bg-[#26352A] dark:bg-[#0D150F] hover:bg-[#36513B] text-white transition-all flex flex-col items-center justify-center gap-0.5 border border-white/15 shadow-md active:scale-90 cursor-pointer group hover:border-[#7CD090]/50"
+                    title="启动游戏 (A)"
+                    aria-label="启动游戏"
+                  >
+                    <span className="font-black text-sm text-[#7CD090] leading-none group-hover:scale-110 transition-transform">A</span>
+                    <span className="font-mono text-[8px] font-bold tracking-tighter text-white/80">START</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={powerOn}
+                    className="size-12 rounded-full bg-amber-500 hover:bg-amber-400 text-[#121413] transition-all flex flex-col items-center justify-center gap-0.5 border border-white/20 shadow-[0_0_15px_rgba(245,158,11,0.4)] active:scale-90 cursor-pointer group animate-pulse"
+                    title="投币开机"
+                  >
+                    <Coins className="size-4" />
+                    <span className="font-mono text-[8px] font-bold tracking-tighter">COIN</span>
+                  </button>
+                )}
+              </div>
+
+              {/* 右扬声器微孔 */}
+              <div className="grid grid-cols-3 gap-1 opacity-35">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="size-1 rounded-full bg-[#26352A] dark:bg-white" />
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* 掌机底部 SELECT / START 实体胶囊按键 */}
+          <div className="flex items-center justify-center gap-6 pt-3 select-none">
+            {isPoweredOn ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setIsOptionsOpen((prev) => !prev)}
+                  className="px-3.5 py-1 rounded-full bg-[#26352A]/15 dark:bg-white/10 hover:bg-[#36513B] hover:text-white transition-all text-[10px] font-mono font-bold text-[#6F7E70] flex items-center gap-1 cursor-pointer"
+                >
+                  <span>? 帮助指南</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openGame(activeGameInfo.id)}
+                  className="px-4 py-1 rounded-full bg-[#36513B] text-white hover:bg-[#46654C] transition-all text-[10px] font-mono font-bold flex items-center gap-1 shadow-xs cursor-pointer"
+                >
+                  <span>(A) 启动游戏 ▶</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsPoweredOn(false)}
+                  className="px-3 py-1 rounded-full bg-black/10 dark:bg-white/5 hover:text-red-400 transition-all text-[9px] font-mono text-[#7A736A] flex items-center gap-1 cursor-pointer"
+                >
+                  <RotateCcw className="size-2.5" />
+                  <span>重置待机</span>
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={powerOn}
+                className="px-5 py-1.5 rounded-full bg-amber-500 hover:bg-amber-400 text-[#121413] transition-all text-[11px] font-mono font-bold flex items-center gap-1.5 shadow-md cursor-pointer animate-pulse"
+              >
+                <Coins className="size-3.5" />
+                <span>投币开机 (INSERT COIN)</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* ================================================================= */}
+        {/* 🎴 掌机下方 5 盒实体卡带插槽 (Quick Cartridge Rack) */}
+        {/* ================================================================= */}
+        <div className="playground-page-anim space-y-3 pt-2">
+          <div className="flex items-center justify-between text-xs font-mono text-[#7A736A] dark:text-[#9EB3A4] px-1">
+            <span className="font-bold flex items-center gap-1.5 text-[#36513B] dark:text-[#7CD090]">
+              <Sparkles className="size-3.5" />
+              <span>CARTRIDGE RACK · 实体卡带插槽</span>
+            </span>
+            <span>点击任意卡带通电载入</span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+            {GAMES.map((game, idx) => {
+              const isSelected = isPoweredOn && selectedIdx === idx;
+              return (
+                <button
+                  key={game.id}
+                  type="button"
+                  onClick={() => {
+                    playGameSound("2048-merge");
+                    triggerGameHaptic("medium");
+                    setSelectedIdx(idx);
+                    setIsPoweredOn(true);
+                    setIsOptionsOpen(false);
+                  }}
+                  className={`group relative text-left p-3.5 sm:p-4 rounded-2xl border transition-all duration-300 flex flex-col justify-between gap-3 cursor-pointer isolate ${
+                    isSelected
+                      ? "bg-white dark:bg-[#1E2E23] border-[#36513B] dark:border-[#7CD090] shadow-[0_10px_25px_rgba(54,81,59,0.15)] -translate-y-1.5 ring-2 ring-[#36513B]/20"
+                      : "bg-white/70 dark:bg-[#16231A]/70 border-[#36513B]/10 dark:border-white/10 hover:border-[#36513B]/40 hover:bg-white dark:hover:bg-[#1A281E] hover:-translate-y-0.5"
+                  }`}
+                >
+                  {/* 不可见防抖命中层 */}
+                  <div className="absolute -inset-2 pointer-events-auto" aria-hidden="true" />
+
+                  <div className="flex items-center justify-between w-full">
+                    <span className="font-mono text-xs font-bold text-[#36513B] dark:text-[#7CD090]">
+                      ROM 0{idx + 1}
+                    </span>
+                    <span
+                      className={`size-2 rounded-full transition-all ${
+                        isSelected
+                          ? "bg-[#7CD090] animate-ping"
+                          : "bg-black/20 dark:bg-white/20"
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <p className="font-bold text-sm text-[#26352A] dark:text-[#F0F5F1] group-hover:text-[#36513B] dark:group-hover:text-[#7CD090] transition-colors">
+                      {game.name}
+                    </p>
+                    <p className="text-[11px] text-[#7A736A] dark:text-[#9EB3A4] line-clamp-1 mt-0.5">
+                      {game.genre}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
       </main>
 
-      {/* Portal modal — mounted outside <main>, directly on document.body */}
-      {mounted && renderedGame && (
+      {/* Global Interactive Game Modal */}
+      {isMounted && activeModalGame && (
         <GameModal
-          activeGame={renderedGame}
-          activeInfo={activeInfo}
-          isOpen={Boolean(activeGame)}
-          close={close}
+          activeGame={activeModalGame}
+          activeInfo={GAMES.find((g) => g.id === activeModalGame)}
+          isOpen={Boolean(activeModalGame)}
+          close={closeGame}
         />
       )}
-    </>
+
+      <Footer />
+    </div>
   );
 }

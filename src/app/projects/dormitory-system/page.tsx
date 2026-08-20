@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   description:
     "面向高校三端角色的宿舍综合管理系统，基于 Spring Boot 3 与 Vue 3 的全栈工程实践与架构设计。",
   openGraph: {
-    title: "智慧宿舍管理系统 · 案例研究 | Cloud 的数字小屋",
+    title: "智慧宿舍管理系统 · 案例研究 | Kasumi 的数字小屋",
     description:
       "面向高校三端角色的宿舍综合管理系统，基于 Spring Boot 3 与 Vue 3 的全栈工程实践与架构设计。",
   },
@@ -232,7 +232,7 @@ export default function DormitorySystemPage() {
           <div className="flex items-center gap-4 text-xs text-[var(--muted)]">
             <span>最后更新：2026年3月</span>
             <span>·</span>
-            <span>Cloud 的数字小屋</span>
+            <span>Kasumi 的数字小屋</span>
           </div>
         </footer>
 

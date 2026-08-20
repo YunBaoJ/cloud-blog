@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState, useEffect } from "react";
-import { BookOpen, Gamepad2, ArrowRight, ArrowDown, Feather, Sparkles, Image as ImageIcon, Check, Palette, X } from "lucide-react";
+import { useRef } from "react";
+import { BookOpen, Gamepad2, ArrowRight, ArrowDown, Feather, Sparkles } from "lucide-react";
 import TextType from "@/components/ui/TextType";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -11,79 +11,17 @@ import { useGSAP } from "@gsap/react";
 gsap.registerPlugin(useGSAP);
 
 const STATIC_DESCRIPTION = "凌晨四点，我看见海棠花未眠。";
+const HERO_BG = "/hero/hero-ryo-hd.png";
 
-// Available wallpapers for Hero (Exact files from user download folder)
-const WALLPAPERS = [
-  { id: "kimono-golden", name: "落日余晖 (和服)", src: "/hero-kimono-golden.png" },
-  { id: "kimono-night", name: "月夜走廊 (和服)", src: "/hero-kimono-night.png" },
-  { id: "ryo-hd", name: "苍穹侧颜 (山田葵)", src: "/hero-ryo-hd.png" },
-  { id: "user-final", name: "原版山田葵", src: "/hero-user-final.png" },
-  { id: "classic", name: "月色花枝", src: "/bg-image.png" },
-];
-
-// Filter presets — each has image CSS filter + scrim overlay gradient
-const FILTERS = [
-  {
-    id: "cinema",
-    name: "电影质感",
-    imgFilter: "brightness(0.82) contrast(1.05) saturate(0.92)",
-    scrim: [
-      "linear-gradient(90deg,rgba(15,20,18,0.72) 0%,rgba(15,20,18,0.35) 45%,rgba(15,20,18,0.08) 80%)",
-      "linear-gradient(180deg,rgba(15,20,18,0.18) 0%,transparent 40%,rgba(15,20,18,0.55) 100%)",
-    ].join(","),
-  },
-  {
-    id: "soft",
-    name: "柔和自然",
-    imgFilter: "brightness(0.88)",
-    scrim: "linear-gradient(180deg,rgba(0,0,0,0.08) 0%,rgba(0,0,0,0.04) 50%,rgba(0,0,0,0.22) 100%)",
-  },
-  {
-    id: "sunset",
-    name: "夕阳暖调",
-    imgFilter: "brightness(0.86) saturate(1.18) sepia(0.12)",
-    scrim: [
-      "radial-gradient(ellipse at 30% 60%,rgba(217,134,95,0.32) 0%,transparent 50%)",
-      "radial-gradient(ellipse at 80% 20%,rgba(247,210,155,0.22) 0%,transparent 45%)",
-      "linear-gradient(180deg,rgba(27,20,14,0.12) 0%,transparent 40%,rgba(27,20,14,0.50) 100%)",
-    ].join(","),
-  },
-  {
-    id: "night",
-    name: "深夜冷调",
-    imgFilter: "brightness(0.72) saturate(1.08) hue-rotate(10deg)",
-    scrim: [
-      "radial-gradient(ellipse at 25% 40%,rgba(41,62,98,0.45) 0%,transparent 55%)",
-      "linear-gradient(180deg,rgba(12,18,34,0.28) 0%,transparent 35%,rgba(12,18,34,0.70) 100%)",
-    ].join(","),
-  },
-];
+// Cinema filter preset: CSS filter + rich atmospheric scrim gradient
+const CINEMA_IMG_FILTER = "brightness(0.82) contrast(1.05) saturate(0.92)";
+const CINEMA_SCRIM = [
+  "linear-gradient(90deg,rgba(15,20,18,0.72) 0%,rgba(15,20,18,0.35) 45%,rgba(15,20,18,0.08) 80%)",
+  "linear-gradient(180deg,rgba(15,20,18,0.18) 0%,transparent 40%,rgba(15,20,18,0.55) 100%)",
+].join(",");
 
 export default function Hero() {
   const heroRef = useRef<HTMLDivElement>(null);
-  const [currentBg, setCurrentBg] = useState<string>("/hero-kimono-golden.png");
-  const [currentFilter, setCurrentFilter] = useState<string>("cinema");
-  const [showPicker, setShowPicker] = useState<boolean>(false);
-  const [pickerTab, setPickerTab] = useState<"wall" | "filter">("wall");
-
-  useEffect(() => {
-    const savedBg = localStorage.getItem("sora_hero_bg");
-    if (savedBg) setCurrentBg(savedBg);
-    const savedFilter = localStorage.getItem("sora_hero_filter");
-    if (savedFilter) setCurrentFilter(savedFilter);
-  }, []);
-
-  const handleSelectBg = (src: string) => {
-    setCurrentBg(src);
-    localStorage.setItem("sora_hero_bg", src);
-  };
-
-  const handleSelectFilter = (id: string) => {
-    setCurrentFilter(id);
-    localStorage.setItem("sora_hero_filter", id);
-  };
-
-  const activeFilter = FILTERS.find((f) => f.id === currentFilter) ?? FILTERS[0];
 
   useGSAP(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -97,107 +35,36 @@ export default function Hero() {
     });
   }, { scope: heroRef });
 
-  const getObjectPosition = (src: string) => {
-    if (src.includes("hero-kimono-golden")) return "object-[right_center]";
-    if (src.includes("hero-kimono-night")) return "object-[center_center]";
-    if (src.includes("hero-ryo-hd")) return "object-[right_center]";
-    if (src.includes("hero-user-final")) return "object-[center_center]";
-    if (src.includes("bg-image")) return "object-[62%_center]";
-    return "object-[center_center]";
-  };
-
   return (
-    <section ref={heroRef} className="relative isolate min-h-[100dvh] w-full flex flex-col justify-between overflow-hidden bg-[#17211B] px-6 sm:px-12 lg:px-20 pt-28 pb-16 md:pt-32 md:pb-20 transition-colors duration-300">
-      {/* 1. Full-Bleed High-Res User Background Wallpaper */}
+    <section 
+      ref={heroRef} 
+      className="relative isolate min-h-[100dvh] w-full flex flex-col justify-between overflow-hidden bg-[#17211B] px-6 sm:px-12 lg:px-20 pt-28 pb-16 md:pt-32 md:pb-20 transition-colors duration-300 select-none"
+      aria-label="首页视觉展示区"
+    >
+      {/* 1. Full-Bleed High-Res Background Wallpaper with Locked Cinema Filter */}
       <div className="absolute inset-0 z-0 w-full h-full overflow-hidden">
         <Image
-          key={currentBg}
-          src={currentBg}
+          src={HERO_BG}
           alt="Sora的数字客房背景壁纸"
           fill
           priority
           unoptimized
           sizes="100vw"
-          className={`object-cover ${getObjectPosition(currentBg)} transition-all duration-700`}
-          style={{ filter: activeFilter.imgFilter }}
+          className="object-cover object-[right_center] transition-all duration-700"
+          style={{ filter: CINEMA_IMG_FILTER }}
         />
-        {/* Scrim overlay */}
+        {/* Cinema Scrim overlay */}
         <div
           className="absolute inset-0 transition-all duration-700"
-          style={{ background: activeFilter.scrim }}
+          style={{ background: CINEMA_SCRIM }}
         />
       </div>
 
-      {/* Wallpaper + Filter Picker */}
-      <div className="absolute top-28 right-6 sm:right-12 z-30">
-        <div className="relative">
-          <button
-            onClick={() => setShowPicker(!showPicker)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/20 text-xs font-semibold text-white/90 shadow-lg transition-all duration-200 cursor-pointer"
-            title="选择背景与滤镜"
-          >
-            <ImageIcon className="w-4 h-4 text-[#D79B7B]" />
-            <span>选择背景</span>
-          </button>
-
-          {showPicker && (
-            <div className="absolute right-0 mt-2.5 w-60 rounded-2xl bg-black/75 backdrop-blur-xl border border-white/20 shadow-2xl text-white z-50 overflow-hidden">
-              {/* Tabs */}
-              <div className="flex border-b border-white/10">
-                <button
-                  onClick={() => setPickerTab("wall")}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-bold transition-colors ${pickerTab === "wall" ? "text-white bg-white/10" : "text-white/50 hover:text-white/80"}`}
-                >
-                  <ImageIcon className="w-3 h-3" />
-                  壁纸
-                </button>
-                <button
-                  onClick={() => setPickerTab("filter")}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-bold transition-colors ${pickerTab === "filter" ? "text-white bg-white/10" : "text-white/50 hover:text-white/80"}`}
-                >
-                  <Palette className="w-3 h-3" />
-                  滤镜
-                </button>
-                <button onClick={() => setShowPicker(false)} className="px-3 text-white/40 hover:text-white flex items-center justify-center cursor-pointer" aria-label="关闭" title="关闭">
-                  <X className="size-3.5" />
-                </button>
-              </div>
-
-              <div className="p-3 space-y-1.5">
-                {pickerTab === "wall" ? (
-                  WALLPAPERS.map((wp) => (
-                    <button
-                      key={wp.id}
-                      onClick={() => handleSelectBg(wp.src)}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all text-left ${
-                        currentBg === wp.src
-                          ? "bg-white/25 text-white font-bold ring-1 ring-white/40"
-                          : "hover:bg-white/10 text-white/80"
-                      }`}
-                    >
-                      <span>{wp.name}</span>
-                      {currentBg === wp.src && <Check className="w-3.5 h-3.5 text-[#9DB289]" />}
-                    </button>
-                  ))
-                ) : (
-                  FILTERS.map((f) => (
-                    <button
-                      key={f.id}
-                      onClick={() => handleSelectFilter(f.id)}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all text-left ${
-                        currentFilter === f.id
-                          ? "bg-white/25 text-white font-bold ring-1 ring-white/40"
-                          : "hover:bg-white/10 text-white/80"
-                      }`}
-                    >
-                      <span>{f.name}</span>
-                      {currentFilter === f.id && <Check className="w-3.5 h-3.5 text-[#9DB289]" />}
-                    </button>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
+      {/* Top Floating Brand Capsule */}
+      <div className="relative z-20 w-full max-w-6xl mx-auto flex items-center justify-between pt-2">
+        <div className="inline-flex items-center gap-2 text-xs font-mono tracking-widest text-white/60 uppercase">
+          <Sparkles className="w-3.5 h-3.5 text-[#9DB289]" />
+          <span>Sora Cottage · 2026</span>
         </div>
       </div>
 
@@ -210,7 +77,7 @@ export default function Hero() {
             <div className="relative flex-shrink-0">
               <div className="relative w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/80 shadow-md bg-white/10 transition-transform duration-300 group-hover:scale-105">
                 <Image
-                  src="/my-avatar.jpg"
+                  src="/avatar/my-avatar.jpg"
                   alt="Sora Avatar"
                   fill
                   priority
@@ -268,7 +135,7 @@ export default function Hero() {
               className="inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-white/16 hover:bg-white/25 text-[#FAF7F2] border border-white/35 backdrop-blur-xl font-semibold text-xs sm:text-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 shadow-md group/btn2"
             >
               <Gamepad2 className="w-4 h-4 text-[#D79B7B]" />
-              <span>灵感游乐场</span>
+              <span>掌机游乐场</span>
             </Link>
           </div>
 

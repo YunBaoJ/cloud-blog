@@ -235,59 +235,62 @@ export default function Game2048() {
   };
 
   return (
-    <div className="bg-[#FAF7F2] text-[#2D2B2C] dark:bg-transparent flex flex-col items-center">
-      <div className="w-full max-w-sm">
+    <div className="flex flex-col items-center w-full">
+      <div className="w-full max-w-sm space-y-4">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-4xl font-bold text-[#36513B] dark:text-[#FAF7F2]">2048</h1>
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-light tracking-tight text-[var(--foreground)]">2048</h2>
+            <p className="text-xs text-[var(--muted)]">滑动合并方块</p>
+          </div>
           <div className="flex gap-2">
-            <div className="bg-white dark:bg-[#1E2721]/50 px-3 py-1.5 rounded-lg border border-[#2D2B2C]/6 shadow-sm flex flex-col items-center min-w-[60px]">
-              <span className="text-[10px] uppercase font-bold text-[#8C4A31]">分数</span>
-              <span className="font-bold leading-none dark:text-white">{score}</span>
+            <div className="bg-[var(--surface-2)] px-3 py-1.5 rounded-xl border border-[var(--border-line-color)] flex flex-col items-center min-w-[56px]">
+              <span className="text-[10px] font-semibold text-[var(--accent-clay)]">得分</span>
+              <span className="font-bold font-mono text-sm leading-none text-[var(--foreground)]">{score}</span>
             </div>
-            <div className="bg-white dark:bg-[#1E2721]/50 px-3 py-1.5 rounded-lg border border-[#2D2B2C]/6 shadow-sm flex flex-col items-center min-w-[60px]">
-              <span className="text-[10px] uppercase font-bold text-[#8C4A31]">最高分</span>
-              <span className="font-bold leading-none dark:text-white">{bestScore}</span>
+            <div className="bg-[var(--surface-2)] px-3 py-1.5 rounded-xl border border-[var(--border-line-color)] flex flex-col items-center min-w-[56px]">
+              <span className="text-[10px] font-semibold text-[var(--accent-green)]">最佳</span>
+              <span className="font-bold font-mono text-sm leading-none text-[var(--foreground)]">{bestScore}</span>
             </div>
           </div>
         </div>
         
-        <div className="flex justify-between items-center mb-4">
-          <p className="text-sm opacity-80 dark:text-white/80">合并数字，到达 <strong>2048</strong>！</p>
+        <div className="flex justify-between items-center text-xs text-[var(--muted)]">
+          <span>目标合成 <strong>2048</strong></span>
           <button 
             onClick={resetGame}
-            className="bg-[#8C4A31] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[#7a3e26] transition-colors"
+            className="bg-[var(--surface-2)] hover:bg-black/5 dark:hover:bg-white/10 text-[var(--foreground)] border border-[var(--border-line-color)] px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors"
           >
-            重新开始
+            重开
           </button>
         </div>
 
         {/* Game Board */}
         <div 
-          className="bg-white dark:bg-[#1E2721]/50 rounded-3xl p-4 sm:p-6 border border-[#2D2B2C]/6 shadow-[0_4px_24px_rgba(45,43,44,0.05)] relative touch-none select-none"
+          className="bg-[var(--surface)] dark:bg-[#1B2D22]/60 rounded-3xl p-3 sm:p-4 border border-[var(--border-line-color)] shadow-sm relative touch-none select-none"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
           <style>{`
             @keyframes tile-pop {
               0% { transform: scale(0.8); opacity: 0.5; }
-              50% { transform: scale(1.1); }
+              50% { transform: scale(1.08); }
               100% { transform: scale(1); opacity: 1; }
             }
-            .animate-tile-pop { animation: tile-pop 0.2s ease-in-out; }
+            .animate-tile-pop { animation: tile-pop 0.18s ease-in-out; }
           `}</style>
           
-          <div className="grid grid-cols-4 grid-rows-4 gap-2 sm:gap-3 bg-[#FAF7F2] dark:bg-[#2D2B2C]/20 p-2 sm:p-3 rounded-2xl">
+          <div className="grid grid-cols-4 grid-rows-4 gap-2 sm:gap-2.5 bg-[var(--surface-2)] p-2 sm:p-2.5 rounded-2xl">
             {grid.map((row, r) => 
               row.map((val, c) => (
                 <div 
                   key={`${r}-${c}`} 
-                  className="w-full aspect-square rounded-xl bg-[#EEE4DA] dark:bg-[#2D2B2C]/40 relative"
+                  className="w-full aspect-square rounded-xl bg-black/5 dark:bg-white/5 relative"
                 >
                   {val > 0 && (
                     <div 
                       key={`${r}-${c}-${val}`}
-                      className={`absolute inset-0 flex items-center justify-center rounded-xl font-bold animate-tile-pop
+                      className={`absolute inset-0 flex items-center justify-center rounded-xl font-bold animate-tile-pop shadow-xs
                         ${getColorForValue(val)} ${getFontSize(val)}`}
                     >
                       {val}
@@ -300,24 +303,23 @@ export default function Game2048() {
 
           {/* Overlays */}
           {gameState !== 'playing' && (
-            <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center rounded-3xl backdrop-blur-[2px]
-              ${gameState === 'won' ? 'bg-[#36513B]/80 text-white' : 'bg-white/70 dark:bg-[#1E2721]/90'}`}>
-              <h2 className={`text-3xl font-bold mb-4 ${gameState === 'over' ? 'text-[#8C4A31] dark:text-[#F67C5F]' : ''}`}>
-                {gameState === 'won' ? '你赢了！' : '游戏结束！'}
+            <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center rounded-3xl backdrop-blur-[3px] p-6 text-center space-y-4
+              ${gameState === 'won' ? 'bg-[var(--accent-green)]/85 text-white' : 'bg-[var(--surface)]/90 dark:bg-[#1B2D22]/90'}`}>
+              <h2 className={`text-2xl sm:text-3xl font-bold ${gameState === 'over' ? 'text-[var(--accent-clay)]' : 'text-white'}`}>
+                {gameState === 'won' ? '挑战达成！' : '游戏结束'}
               </h2>
-              <div className="flex gap-3">
+              <div className="flex gap-2.5">
                 {gameState === 'won' && !continued && (
                   <button 
                     onClick={() => setContinued(true)}
-                    className="bg-white text-[#36513B] px-5 py-2 rounded-xl font-bold hover:bg-gray-100 transition-colors shadow-sm"
+                    className="bg-white text-[var(--accent-green)] px-4 py-2 rounded-xl text-xs font-semibold hover:bg-gray-100 transition-colors shadow-sm"
                   >
                     继续挑战
                   </button>
                 )}
-                <button 
+                <button
                   onClick={resetGame}
-                  className={`${gameState === 'won' ? 'bg-transparent border-2 border-white' : 'bg-[#36513B] text-white shadow-sm'} 
-                    px-5 py-2 rounded-xl font-bold hover:opacity-80 transition-colors`}
+                  className={`${gameState === 'won' ? 'bg-transparent border border-white text-white' : 'bg-[var(--accent-green)] text-white'} px-4 py-2 rounded-xl text-xs font-semibold hover:opacity-90 transition-all shadow-sm`}
                 >
                   重新开始
                 </button>

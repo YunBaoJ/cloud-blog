@@ -24,18 +24,26 @@ const COVER_IMAGES: Record<string, { src: string; position?: string }> = {
   "next-record": { src: "/gallery/【用户壁纸】蓝发-少女特写.jpg", position: "object-center" },
 };
 
-function ProjectCard({ item, liftOnHover = false, size = "home" }: { item: ProjectArchiveItem; liftOnHover?: boolean; size?: "home" | "index" }) {
+function ProjectCard({ item, size = "home" }: { item: ProjectArchiveItem; size?: "home" | "index" }) {
   const details = CARD_DETAILS[item.id] ?? { footer: "持续记录", title: item.title };
   const cover = COVER_IMAGES[item.id];
   const isIndex = size === "index";
-  const cardClass = `group relative block isolate ${isIndex ? "h-[292px] w-full max-w-[414px]" : "h-[250px] w-[350px] shrink-0"} overflow-hidden rounded-[22px] border border-[#26352A]/13 bg-[#FFFEF9] shadow-[0_19px_32px_rgba(38,53,42,0.15)] transition-[transform,box-shadow] duration-300 motion-reduce:transition-none ${
-    liftOnHover ? "hover:-translate-y-2 hover:shadow-[0_28px_42px_rgba(38,53,42,0.2)]" : ""
-  }`;
+  const cardClass = `group relative block isolate ${
+    isIndex ? "h-[292px] w-full max-w-[414px]" : "h-[250px] w-[350px] shrink-0"
+  } overflow-hidden rounded-[22px] border border-[#26352A]/13 bg-[#FFFEF9] shadow-[0_19px_32px_rgba(38,53,42,0.15)] transition-[transform,box-shadow] duration-300 motion-reduce:transition-none`;
 
   const content = (
     <>
       <div className={`relative ${isIndex ? "h-[166px]" : "h-[142px]"} overflow-hidden bg-[#36513B]`}>
-        {cover && <Image src={cover.src} alt="" fill sizes={isIndex ? "(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 414px" : "350px"} className={`object-cover ${cover.position ?? "object-center"}`} />}
+        {cover && (
+          <Image
+            src={cover.src}
+            alt=""
+            fill
+            sizes={isIndex ? "(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 414px" : "350px"}
+            className={`object-cover ${cover.position ?? "object-center"}`}
+          />
+        )}
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,28,0.08),rgba(20,38,28,0.36))]" />
         <span className="absolute left-4 top-4 rounded-full bg-[#FFFEF9]/92 px-2.5 py-1 text-[10px] font-bold text-[#36513B] shadow-sm">
           {item.status}
@@ -46,7 +54,9 @@ function ProjectCard({ item, liftOnHover = false, size = "home" }: { item: Proje
           <span>{item.serial}</span>
           <span className="text-[#D79B7B]">{item.kind === "published" ? "OPEN" : "PLANNING"}</span>
         </div>
-        <h3 className={`${isIndex ? "text-[21px]" : "text-[19px]"} font-semibold leading-tight tracking-[-0.04em] text-[#26352A]`}>{details.title}</h3>
+        <h3 className={`${isIndex ? "text-[21px]" : "text-[19px]"} font-semibold leading-tight tracking-[-0.04em] text-[#26352A]`}>
+          {details.title}
+        </h3>
         <div className="flex items-center justify-between border-t border-[#36513B]/12 pt-2 text-[11px] text-[#6D7C6E]">
           <span>{details.footer}</span>
           <span className="font-semibold text-[#36513B]">{item.href ? "查看 →" : "待续"}</span>
@@ -56,37 +66,93 @@ function ProjectCard({ item, liftOnHover = false, size = "home" }: { item: Proje
   );
 
   return item.href ? (
-    <Link href={item.href} className={cardClass}>{content}</Link>
+    <Link href={item.href} className={cardClass}>
+      {content}
+    </Link>
   ) : (
-    <article className={cardClass} aria-label={`${item.title}，${item.status}`}>{content}</article>
+    <article className={cardClass} aria-label={`${item.title}，${item.status}`}>
+      {content}
+    </article>
   );
 }
 
-const STACK_POSITIONS = [
-  "left-0 bottom-[54px] z-10 -rotate-[8deg] hover:z-[60] hover:-translate-y-5 hover:-rotate-[5deg]",
-  "left-[18%] bottom-[54px] z-20 -rotate-[4deg] hover:z-[60] hover:-translate-y-5 hover:-rotate-[2deg]",
-  "left-[36%] bottom-[54px] z-30 hover:z-[60] hover:-translate-y-6",
-  "left-[54%] bottom-[54px] z-40 rotate-[4deg] hover:z-[60] hover:-translate-y-5 hover:rotate-[2deg]",
-  "left-[72%] bottom-[54px] z-50 rotate-[8deg] hover:z-[60] hover:-translate-y-5 hover:rotate-[5deg]",
+// 5 张卡片的精确扇形定位与动效参数（与原版 100% 相同）
+const FAN_STACK_CONFIGS = [
+  {
+    slotClass: "left-0 bottom-[54px] z-10 hover:z-[60]",
+    motionClass: "-rotate-[8deg] group-hover:-rotate-[5deg] group-hover:-translate-y-5",
+  },
+  {
+    slotClass: "left-[18%] bottom-[54px] z-20 hover:z-[60]",
+    motionClass: "-rotate-[4deg] group-hover:-rotate-[2deg] group-hover:-translate-y-5",
+  },
+  {
+    slotClass: "left-[36%] bottom-[54px] z-30 hover:z-[60]",
+    motionClass: "rotate-0 group-hover:-translate-y-6",
+  },
+  {
+    slotClass: "left-[54%] bottom-[54px] z-40 hover:z-[60]",
+    motionClass: "rotate-[4deg] group-hover:rotate-[2deg] group-hover:-translate-y-5",
+  },
+  {
+    slotClass: "left-[72%] bottom-[54px] z-50 hover:z-[60]",
+    motionClass: "rotate-[8deg] group-hover:rotate-[5deg] group-hover:-translate-y-5",
+  },
 ];
 
 export default function ProjectArchiveStack({ items, variant = "home" }: ProjectArchiveStackProps) {
   if (variant === "index") {
-    return <div className="grid justify-center gap-6 sm:grid-cols-2 xl:grid-cols-3">{items.map((item) => <ProjectCard key={item.id} item={item} liftOnHover size="index" />)}</div>;
+    return (
+      <div className="grid justify-center gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        {items.map((item) => (
+          <div key={item.id} className="transition-transform duration-300 hover:-translate-y-2">
+            <ProjectCard item={item} size="index" />
+          </div>
+        ))}
+      </div>
+    );
   }
 
   return (
     <>
-      <div className="relative mx-auto hidden h-[390px] max-w-[1180px] lg:block" aria-label="从左到右扇开的项目档案">
-        <div className="pointer-events-none absolute inset-x-[8%] bottom-[35px] h-[46px] rounded-[50%] bg-[#304831]/14 blur-[18px]" aria-hidden="true" />
-        {items.map((item, index) => (
-          <div key={item.id} className={`absolute transition-transform duration-300 motion-reduce:transition-none ${STACK_POSITIONS[index]}`}>
+      {/* 桌面端：采用与画廊完全相同的“静止外层槽位 + 内层承载扇形动效”架构，彻底消除边缘闪烁 */}
+      <div
+        className="relative mx-auto hidden h-[390px] max-w-[1180px] lg:block select-none"
+        aria-label="从左到右扇开的项目档案"
+      >
+        <div
+          className="pointer-events-none absolute inset-x-[8%] bottom-[35px] h-[46px] rounded-[50%] bg-[#304831]/14 blur-[18px]"
+          aria-hidden="true"
+        />
+
+        {items.map((item, index) => {
+          const config = FAN_STACK_CONFIGS[index % FAN_STACK_CONFIGS.length];
+          return (
+            <div
+              key={item.id}
+              className={`group absolute block cursor-pointer isolate ${config.slotClass}`}
+            >
+              {/* 不可见安全扩充层：与画廊一模一样，确保鼠标在卡片边缘永远不会丢失命中区域 */}
+              <div className="absolute -inset-4 pointer-events-auto" aria-hidden="true" />
+
+              {/* 内层卡片：承载原本 100% 相同的扇形倾角与浮升动效 */}
+              <div
+                className={`relative transition-all duration-300 ease-out transform motion-reduce:transition-none group-hover:shadow-[0_28px_48px_rgba(38,53,42,0.22)] rounded-[22px] ${config.motionClass}`}
+              >
+                <ProjectCard item={item} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 移动端水平滚动 */}
+      <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 pr-[22%] lg:hidden">
+        {items.map((item) => (
+          <div key={item.id} className="snap-start">
             <ProjectCard item={item} />
           </div>
         ))}
-      </div>
-      <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 pr-[22%] lg:hidden">
-        {items.map((item) => <div key={item.id} className="snap-start"><ProjectCard item={item} liftOnHover /></div>)}
       </div>
     </>
   );

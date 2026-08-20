@@ -6,6 +6,8 @@ date: "2026-08-18"
 category: "工程实战"
 tags: ["Three.js", "MediaPipe", "WebGL", "数字文博", "交互系统"]
 iconName: "Sparkles"
+coverImage: "/gallery/【哲风壁纸】剪影-壁纸-天空.png"
+coverAlt: "文化遗产数字化意境封面"
 ---
 
 # 文化遗产数字化路演与互动系统工程规范与知识库

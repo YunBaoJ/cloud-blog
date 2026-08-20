@@ -1,121 +1,238 @@
 "use client";
 
+import React, { useRef } from "react";
 import Link from "next/link";
-import { useRef, useState } from "react";
-import { ArrowRight, Calendar, Camera, Code2, Sparkles } from "lucide-react";
+import Image from "next/image";
+import {
+  ArrowRight,
+  Calendar,
+  Camera,
+  Code2,
+  Clock,
+  Sparkles,
+  RotateCw,
+} from "lucide-react";
+import type { NoteItem } from "@/lib/notes";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import type { NoteItem } from "@/lib/notes";
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 interface FeaturedNotesProps {
   initialNotes: NoteItem[];
+  totalNotesCount?: number;
 }
 
-function NoteIcon({ iconName }: { iconName: string }) {
-  const className = "h-5 w-5";
-
+function getCategoryIcon(iconName: string) {
+  const className = "size-3.5";
   switch (iconName) {
     case "Code2":
-      return <Code2 className={`${className} text-[#36513B]`} aria-hidden="true" />;
+      return <Code2 className={`${className} text-[#36513B] dark:text-[#7CD090]`} />;
     case "Camera":
-      return <Camera className={`${className} text-[#A46A4D]`} aria-hidden="true" />;
+      return <Camera className={`${className} text-[#8C4A31] dark:text-[#E5987D]`} />;
     default:
-      return <Sparkles className={`${className} text-[#718F6E]`} aria-hidden="true" />;
+      return <Sparkles className={`${className} text-[#2B4C6F] dark:text-[#8EB8E5]`} />;
   }
 }
 
-export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
-  const sectionRef = useRef<HTMLElement>(null);
+// 3 张手帐札记卡的自然错落摆放角度
+const NOTE_ROTATIONS = ["-rotate-2", "rotate-2", "-rotate-1"];
+
+export default function FeaturedNotes({ initialNotes, totalNotesCount }: FeaturedNotesProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const notes = initialNotes.slice(0, 3);
-  const [activeIndex, setActiveIndex] = useState(0);
 
-  useGSAP(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    gsap.from(".featured-note-entry", {
-      y: 18,
-      opacity: 0,
-      duration: 0.45,
-      stagger: 0.08,
-      ease: "power2.out",
-      clearProps: "all",
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: "top 82%",
-      },
-    });
-  }, { scope: sectionRef });
+  useGSAP(
+    () => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      gsap.from(".journal-card-anim", {
+        y: 28,
+        autoAlpha: 0,
+        scale: 0.96,
+        duration: 0.5,
+        stagger: 0.08,
+        ease: "power2.out",
+        clearProps: "all",
+        overwrite: "auto",
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top 85%",
+        },
+      });
+    },
+    { scope: containerRef }
+  );
 
   if (notes.length === 0) return null;
 
   return (
-    <section ref={sectionRef} id="notes" className="w-full border-t border-[#36513B]/16 bg-transparent px-4 py-16 dark:border-white/16 sm:px-6 md:py-20 lg:px-8">
-      <div className="mx-auto max-w-[1180px]">
-        <div className="featured-note-entry max-w-2xl">
-          <h2 className="font-[family-name:var(--section-heading-font)] text-5xl font-semibold leading-[0.9] tracking-[-0.1em] text-[#26352A] dark:text-[#F0F5F1] sm:text-6xl">
-            精选<em className="ml-1 font-[family-name:var(--section-heading-font)] not-italic font-medium">笔记</em>
-          </h2>
-          <p className="mt-4 max-w-xl text-sm leading-7 text-[#627161] dark:text-[#9EB3A4] sm:text-base">
-            从工程实践到日常感受，展开一页，读完一个此刻仍值得保留的想法。
-          </p>
+    <section
+      ref={containerRef}
+      id="notes"
+      className="relative w-full border-t border-[#36513B]/16 dark:border-white/16 bg-transparent px-4 py-20 sm:px-6 md:py-28 lg:px-8 overflow-hidden select-none"
+    >
+      {/* Background Ambient Pine Glow */}
+      <div className="absolute top-1/2 right-0 -translate-y-1/2 w-96 h-96 bg-[#36513B]/6 dark:bg-[#7CD090]/4 blur-3xl rounded-full pointer-events-none" />
+
+      <div className="relative z-10 max-w-6xl mx-auto space-y-12">
+        {/* Section Header */}
+        <div className="journal-card-anim flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div className="space-y-3">
+            <p className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#6F7E70] uppercase">
+              01 / FEATURED ESSAYS
+            </p>
+            <h2 className="font-[family-name:var(--section-heading-font)] text-5xl font-semibold leading-[0.9] tracking-[-0.1em] text-[#26352A] dark:text-[#F0F5F1] sm:text-6xl">
+              精选<em className="ml-1 font-[family-name:var(--section-heading-font)] not-italic font-medium">手记</em>
+            </h2>
+            <p className="text-sm sm:text-base text-[#5A5551] dark:text-[#9EB3A4] max-w-lg font-normal">
+              从工程架构到生活感知，记录实践中沉淀下的思考与灵感。
+            </p>
+          </div>
+
+          <Link
+            href="/notes"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#36513B] dark:text-[#7CD090] hover:text-[#283E2C] dark:hover:text-white transition-colors group self-start sm:self-end"
+          >
+            <span>查看全部手记 ({totalNotesCount ?? initialNotes.length} 篇)</span>
+            <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
+          </Link>
         </div>
 
-        <div className="featured-note-entry mt-10 overflow-hidden rounded-[22px] border border-[#36513B]/14 bg-[#FFFEF9]/82 shadow-[0_18px_38px_rgba(38,53,42,0.08)] dark:border-white/14 dark:bg-[#1D2920]/78">
-          <div className="grid grid-cols-1 lg:grid-cols-3">
-            {notes.map((note, index) => {
-              const isActive = activeIndex === index;
+        {/* 3 Artisan Journal 3D Flip Cards (Jitter-free Static Hitbox Architecture) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 items-stretch pt-4">
+          {notes.map((note, index) => (
+            <div
+              key={note.id}
+              className="journal-card-anim group relative h-[420px] w-full [perspective:1000px] cursor-pointer isolate"
+            >
+              {/* Invisible Hitbox Extension to completely eliminate edge flickers */}
+              <div className="absolute -inset-4 pointer-events-auto" aria-hidden="true" />
 
-              return (
-                <Link
-                  key={note.id}
-                  href={`/notes/${note.id}`}
-                  onMouseEnter={() => setActiveIndex(index)}
-                  onFocus={() => setActiveIndex(index)}
-                  className={`featured-note-entry group relative flex min-h-[286px] flex-col p-6 transition-[background-color,transform,box-shadow] duration-300 motion-reduce:transition-none sm:p-7 lg:min-h-[332px] lg:p-8 ${
-                    index > 0 ? "border-t border-[#36513B]/12 lg:border-l lg:border-t-0 dark:border-white/12" : ""
-                  } ${
-                    isActive
-                      ? "z-10 bg-[#E4E9DD]/72 shadow-[0_14px_28px_rgba(38,53,42,0.1)] lg:-translate-y-2 dark:bg-[#314132]/82"
-                      : "bg-transparent hover:bg-[#F6F4EC]/76 dark:hover:bg-white/5"
-                  }`}
-                >
-                  <span className={`absolute left-0 top-7 h-11 w-[3px] rounded-r-full transition-colors duration-300 motion-reduce:transition-none ${isActive ? "bg-[#718F6E]" : "bg-transparent group-hover:bg-[#9DB289]"}`} aria-hidden="true" />
-
-                  <div className="flex items-center justify-between gap-4 text-[11px] font-medium text-[#748176] dark:text-[#A7B5AA]">
-                    <span className="inline-flex items-center gap-2">
-                      <NoteIcon iconName={note.iconName} />
-                      {note.category}
+              {/* 3D Rotating Flipper & Motion Holder */}
+              <div className={`relative h-full w-full rounded-3xl transition-all duration-500 transform ${NOTE_ROTATIONS[index]} group-hover:rotate-0 group-hover:-translate-y-3 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] shadow-[0_12px_32px_rgba(38,53,42,0.06)] group-hover:shadow-[0_26px_50px_rgba(54,81,59,0.18)]`}>
+                
+                {/* ========================================================= */}
+                {/* FRONT SIDE: 活页手帐封面 (Front Face) */}
+                {/* ========================================================= */}
+                <div className="absolute inset-0 h-full w-full rounded-3xl bg-[#FFFEF9] dark:bg-[#1C261F] border border-[#26352A]/12 dark:border-white/12 p-6 [backface-visibility:hidden] flex flex-col justify-between overflow-visible">
+                  
+                  {/* Top Washi Bookmark Ribbon (右上角和纸便签贴) */}
+                  <div className="absolute -top-3.5 right-6 w-24 h-7 bg-[#F5E8D3]/90 dark:bg-[#2A3B30]/90 border border-[#E8D7BE]/70 dark:border-white/10 rotate-[2deg] backdrop-blur-2xs shadow-2xs z-20 pointer-events-none rounded-xs flex items-center justify-center">
+                    <span className="font-mono text-[10px] font-bold text-[#8C4A31] dark:text-[#E5987D] tracking-wider">
+                      NOTE · 0{index + 1}
                     </span>
-                    <span className="shrink-0">{note.date}</span>
                   </div>
 
-                  <div className="mt-8">
-                    <p className="font-mono text-[10px] font-semibold tracking-[0.12em] text-[#8A9A88]">{String(index + 1).padStart(2, "0")}</p>
-                    <h3 className="mt-3 text-[22px] font-semibold leading-snug tracking-[-0.045em] text-[#26352A] transition-colors duration-300 group-hover:text-[#36513B] dark:text-[#F0F5F1] sm:text-2xl">
+                  {/* Left Binder Punch Holes (左侧活页扣孔细节) */}
+                  <div className="absolute left-2.5 inset-y-8 w-2 flex flex-col justify-between pointer-events-none z-20 opacity-30 dark:opacity-40">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className="size-2 rounded-full bg-[#2D2B2C]/30 dark:bg-white/30 border border-black/10" />
+                    ))}
+                  </div>
+
+                  <div className="space-y-4 pl-3">
+                    {/* Top Category Badge */}
+                    <div className="flex items-center justify-between">
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E2EBE4] dark:bg-[#23382C] text-[11px] font-mono font-semibold text-[#36513B] dark:text-[#7CD090] border border-[#36513B]/10 dark:border-white/5">
+                        {getCategoryIcon(note.iconName)}
+                        <span>{note.category}</span>
+                      </div>
+                      <span className="font-mono text-xs text-[#7A736A] dark:text-[#9EB3A4]">
+                        {note.readTime ?? "5 min"}
+                      </span>
+                    </div>
+
+                    {/* Cover Image Frame */}
+                    <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-[#FAF7F2] dark:bg-[#141C16] border border-[#2D2B2C]/8 dark:border-white/8">
+                      <Image
+                        src={note.coverImage || "/gallery/earth-atmosphere-space.png"}
+                        alt={note.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent opacity-60" />
+                    </div>
+
+                    {/* Title & Synopsis */}
+                    <div className="space-y-1.5">
+                      <h3 className="text-base sm:text-lg font-bold text-[#26352A] dark:text-[#F0F5F1] leading-snug line-clamp-2">
+                        {note.title}
+                      </h3>
+
+                      <p className="text-xs text-[#5A5551] dark:text-[#9EB3A4] leading-relaxed line-clamp-2">
+                        {note.summary}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Card Footer Bar */}
+                  <div className="pt-3 border-t border-[#36513B]/12 dark:border-white/8 flex items-center justify-between text-xs text-[#6D7C6E] dark:text-[#9EB3A4] pl-3">
+                    <div className="flex items-center gap-1.5 font-mono text-[11px]">
+                      <Calendar className="size-3.5" />
+                      <span>{note.date}</span>
+                    </div>
+
+                    <div className="font-semibold text-[#36513B] dark:text-[#7CD090] inline-flex items-center gap-1 text-xs">
+                      <span>悬停翻面</span>
+                      <RotateCw className="size-3.5" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* ========================================================= */}
+                {/* BACK SIDE: 松针绿深度手记内页 (Back Face) */}
+                {/* ========================================================= */}
+                <div className="absolute inset-0 h-full w-full rounded-3xl bg-[#36513B] dark:bg-[#16241B] text-white p-6 [transform:rotateY(180deg)] [backface-visibility:hidden] flex flex-col justify-between border border-[#36513B]/40 shadow-2xl overflow-hidden">
+                  
+                  {/* Left Punch Holes on Back */}
+                  <div className="absolute right-2.5 inset-y-8 w-2 flex flex-col justify-between pointer-events-none z-20 opacity-30">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className="size-2 rounded-full bg-white/30 border border-white/10" />
+                    ))}
+                  </div>
+
+                  <div className="space-y-4 pr-3">
+                    <div className="flex items-center justify-between text-xs text-white/80 font-mono">
+                      <span className="font-bold text-[#E5987D]">
+                        NOTE · 0{index + 1}
+                      </span>
+                      <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/15 text-white text-[11px]">
+                        <Clock className="size-3 text-[#E5987D]" />
+                        <span>{note.readTime ?? "5 min"}</span>
+                      </span>
+                    </div>
+
+                    <h3 className="text-lg font-bold text-white leading-tight">
                       {note.title}
                     </h3>
-                    <p className={`mt-4 text-sm leading-7 text-[#627161] transition-[max-height,opacity] duration-300 motion-reduce:transition-none dark:text-[#A7B5AA] ${isActive ? "max-h-24 opacity-100" : "max-h-14 overflow-hidden opacity-75"}`}>
-                      {note.summary}
-                    </p>
+
+                    {/* Excerpt Box */}
+                    <div className="p-4 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xs">
+                      <span className="block font-mono text-[9px] text-[#E5987D] uppercase tracking-wider mb-1">
+                        ESSAY THESIS
+                      </span>
+                      <p className="text-xs text-white/90 leading-relaxed line-clamp-4">
+                        “{note.summary}”
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="mt-auto flex items-center justify-between border-t border-[#36513B]/12 pt-5 text-sm font-semibold text-[#36513B] dark:border-white/12 dark:text-[#B8CEB4]">
-                    <span className="inline-flex items-center gap-1.5 text-[#748176] dark:text-[#A7B5AA]"><Calendar className="h-3.5 w-3.5" aria-hidden="true" />{note.readTime ?? "阅读笔记"}</span>
-                    <span className="inline-flex items-center gap-1.5">阅读全文 <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none" aria-hidden="true" /></span>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+                  {/* Read Article CTA Button */}
+                  <Link
+                    href={`/notes/${note.id}`}
+                    className="w-full py-3 rounded-full bg-white text-[#36513B] hover:bg-[#F0F5F1] transition-all font-bold text-xs flex items-center justify-center gap-2 shadow-md hover:scale-105 active:scale-95 z-30"
+                  >
+                    <span>进入阅读全文</span>
+                    <ArrowRight className="size-4" />
+                  </Link>
+                </div>
+
+              </div>
+            </div>
+          ))}
         </div>
-
-        <Link href="/notes" className="featured-note-entry mt-7 inline-flex items-center gap-2 text-sm font-semibold text-[#36513B] transition-colors hover:text-[#26352A] dark:text-[#B8CEB4] dark:hover:text-white">
-          查看全部笔记
-          <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        </Link>
       </div>
     </section>
   );

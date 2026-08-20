@@ -6,9 +6,9 @@ import { Feather, Heart, Mail, Globe, ArrowUp } from "lucide-react";
 import { CONTACT_EMAIL } from "@/lib/site";
 
 const INSPIRATIONS = [
-  { text: "代码是写给未来的自己与同行的情书，愿它干净、清澈、余音绕梁。", author: "Cloud · 代码探索" },
-  { text: "胶片最迷人的地方，在于它不可逆的静止与对时间无声的敬畏。", author: "Cloud · 胶片观察" },
-  { text: "翻开书页的呼吸，与键盘落下的声音，都是静心生活的深沉节奏。", author: "Cloud · 晨间仪式" },
+  { text: "代码是写给未来的自己与同行的情书，愿它干净、清澈、余音绕梁。", author: "Kasumi · 代码探索" },
+  { text: "胶片最迷人的地方，在于它不可逆的静止与对时间无声的敬畏。", author: "Kasumi · 胶片观察" },
+  { text: "翻开书页的呼吸，与键盘落下的声音，都是静心生活的深沉节奏。", author: "Kasumi · 晨间仪式" },
   { text: "完美的视觉不是元素的堆砌，而是把多余的噪音删减到无法再减。", author: "Design Taste" },
   { text: "保持好奇，保持对细节无理取的苛求，这是手艺人最浪漫的坚持。", author: "Wabi-Sabi Craft" },
 ];
@@ -91,7 +91,7 @@ export default function Footer() {
                 <Feather className="w-3.5 h-3.5" />
               </div>
               <span className="text-base font-bold text-[#2D2B2C] tracking-tight">
-                Cloud 的数字小屋
+                Kasumi 的数字小屋
               </span>
             </div>
             <p className="text-xs text-[#7A736A] max-w-sm leading-relaxed">
@@ -108,7 +108,7 @@ export default function Footer() {
               作品画廊
             </Link>
             <Link href="/playground" className="hover:text-[#36513B] transition-colors">
-              灵感游乐场
+              掌机游乐场
             </Link>
             <Link href="/about" className="hover:text-[#36513B] transition-colors">
               关于小屋
@@ -145,7 +145,7 @@ export default function Footer() {
           </div>
 
           <div className="flex items-center gap-1">
-            <span>© {new Date().getFullYear()} Cloud. Handcrafted with</span>
+            <span>© {new Date().getFullYear()} Kasumi. Handcrafted with</span>
             <Heart className="w-3.5 h-3.5 text-[#C46A4A] fill-[#C46A4A]/20 mx-0.5 animate-pulse" />
             <span>&amp; Next.js</span>
           </div>

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "近况",
   description: "查看数字小屋最近新增的笔记、图集与常驻游乐项目。",
   openGraph: {
-    title: "近况 | Cloud 的数字小屋",
+    title: "近况 | Kasumi 的数字小屋",
     description: "查看数字小屋最近发生的变化。",
   },
 };

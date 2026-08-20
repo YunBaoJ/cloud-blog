@@ -400,50 +400,50 @@ export default function SnakeGame() {
   };
 
   return (
-    <div className="min-w-0 space-y-4 rounded-3xl border border-[#2D2B2C]/6 bg-white p-3 shadow-[0_4px_24px_rgba(45,43,44,0.05)] dark:border-white/8 dark:bg-[#1E2721]/50 sm:p-6">
+    <div className="min-w-0 space-y-4 rounded-3xl border border-[var(--border-line-color)] bg-[var(--surface)] p-3.5 sm:p-5 shadow-sm dark:bg-[#1B2D22]/60">
       {/* Top Header & Mode Switcher */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#2D2B2C]/8 dark:border-white/10">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[var(--border-line-color)]">
         {/* Scores */}
-        <div className="flex items-center gap-4 text-xs font-bold text-[#2D2B2C] dark:text-[#F0F5F1]">
+        <div className="flex items-center gap-4 text-xs font-semibold text-[var(--foreground)]">
           <span>
-            得 分: <strong className="text-[#8C4A31] text-base">{score}</strong>
+            得分: <strong className="text-[var(--accent-clay)] text-base font-mono font-bold">{score}</strong>
           </span>
-          <span className="text-[#7A736A] dark:text-[#9EB3A4]">
-            最高分: <strong>{highScore}</strong>
+          <span className="text-[var(--muted)]">
+            最高分: <strong className="font-mono">{highScore}</strong>
           </span>
         </div>
 
-        {/* Mode Switch Buttons (点击直接切换模式并强制重开一局) */}
-        <div className="grid w-full grid-cols-3 items-center gap-1 rounded-2xl border border-[#2D2B2C]/6 bg-[#FAF7F2] p-1 text-xs font-semibold dark:border-white/10 dark:bg-[#24221F] sm:w-auto">
+        {/* Mode Switch Buttons */}
+        <div className="grid w-full grid-cols-3 items-center gap-1 rounded-xl border border-[var(--border-line-color)] bg-[var(--surface-2)] p-1 text-xs font-medium sm:w-auto">
           <button
             onClick={() => startNewGameWithDifficulty("easy")}
-            className={`min-w-0 px-2 py-1 rounded-xl transition-all ${
+            className={`min-w-0 px-2.5 py-1 rounded-lg transition-all ${
               difficulty === "easy"
-                ? "bg-[#36513B] text-white shadow-2xs font-bold"
-                : "text-[#7A736A] hover:text-[#2D2B2C] dark:hover:text-white"
+                ? "bg-[var(--accent-green)] text-white shadow-2xs font-semibold"
+                : "text-[var(--muted)] hover:text-[var(--foreground)]"
             }`}
           >
-            简单 (可穿墙)
+            简单
           </button>
           <button
             onClick={() => startNewGameWithDifficulty("normal")}
-            className={`min-w-0 px-2 py-1 rounded-xl transition-all ${
+            className={`min-w-0 px-2.5 py-1 rounded-lg transition-all ${
               difficulty === "normal"
-                ? "bg-[#36513B] text-white shadow-2xs font-bold"
-                : "text-[#7A736A] hover:text-[#2D2B2C] dark:hover:text-white"
+                ? "bg-[var(--accent-green)] text-white shadow-2xs font-semibold"
+                : "text-[var(--muted)] hover:text-[var(--foreground)]"
             }`}
           >
             普通
           </button>
           <button
             onClick={() => startNewGameWithDifficulty("hard")}
-            className={`min-w-0 px-2 py-1 rounded-xl transition-all ${
+            className={`min-w-0 px-2.5 py-1 rounded-lg transition-all ${
               difficulty === "hard"
-                ? "bg-[#8C4A31] text-white shadow-2xs font-bold"
-                : "text-[#7A736A] hover:text-[#2D2B2C] dark:hover:text-white"
+                ? "bg-[var(--accent-clay)] text-white shadow-2xs font-semibold"
+                : "text-[var(--muted)] hover:text-[var(--foreground)]"
             }`}
           >
-            困难 (极速)
+            困难
           </button>
         </div>
       </div>
@@ -451,24 +451,24 @@ export default function SnakeGame() {
       {/* Game Canvas Container */}
       <div
         ref={containerRef}
-        className="relative w-full rounded-2xl overflow-hidden shadow-inner border-2 border-[#2D2B2C]/10 dark:border-white/10"
+        className="relative w-full rounded-2xl overflow-hidden shadow-inner border border-[var(--border-line-color)]"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        <canvas ref={canvasRef} className="block w-full h-[400px]" />
+        <canvas ref={canvasRef} className="block w-full h-[380px] sm:h-[400px]" />
 
         {/* Start Overlay */}
         {gameState === "idle" && (
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center space-y-4">
-            <h3 className="text-2xl font-bold text-white tracking-wide">贪吃蛇大冒险</h3>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center space-y-4">
+            <h3 className="text-xl sm:text-2xl font-bold text-white tracking-wide">贪吃蛇</h3>
             <p className="text-xs text-white/80 max-w-xs">
-              {DIFFICULTY_CONFIG[difficulty].label} · 长按方向键可加速（上限 25ms）
+              {DIFFICULTY_CONFIG[difficulty].label} · 长按加速
             </p>
             <button
               onClick={() => startNewGameWithDifficulty(difficulty)}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#36513B] text-white font-bold hover:scale-105 transition-all shadow-md"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--accent-green)] text-white font-semibold hover:opacity-90 active:scale-95 transition-all shadow-md text-xs sm:text-sm"
             >
-              <Play className="w-4 h-4 fill-current" />
+              <Play className="size-4 fill-current" />
               <span>开始游戏</span>
             </button>
           </div>
@@ -476,16 +476,16 @@ export default function SnakeGame() {
 
         {/* GameOver Overlay */}
         {gameState === "dead" && (
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center space-y-4 animate-in fade-in duration-200">
-            <h3 className="text-2xl font-bold text-white">游戏结束！</h3>
-            <p className="text-sm text-gray-300">
-              得分: <strong className="text-amber-400 font-bold">{score}</strong> | 最高分: <strong>{highScore}</strong>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center space-y-4 animate-in fade-in duration-200">
+            <h3 className="text-xl sm:text-2xl font-bold text-white">游戏结束</h3>
+            <p className="text-xs sm:text-sm text-gray-200">
+              得分: <strong className="text-amber-300 font-bold font-mono">{score}</strong> | 最好成绩: <strong className="font-mono">{highScore}</strong>
             </p>
             <button
               onClick={() => startNewGameWithDifficulty(difficulty)}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#36513B] text-white font-bold hover:scale-105 transition-all shadow-md"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--accent-green)] text-white font-semibold hover:opacity-90 active:scale-95 transition-all shadow-md text-xs sm:text-sm"
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="size-4" />
               <span>再试一次</span>
             </button>
           </div>

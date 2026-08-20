@@ -29,7 +29,7 @@ export function GET() {
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<rss version="2.0">',
     "<channel>",
-    "<title>Cloud 的数字小屋</title>",
+    "<title>Kasumi 的数字小屋</title>",
     `<link>${escapeXml(SITE_URL)}</link>`,
     "<description>记录技术实践、设计观察与日常灵感。</description>",
     "<language>zh-CN</language>",

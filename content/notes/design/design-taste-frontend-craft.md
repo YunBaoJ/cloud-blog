@@ -7,6 +7,8 @@ readTime: "7 min read"
 category: "前端与设计"
 tags: ["前端设计", "UI/UX", "GSAP 动效", "反套路"]
 iconName: "Sparkles"
+coverImage: "/gallery/【搜图壁纸】四格-卡通.png"
+coverAlt: "前端设计拼贴艺术灵感封面"
 featured: false
 ---
 

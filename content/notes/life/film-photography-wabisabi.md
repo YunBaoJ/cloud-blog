@@ -7,6 +7,8 @@ readTime: "6 min read"
 category: "生活与摄影"
 tags: ["胶片摄影", "Wabi-Sabi", "美学思考", "富士胶卷"]
 iconName: "Camera"
+coverImage: "/gallery/【哲风壁纸】围墙白花-夜空-晨曦.png"
+coverAlt: "胶片摄影晨曦花影封面"
 featured: true
 ---
 

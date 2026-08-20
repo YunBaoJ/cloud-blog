@@ -1,8 +1,8 @@
-# Cloud's Digital Cottage — Design System
+# Kasumi's Digital Cottage — Design System
 
 ## Design Intent
 
-Cloud's Digital Cottage is a personal blog for notes, small experiments, and a growing collection of illustrations and images. The visual language should feel quiet, fresh, and personal rather than technical or corporate.
+Kasumi's Digital Cottage is a personal blog for notes, small experiments, and a growing collection of illustrations and images. The visual language should feel quiet, fresh, and personal rather than technical or corporate.
 
 The site combines three ideas:
 

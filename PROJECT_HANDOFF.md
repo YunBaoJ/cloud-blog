@@ -1,10 +1,10 @@
-# Project Handoff: Cloud's Digital Cottage
+# Project Handoff: Kasumi's Digital Cottage
 
 > Read this file before changing this repository. It is the operational brief for any agent taking over the project.
 
 ## What This Project Is
 
-Cloud's Digital Cottage is a Chinese personal blog built with Next.js. It is a calm, personal home for three kinds of content:
+Kasumi's Digital Cottage is a Chinese personal blog built with Next.js. It is a calm, personal home for three kinds of content:
 
 1. **Notes**: personal essays and technical writing.
 2. **Gallery**: a growing stream of original illustrations, collected images, and anime-inspired visual references.

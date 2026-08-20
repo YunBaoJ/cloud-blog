@@ -3,7 +3,7 @@ import { CONTACT_EMAIL } from "@/lib/site";
 
 export default function NewsletterSection() {
   return (
-    <section className="relative w-full py-20 px-4 bg-transparent border-t border-[#36513B]/16 dark:border-white/16">
+    <section className="relative w-full px-4 py-20 bg-transparent border-t border-[#36513B]/16 dark:border-white/16 md:py-28">
       <div className="max-w-4xl mx-auto">
         <div className="relative bg-white/90 backdrop-blur-md rounded-3xl p-8 sm:p-12 border border-white/90 shadow-[0_8px_32px_rgba(45,43,44,0.05)] text-center space-y-6 overflow-hidden">
           
@@ -18,7 +18,7 @@ export default function NewsletterSection() {
               <span>保持联系</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-[#2D2B2C] tracking-tight">
-              写信给 Cloud
+              写信给 Kasumi
             </h2>
             <p className="text-sm sm:text-base text-[#5A5551] max-w-lg mx-auto leading-relaxed">
               想聊前端、摄影或这个数字小屋，欢迎直接来信。我会认真阅读每一封邮件。

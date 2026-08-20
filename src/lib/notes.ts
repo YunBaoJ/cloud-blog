@@ -246,8 +246,15 @@ export function getAllNotes(): NoteItem[] {
 
   const discoveredFiles = scanMarkdownFilesRecursively(notesDirectory);
   const allNotesData: NoteItem[] = [];
+  const usedCoverSet = new Set<string>();
 
-  for (const fileInfo of discoveredFiles) {
+  // 可用于去重兜底的全部画廊照片列表
+  const fallbackPhotoPool = GALLERY_PHOTOS && GALLERY_PHOTOS.length > 0 
+    ? GALLERY_PHOTOS.map((p) => p.src)
+    : ["/gallery/【哲风壁纸】二次元-卡通.png", "/gallery/【搜图壁纸】四格-卡通.png", "/gallery/【哲风壁纸】剪影-壁纸-天空.png", "/gallery/【哲风壁纸】围墙白花-夜空-晨曦.png", "/gallery/【哲风壁纸】图片-夜晚-好看.png", "/gallery/【用户壁纸】蓝发-少女特写.jpg", "/gallery/【用户壁纸】持剑-黑发少女.jpg"];
+
+  for (let i = 0; i < discoveredFiles.length; i++) {
+    const fileInfo = discoveredFiles[i];
     try {
       const fileBaseName = fileInfo.fileName.replace(/\.md$/, "");
       const fileContents = fs.readFileSync(fileInfo.fullPath, "utf8");
@@ -269,18 +276,33 @@ export function getAllNotes(): NoteItem[] {
         ? String(data.summary).trim()
         : extractSmartSummary(content, title);
 
-      // 4. 封面图智能提取：若未指定且正文中无图，自动从画廊精选照片中按 ID 哈希均匀挑选
+      // 4. 封面图智能提取与严格防重复保障 (Zero-Duplicate Policy)
       const firstImg = extractFirstImage(content);
-      const fallbackGallery = pickGalleryCover(id);
+      let selectedCover = "";
 
-      const rawCover = data.coverImage
-        ? String(data.coverImage).trim()
-        : firstImg?.src || fallbackGallery.src;
-      const coverImage = cleanImagePath(rawCover);
+      if (data.coverImage) {
+        selectedCover = cleanImagePath(String(data.coverImage).trim());
+      } else if (firstImg?.src) {
+        selectedCover = cleanImagePath(firstImg.src);
+      }
+
+      // 如果未指定或者当前封面已与其他文章重复，从候选池挑选第一张未被占用的画廊封面
+      if (!selectedCover || usedCoverSet.has(selectedCover)) {
+        const unused = fallbackPhotoPool.find((img) => !usedCoverSet.has(img));
+        if (unused) {
+          selectedCover = unused;
+        } else {
+          // 如果池子全部耗尽，使用按索引安全偏移的封面
+          selectedCover = fallbackPhotoPool[i % fallbackPhotoPool.length];
+        }
+      }
+
+      usedCoverSet.add(selectedCover);
+      const coverImage = selectedCover;
 
       const coverAlt = data.coverAlt
         ? String(data.coverAlt).trim()
-        : firstImg?.alt || (data.coverImage ? title : fallbackGallery.alt);
+        : firstImg?.alt || (data.coverImage ? title : "精选手记封面");
 
       // 5. 分类与标签智能识别：
       //    优先级：Frontmatter.category > 所在子目录名称 > 默认"随笔"

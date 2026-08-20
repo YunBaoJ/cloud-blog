@@ -1,4 +1,4 @@
-# Cloud 的数字小屋
+# Kasumi 的数字小屋
 
 一个使用 Next.js 16 App Router 构建的个人博客，内容涵盖前端工程、摄影与日常记录。
 

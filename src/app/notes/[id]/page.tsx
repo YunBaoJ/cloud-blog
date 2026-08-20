@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: NotePageProps): Promise<Metad
 
   if (!note) {
     return {
-      title: "文章不存在 | Cloud 的数字小屋",
+      title: "文章不存在 | Kasumi 的数字小屋",
     };
   }
 
@@ -33,11 +33,11 @@ export async function generateMetadata({ params }: NotePageProps): Promise<Metad
     },
     openGraph: {
       type: "article",
-      title: `${note.title} | Cloud 的数字小屋`,
+      title: `${note.title} | Kasumi 的数字小屋`,
       description: note.summary,
       url: `/notes/${note.id}`,
       publishedTime: note.date,
-      authors: ["云归何处"],
+      authors: ["Kasumi"],
       tags: note.tags,
       images: [
         {

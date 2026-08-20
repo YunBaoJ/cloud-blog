@@ -478,21 +478,23 @@ export default function NoteDetailClient({ note, prevNote, nextNote, relatedNote
     // Header items stagger entrance
     gsap.from(".note-header-anim", {
       y: 20,
-      opacity: 0,
+      autoAlpha: 0,
       stagger: 0.1,
       duration: 0.7,
       ease: "power2.out",
       clearProps: "all",
+      overwrite: "auto",
     });
 
     // Content paper card fade in
     gsap.from(".note-paper-card", {
       y: 30,
-      opacity: 0,
+      autoAlpha: 0,
       duration: 0.8,
       ease: "power2.out",
-      delay: 0.35,
+      delay: 0.25,
       clearProps: "all",
+      overwrite: "auto",
     });
   }, { scope: containerRef });
 

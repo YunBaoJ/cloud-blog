@@ -7,8 +7,8 @@ readTime: "8 min read"
 category: "代码与思考"
 tags: ["Next.js", "React 19", "性能优化", "架构设计"]
 iconName: "Code2"
-coverImage: "/hero-ai-bg.jpg"
-coverAlt: "阳光下摆放相机与咖啡器具的安静书桌"
+coverImage: "/gallery/【哲风壁纸】二次元-卡通.png"
+coverAlt: "二次元卡通视觉灵感封面"
 featured: true
 ---
 

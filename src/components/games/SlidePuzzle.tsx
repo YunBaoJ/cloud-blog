@@ -6,15 +6,6 @@ import { Pause, Play } from 'lucide-react';
 import { useGameActivity } from '@/components/games/GameActivityContext';
 import { recordGameResult } from '@/lib/gameHistory';
 
-// Wabi-sabi theme colors
-// background: #FAF7F2
-// primary: #36513B
-// text: #2D2B2C
-// accent: #8C4A31
-// card bg: bg-white dark:bg-[#1E2721]/50
-// tile bg: #E2EBE4
-// empty tile: #FAF7F2
-
 type GridSize = 3 | 4;
 
 interface SlidePuzzleProps {
@@ -79,8 +70,6 @@ export default function SlidePuzzle({ initialSize = 4 }: SlidePuzzleProps) {
     };
   }, [isGameActive, isPaused, isStarted, isWon]);
 
-
-
   const isSolved = (arr: number[]) => {
     for (let i = 0; i < arr.length - 1; i++) {
       if (arr[i] !== i + 1) return false;
@@ -132,23 +121,23 @@ export default function SlidePuzzle({ initialSize = 4 }: SlidePuzzleProps) {
       transform: `translate(${col * 100}%, ${row * 100}%)`,
       width: `${100 / size}%`,
       height: `${100 / size}%`,
-      padding: '4px', // small gap
+      padding: '4px',
     };
   };
 
   return (
-    <div className="bg-white dark:bg-[#1E2721]/50 rounded-3xl p-6 border border-[#2D2B2C]/6 shadow-[0_4px_24px_rgba(45,43,44,0.05)] w-full max-w-md mx-auto font-sans relative overflow-hidden">
+    <div className="bg-[var(--surface)] dark:bg-[#1B2D22]/60 rounded-3xl p-4 sm:p-6 border border-[var(--border-line-color)] shadow-sm w-full max-w-md mx-auto font-sans relative overflow-hidden space-y-4">
       
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex space-x-4 text-[#2D2B2C] dark:text-[#FAF7F2]">
-          <div className="flex flex-col">
-            <span className="text-xs uppercase tracking-wider opacity-60">步数</span>
-            <span className="text-xl font-bold font-mono">{steps}</span>
+      <div className="flex flex-wrap justify-between items-center gap-3 pb-3 border-b border-[var(--border-line-color)]">
+        <div className="flex space-x-3 text-[var(--foreground)]">
+          <div className="bg-[var(--surface-2)] px-2.5 py-1 rounded-xl border border-[var(--border-line-color)] flex flex-col items-center min-w-[52px]">
+            <span className="text-[10px] font-semibold text-[var(--accent-clay)]">步数</span>
+            <span className="text-sm font-bold font-mono leading-none">{steps}</span>
           </div>
-          <div className="flex flex-col">
-            <span className="text-xs uppercase tracking-wider opacity-60">用时</span>
-            <span className="text-xl font-bold font-mono">{formatTime(time)}</span>
+          <div className="bg-[var(--surface-2)] px-2.5 py-1 rounded-xl border border-[var(--border-line-color)] flex flex-col items-center min-w-[52px]">
+            <span className="text-[10px] font-semibold text-[var(--accent-green)]">用时</span>
+            <span className="text-sm font-bold font-mono leading-none">{formatTime(time)}</span>
           </div>
         </div>
         
@@ -157,7 +146,7 @@ export default function SlidePuzzle({ initialSize = 4 }: SlidePuzzleProps) {
             <button
               type="button"
               onClick={() => setIsPaused((current) => !current)}
-              className="rounded-lg bg-[#36513B]/8 p-2 text-[#36513B] transition-colors hover:bg-[#36513B]/14 dark:text-[#E2EBE4]"
+              className="rounded-xl bg-[var(--surface-2)] p-2 text-[var(--foreground)] border border-[var(--border-line-color)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
               aria-label={isPaused ? '继续游戏' : '暂停游戏'}
             >
               {isPaused ? <Play className="size-4" /> : <Pause className="size-4" />}
@@ -170,14 +159,14 @@ export default function SlidePuzzle({ initialSize = 4 }: SlidePuzzleProps) {
               setSize(nextSize);
               initBoard(nextSize);
             }}
-            className="bg-[#FAF7F2] dark:bg-[#2D2B2C] text-[#36513B] dark:text-[#E2EBE4] rounded-lg px-2 py-1 text-sm outline-none border-none cursor-pointer focus:ring-2 focus:ring-[#8C4A31]"
+            className="bg-[var(--surface-2)] text-[var(--foreground)] rounded-xl px-2.5 py-1.5 text-xs font-semibold outline-none border border-[var(--border-line-color)] cursor-pointer"
           >
-            <option value={3}>3x3</option>
-            <option value={4}>4x4</option>
+            <option value={3}>3×3</option>
+            <option value={4}>4×4</option>
           </select>
           <button
             onClick={() => initBoard(size)}
-            className="bg-[#36513B] hover:bg-[#2a402e] text-[#FAF7F2] px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+            className="bg-[var(--accent-green)] hover:opacity-90 active:scale-95 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-2xs"
           >
             打乱
           </button>
@@ -185,9 +174,9 @@ export default function SlidePuzzle({ initialSize = 4 }: SlidePuzzleProps) {
       </div>
 
       {/* Board */}
-      <div className="relative w-full aspect-square bg-[#FAF7F2] dark:bg-[#2D2B2C]/30 rounded-2xl p-1 overflow-hidden">
+      <div className="relative w-full aspect-square bg-[var(--surface-2)] rounded-2xl p-1 overflow-hidden border border-[var(--border-line-color)]">
         {tiles.map((val) => {
-          if (val === 0) return null; // We can optionally render empty space or just let background show
+          if (val === 0) return null;
           const currentPosIndex = tiles.indexOf(val);
           return (
             <div
@@ -196,8 +185,8 @@ export default function SlidePuzzle({ initialSize = 4 }: SlidePuzzleProps) {
               style={getTileStyle(currentPosIndex)}
               onClick={() => handleTileClick(currentPosIndex)}
             >
-              <div className="w-full h-full bg-[#E2EBE4] dark:bg-[#36513B]/80 rounded-2xl flex items-center justify-center cursor-pointer shadow-sm hover:brightness-95 active:scale-95 transition-all">
-                <span className="text-[#36513B] dark:text-[#FAF7F2] font-bold text-2xl lg:text-3xl">
+              <div className="w-full h-full bg-[var(--surface)] dark:bg-[#23382C] rounded-xl flex items-center justify-center cursor-pointer shadow-xs hover:brightness-95 active:scale-95 transition-all border border-[var(--border-line-color)]">
+                <span className="text-[var(--foreground)] font-bold text-xl sm:text-2xl font-mono">
                   {val}
                 </span>
               </div>
@@ -208,39 +197,38 @@ export default function SlidePuzzle({ initialSize = 4 }: SlidePuzzleProps) {
           <button
             type="button"
             onClick={() => setIsPaused(false)}
-            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-[#FAF7F2]/88 text-sm font-semibold text-[#36513B] backdrop-blur-sm dark:bg-[#1E2721]/88 dark:text-[#E2EBE4]"
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-[var(--surface)]/90 text-sm font-semibold text-[var(--accent-green)] backdrop-blur-xs"
           >
             <Play className="size-6" />
             继续游戏
           </button>
         )}
-      </div>
 
-      {/* Win Overlay */}
-      {isWon && (
-        <div className="absolute inset-0 bg-[#FAF7F2]/90 dark:bg-[#1E2721]/90 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-3xl animate-in fade-in duration-300">
-          <div className="text-center space-y-4 p-6 bg-white dark:bg-[#2D2B2C] border border-[#2D2B2C]/10 dark:border-white/10 rounded-2xl shadow-xl">
-            <h2 className="text-3xl font-bold text-[#8C4A31]">完成！</h2>
-            <div className="flex justify-center space-x-6 text-[#2D2B2C] dark:text-[#FAF7F2]">
-              <div className="text-center">
-                <p className="text-sm opacity-70">步数</p>
-                <p className="text-2xl font-mono font-bold">{steps}</p>
+        {/* Win Overlay */}
+        {isWon && (
+          <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-xs z-10 flex flex-col items-center justify-center rounded-3xl p-6 text-center animate-in fade-in duration-200">
+            <div className="w-full max-w-xs space-y-4 p-6 bg-[var(--surface)] border border-[var(--border-line-color)] rounded-2xl shadow-xl">
+              <h2 className="text-2xl font-bold text-[var(--accent-clay)]">挑战成功！</h2>
+              <div className="flex justify-center space-x-6 text-[var(--foreground)]">
+                <div className="text-center">
+                  <p className="text-xs text-[var(--muted)]">步数</p>
+                  <p className="text-xl font-mono font-bold">{steps}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-xs text-[var(--muted)]">用时</p>
+                  <p className="text-xl font-mono font-bold">{formatTime(time)}</p>
+                </div>
               </div>
-              <div className="text-center">
-                <p className="text-sm opacity-70">用时</p>
-                <p className="text-2xl font-mono font-bold">{formatTime(time)}</p>
-              </div>
+              <button
+                onClick={() => initBoard(size)}
+                className="mt-2 w-full bg-[var(--accent-green)] hover:opacity-90 text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95"
+              >
+                再来一局
+              </button>
             </div>
-            <button
-              onClick={() => initBoard(size)}
-              className="mt-4 w-full bg-[#8C4A31] hover:bg-[#733c27] text-[#FAF7F2] px-6 py-3 rounded-xl font-medium transition-colors"
-            >
-              再来一局
-            </button>
           </div>
-        </div>
-      )}
-
+        )}
+      </div>
     </div>
   );
 }

@@ -35,8 +35,8 @@ const PIECE_VALUES: Record<PieceType, number> = {
 };
 
 const PIECE_NAMES: Record<Side, Record<PieceType, string>> = {
-  red: { k: "帥", a: "仕", b: "相", n: "馬", r: "車", c: "砲", p: "兵" },
-  black: { k: "將", a: "士", b: "象", n: "馬", r: "車", c: "砲", p: "卒" },
+  red: { k: "帥", a: "仕", b: "相", n: "傌", r: "俥", c: "砲", p: "兵" },
+  black: { k: "將", a: "士", b: "象", n: "馬", r: "車", c: "炮", p: "卒" },
 };
 
 function createInitialBoard(): Board {
@@ -358,7 +358,7 @@ function minimax(
   }
 }
 
-// ── SVG Standard Xiangqi Board Renderer (With Palace Cross & Corner Markers) ───────────
+// ── SVG Standard Xiangqi Board Renderer (Authentic Wood & Pine Green Lines) ───────────
 function StandardBoardSVG() {
   const cellSize = 44;
   const paddingX = 22;
@@ -379,12 +379,12 @@ function StandardBoardSVG() {
 
   const renderCornerMarker = (cx: number, cy: number, gridX: number) => {
     const d = 4;
-    const len = 8;
+    const len = 7;
     const isLeftEdge = gridX === 0;
     const isRightEdge = gridX === 8;
 
     return (
-      <g key={`marker-${cx}-${cy}`} stroke="#7C633E" strokeWidth="1.2" fill="none">
+      <g key={`marker-${cx}-${cy}`} stroke="#1C442D" strokeWidth="1.3" fill="none" opacity="0.9">
         {/* Top-Left */}
         {!isLeftEdge && (
           <path d={`M ${cx - d - len} ${cy - d} L ${cx - d} ${cy - d} L ${cx - d} ${cy - d - len}`} />
@@ -406,12 +406,16 @@ function StandardBoardSVG() {
   };
 
   return (
-    <svg viewBox="0 0 396 440" className="w-full h-full pointer-events-none select-none">
-      {/* Outer Border */}
-      <rect x="14" y="14" width="368" height="412" fill="none" stroke="#7C633E" strokeWidth="2.5" />
-      <rect x="18" y="18" width="360" height="404" fill="none" stroke="#7C633E" strokeWidth="1" />
+    <svg viewBox="0 0 396 440" className="absolute inset-0 w-full h-full pointer-events-none select-none">
+      {/* Outer Double Frame in Wood-Tone & Dark Pine Green */}
+      <rect x="14" y="14" width="368" height="412" fill="none" stroke="#9A6B3C" strokeWidth="2.5" rx="3" />
+      <rect x="18" y="18" width="360" height="404" fill="none" stroke="#1C442D" strokeWidth="1.2" />
 
-      {/* Horizontal Lines (10 lines: y=0..9) */}
+      {/* Left and Right Deep Green Framing Bars (matching reference image) */}
+      <rect x="20" y="22" width="5" height="396" fill="#1C442D" rx="1" opacity="0.9" />
+      <rect x="371" y="22" width="5" height="396" fill="#1C442D" rx="1" opacity="0.9" />
+
+      {/* Horizontal Lines (10 lines: y=0..9) in Pine Green */}
       {Array.from({ length: 10 }).map((_, y) => (
         <line
           key={`h-${y}`}
@@ -419,8 +423,8 @@ function StandardBoardSVG() {
           y1={gy(y)}
           x2={gx(8)}
           y2={gy(y)}
-          stroke="#8C6D46"
-          strokeWidth="1.2"
+          stroke="#1C442D"
+          strokeWidth="1.4"
         />
       ))}
 
@@ -434,52 +438,58 @@ function StandardBoardSVG() {
               y1={gy(0)}
               x2={gx(x)}
               y2={gy(9)}
-              stroke="#8C6D46"
-              strokeWidth="1.2"
+              stroke="#1C442D"
+              strokeWidth="1.4"
             />
           );
         }
         return (
           <g key={`v-${x}`}>
             {/* Top Half (y=0..4) */}
-            <line x1={gx(x)} y1={gy(0)} x2={gx(x)} y2={gy(4)} stroke="#8C6D46" strokeWidth="1.2" />
+            <line x1={gx(x)} y1={gy(0)} x2={gx(x)} y2={gy(4)} stroke="#1C442D" strokeWidth="1.4" />
             {/* Bottom Half (y=5..9) */}
-            <line x1={gx(x)} y1={gy(5)} x2={gx(x)} y2={gy(9)} stroke="#8C6D46" strokeWidth="1.2" />
+            <line x1={gx(x)} y1={gy(5)} x2={gx(x)} y2={gy(9)} stroke="#1C442D" strokeWidth="1.4" />
           </g>
         );
       })}
 
       {/* Black Palace Cross Slashes (九宫格斜线: y=0..2, x=3..5) */}
-      <line x1={gx(3)} y1={gy(0)} x2={gx(5)} y2={gy(2)} stroke="#8C6D46" strokeWidth="1.2" />
-      <line x1={gx(5)} y1={gy(0)} x2={gx(3)} y2={gy(2)} stroke="#8C6D46" strokeWidth="1.2" />
+      <line x1={gx(3)} y1={gy(0)} x2={gx(5)} y2={gy(2)} stroke="#1C442D" strokeWidth="1.3" />
+      <line x1={gx(5)} y1={gy(0)} x2={gx(3)} y2={gy(2)} stroke="#1C442D" strokeWidth="1.3" />
 
       {/* Red Palace Cross Slashes (九宫格斜线: y=7..9, x=3..5) */}
-      <line x1={gx(3)} y1={gy(7)} x2={gx(5)} y2={gy(9)} stroke="#8C6D46" strokeWidth="1.2" />
-      <line x1={gx(5)} y1={gy(7)} x2={gx(3)} y2={gy(9)} stroke="#8C6D46" strokeWidth="1.2" />
+      <line x1={gx(3)} y1={gy(7)} x2={gx(5)} y2={gy(9)} stroke="#1C442D" strokeWidth="1.3" />
+      <line x1={gx(5)} y1={gy(7)} x2={gx(3)} y2={gy(9)} stroke="#1C442D" strokeWidth="1.3" />
 
       {/* Cannon & Pawn Corner Markers */}
       {markerPositions.map(([x, y]) => renderCornerMarker(gx(x), gy(y), x))}
 
-      {/* River Text: 楚河 漢界 */}
+      {/* River Double Amber Trim Bars (matching reference image) */}
+      <rect x={gx(0)} y={gy(4) - 2.5} width={cellSize * 8} height={3} fill="#AF6A37" rx="0.5" />
+      <rect x={gx(0)} y={gy(5) - 0.5} width={cellSize * 8} height={3} fill="#AF6A37" rx="0.5" />
+
+      {/* River Text: 楚河 漢界 in Traditional Pine Green Calligraphy */}
       <text
-        x={gx(1.8)}
+        x={gx(2.2)}
         y={gy(4.65)}
-        fill="#7C633E"
-        fontSize="17"
+        fill="#1C442D"
+        fontSize="22"
         fontWeight="bold"
         fontFamily="serif"
-        letterSpacing="2"
+        letterSpacing="8"
+        textAnchor="middle"
       >
         楚 河
       </text>
       <text
         x={gx(5.8)}
         y={gy(4.65)}
-        fill="#7C633E"
-        fontSize="17"
+        fill="#1C442D"
+        fontSize="22"
         fontWeight="bold"
         fontFamily="serif"
-        letterSpacing="2"
+        letterSpacing="8"
+        textAnchor="middle"
       >
         漢 界
       </text>
@@ -673,53 +683,53 @@ export default function Xiangqi() {
   // ── Mode selection initial overlay ──────────────────────────────
   if (!mode) {
     return (
-      <div className="bg-white dark:bg-[#1E2721]/50 rounded-3xl p-6 sm:p-8 border border-[#2D2B2C]/6 dark:border-white/8 shadow-[0_4px_24px_rgba(45,43,44,0.05)] space-y-6">
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FDEEE9] dark:bg-[#38231C] text-[#8C4A31] dark:text-[#E5987D] text-xs font-semibold">
-            <Award className="w-3.5 h-3.5" />
-            <span>中国象棋 (Xiangqi AI)</span>
+      <div className="space-y-6 animate-in fade-in duration-200">
+        <div className="text-center space-y-1.5 pt-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--accent-clay)]/10 text-[var(--accent-clay)] text-xs font-semibold">
+            <Award className="size-3.5" />
+            <span>中国象棋</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#2D2B2C] dark:text-[#F0F5F1]">
+          <h2 className="text-xl sm:text-2xl font-bold text-[var(--foreground)]">
             选择对弈模式
           </h2>
-          <p className="text-xs sm:text-sm text-[#7A736A] dark:text-[#9EB3A4] max-w-sm mx-auto">
+          <p className="text-xs sm:text-sm text-[var(--muted)] max-w-sm mx-auto">
             楚河汉界，运筹帷幄。内置 Minimax 剪枝 AI 引擎。
           </p>
         </div>
 
         {!showColorPicker ? (
           /* Mode Options Grid */
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
             <button
               onClick={() => setShowColorPicker(true)}
-              className="flex flex-col items-center gap-3 p-5 rounded-2xl border-2 border-[#36513B]/20 hover:border-[#36513B] bg-[#FAF7F2] dark:bg-[#23382C] hover:bg-[#E2EBE4] dark:hover:bg-[#2D4A35] transition-all group"
+              className="flex flex-col items-center gap-2.5 p-4 sm:p-5 rounded-2xl border border-[var(--border-line-color)] hover:border-[var(--accent-green)] bg-[var(--surface)] dark:bg-[#1B2D22]/70 shadow-xs transition-all group"
             >
-              <User className="w-6 h-6 text-[#36513B] group-hover:scale-110 transition-transform" />
+              <User className="size-5 text-[var(--accent-green)] group-hover:scale-105 transition-transform" />
               <div className="text-center">
-                <p className="font-bold text-[#2D2B2C] dark:text-[#F0F5F1]">单人对弈</p>
-                <p className="text-[11px] text-[#7A736A] dark:text-[#9EB3A4] mt-0.5">挑战 Minimax 象棋 AI</p>
+                <p className="font-bold text-sm text-[var(--foreground)]">单人对弈</p>
+                <p className="text-[11px] text-[var(--muted)] mt-0.5">挑战象棋 AI</p>
               </div>
             </button>
 
             <button
               onClick={() => resetGame("pvp")}
-              className="flex flex-col items-center gap-3 p-5 rounded-2xl border-2 border-[#36513B]/20 hover:border-[#36513B] bg-[#FAF7F2] dark:bg-[#23382C] hover:bg-[#E2EBE4] dark:hover:bg-[#2D4A35] transition-all group"
+              className="flex flex-col items-center gap-2.5 p-4 sm:p-5 rounded-2xl border border-[var(--border-line-color)] hover:border-[var(--accent-green)] bg-[var(--surface)] dark:bg-[#1B2D22]/70 shadow-xs transition-all group"
             >
-              <User className="w-6 h-6 text-[#36513B] group-hover:scale-110 transition-transform" />
+              <User className="size-5 text-[var(--accent-green)] group-hover:scale-105 transition-transform" />
               <div className="text-center">
-                <p className="font-bold text-[#2D2B2C] dark:text-[#F0F5F1]">双人模式</p>
-                <p className="text-[11px] text-[#7A736A] dark:text-[#9EB3A4] mt-0.5">与好友同台切磋</p>
+                <p className="font-bold text-sm text-[var(--foreground)]">双人模式</p>
+                <p className="text-[11px] text-[var(--muted)] mt-0.5">与好友同台切磋</p>
               </div>
             </button>
 
             <button
               onClick={() => resetGame("eve")}
-              className="flex flex-col items-center gap-3 p-5 rounded-2xl border-2 border-[#8C4A31]/30 hover:border-[#8C4A31] bg-[#FDEEE9] dark:bg-[#38231C] hover:bg-[#F8E3DC] dark:hover:bg-[#4A2D23] transition-all group"
+              className="flex flex-col items-center gap-2.5 p-4 sm:p-5 rounded-2xl border border-[var(--border-line-color)] hover:border-[var(--accent-clay)] bg-[var(--surface)] dark:bg-[#1B2D22]/70 shadow-xs transition-all group"
             >
-              <Bot className="w-6 h-6 text-[#8C4A31] group-hover:scale-110 transition-transform" />
+              <Bot className="size-5 text-[var(--accent-clay)] group-hover:scale-105 transition-transform" />
               <div className="text-center">
-                <p className="font-bold text-[#2D2B2C] dark:text-[#F0F5F1]">AI 军师模式</p>
-                <p className="text-[11px] text-[#8C4A31] dark:text-[#E5987D] mt-0.5">可自选操控 + AI替下</p>
+                <p className="font-bold text-sm text-[var(--foreground)]">AI 军师</p>
+                <p className="text-[11px] text-[var(--muted)] mt-0.5">AI 步进与推演</p>
               </div>
             </button>
           </div>
@@ -727,40 +737,40 @@ export default function Xiangqi() {
           /* PvE Piece Color Selection */
           <div className="space-y-4 animate-in fade-in zoom-in-95 duration-200">
             <div className="text-center space-y-1">
-              <p className="text-sm font-bold text-[#36513B] dark:text-[#7CD090]">请选择你的执棋阵营</p>
-              <p className="text-xs text-[#7A736A] dark:text-[#9EB3A4]">红方先手落子，黑方后手落子</p>
+              <p className="text-sm font-bold text-[var(--accent-green)]">选择执棋阵营</p>
+              <p className="text-xs text-[var(--muted)]">红方先手落子，黑方后手落子</p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3.5">
               <button
                 onClick={() => startPveGame("red")}
-                className="flex flex-col items-center gap-3 p-5 rounded-2xl border-2 border-red-600 hover:scale-105 bg-[#FAF7F2] dark:bg-[#23382C] transition-all group"
+                className="flex flex-col items-center gap-2.5 p-4 sm:p-5 rounded-2xl border border-[var(--border-line-color)] hover:border-red-600 bg-[var(--surface)] dark:bg-[#1B2D22]/70 shadow-xs transition-all group"
               >
-                <div className="w-10 h-10 rounded-full bg-red-600 shadow-md flex items-center justify-center text-white text-xs font-bold">
-                  先手
+                <div className="size-9 rounded-full bg-red-600 shadow-md flex items-center justify-center text-white text-xs font-bold font-serif">
+                  帥
                 </div>
                 <div className="text-center">
-                  <p className="font-bold text-[#C82A2A] dark:text-red-400">执红棋 (先手)</p>
-                  <p className="text-[11px] text-[#7A736A] dark:text-[#9EB3A4] mt-0.5">优先执红先行</p>
+                  <p className="font-bold text-xs sm:text-sm text-red-600 dark:text-red-400">执红 (先手)</p>
+                  <p className="text-[11px] text-[var(--muted)] mt-0.5">玩家率先落子</p>
                 </div>
               </button>
 
               <button
                 onClick={() => startPveGame("black")}
-                className="flex flex-col items-center gap-3 p-5 rounded-2xl border-2 border-[#2D2B2C] hover:scale-105 bg-[#FAF7F2] dark:bg-[#23382C] transition-all group"
+                className="flex flex-col items-center gap-2.5 p-4 sm:p-5 rounded-2xl border border-[var(--border-line-color)] hover:border-[#2D2B2C] bg-[var(--surface)] dark:bg-[#1B2D22]/70 shadow-xs transition-all group"
               >
-                <div className="w-10 h-10 rounded-full bg-[#2D2B2C] shadow-md flex items-center justify-center text-white text-xs font-bold">
-                  后手
+                <div className="size-9 rounded-full bg-[#2D2B2C] shadow-md flex items-center justify-center text-white text-xs font-bold font-serif">
+                  將
                 </div>
                 <div className="text-center">
-                  <p className="font-bold text-[#2D2B2C] dark:text-[#F0F5F1]">执黑棋</p>
-                  <p className="text-[11px] text-[#7A736A] dark:text-[#9EB3A4] mt-0.5">AI 率先执红落子</p>
+                  <p className="font-bold text-xs sm:text-sm text-[var(--foreground)]">执黑 (后手)</p>
+                  <p className="text-[11px] text-[var(--muted)] mt-0.5">AI 率先执红落子</p>
                 </div>
               </button>
             </div>
 
             <button
               onClick={() => setShowColorPicker(false)}
-              className="w-full py-2 text-xs text-[#7A736A] dark:text-[#9EB3A4] hover:text-[#2D2B2C] text-center font-mono"
+              className="w-full py-2 text-xs text-[var(--muted)] hover:text-[var(--foreground)] text-center transition-colors"
             >
               ← 返回上一步
             </button>
@@ -771,46 +781,46 @@ export default function Xiangqi() {
   }
 
   return (
-    <div className="bg-white dark:bg-[#1E2721]/50 rounded-3xl p-6 border border-[#2D2B2C]/6 dark:border-white/8 shadow-[0_4px_24px_rgba(45,43,44,0.05)] space-y-6">
+    <div className="space-y-4 animate-in fade-in duration-200">
       {/* Side Color & Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-[#FAF7F2] dark:bg-[#24221F] p-3 rounded-2xl border border-[#2D2B2C]/6 dark:border-white/10">
+      <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-black/[0.03] dark:bg-white/[0.04] p-2.5 sm:p-3 rounded-2xl border border-[var(--border-line-color)] backdrop-blur-xs">
         {/* Status & Check Indicator */}
         <div className="flex items-center gap-2 font-semibold">
-          <span className="text-[#7A736A] dark:text-[#9EB3A4]">回合:</span>
+          <span className="text-[var(--muted)]">回合:</span>
           <span
-            className={`px-3 py-1 rounded-full text-xs font-bold shadow-2xs ${
+            className={`px-2.5 py-0.5 rounded-lg text-xs font-bold shadow-2xs font-serif ${
               turn === "red"
-                ? "bg-red-600 text-white border border-red-700"
-                : "bg-[#2D2B2C] text-white border border-black"
+                ? "bg-red-600 text-white"
+                : "bg-[#2D2B2C] text-white"
             }`}
           >
             {turn === "red" ? "红方 (先手)" : "黑方 (后手)"}
           </span>
 
           {inCheck && status === "playing" && (
-            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white font-black text-xs animate-pulse shadow-md border border-red-400">
-              <AlertTriangle className="w-4 h-4 text-yellow-300 animate-pulse" />
-              <span className="tracking-wider">將軍！</span>
+            <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-red-600 text-white font-bold text-xs animate-pulse shadow-xs font-serif">
+              <AlertTriangle className="size-3.5 text-yellow-300 animate-pulse" />
+              <span>將軍！</span>
             </span>
           )}
 
           {thinking && (
-            <span className="flex items-center gap-1 text-[#8C4A31] dark:text-[#E5987D] font-bold animate-pulse ml-2">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>AI 思考演算中...</span>
+            <span className="flex items-center gap-1 text-[var(--accent-clay)] font-bold animate-pulse ml-1">
+              <Sparkles className="size-3.5" />
+              <span>AI 思考中...</span>
             </span>
           )}
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {mode === "pve" && (
-            <div className="flex items-center gap-1 bg-white dark:bg-[#1E2721] px-2 py-1 rounded-xl border border-[#2D2B2C]/8 dark:border-white/10 shadow-2xs">
-              <span className="text-[11px] font-semibold text-[#7A736A] dark:text-[#9EB3A4]">玩家持棋:</span>
+            <div className="flex items-center gap-1 bg-[var(--surface)] px-2 py-0.5 rounded-xl border border-[var(--border-line-color)] shadow-2xs">
+              <span className="text-[11px] font-semibold text-[var(--muted)]">持棋:</span>
               <button
                 onClick={() => { setUserSide("red"); resetGame(); }}
                 className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all ${
-                  userSide === "red" ? "bg-red-600 text-white shadow-2xs" : "text-[#7A736A] hover:bg-gray-100 dark:hover:bg-white/10"
+                  userSide === "red" ? "bg-red-600 text-white shadow-2xs" : "text-[var(--muted)] hover:bg-black/5"
                 }`}
               >
                 执红
@@ -818,7 +828,7 @@ export default function Xiangqi() {
               <button
                 onClick={() => { setUserSide("black"); resetGame(); }}
                 className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all ${
-                  userSide === "black" ? "bg-[#2D2B2C] text-white shadow-2xs" : "text-[#7A736A] hover:bg-gray-100 dark:hover:bg-white/10"
+                  userSide === "black" ? "bg-[#2D2B2C] text-white shadow-2xs" : "text-[var(--muted)] hover:bg-black/5"
                 }`}
               >
                 执黑
@@ -831,20 +841,20 @@ export default function Xiangqi() {
               <button
                 onClick={triggerAiMove}
                 disabled={thinking || status !== "playing"}
-                className="px-3 py-1.5 rounded-xl bg-[#36513B] dark:bg-[#7CD090] text-white dark:text-[#142219] font-bold hover:scale-105 active:scale-95 transition-all shadow-xs disabled:opacity-50"
+                className="px-2.5 py-1 rounded-xl bg-[var(--accent-green)] text-white font-bold hover:opacity-90 active:scale-95 transition-all shadow-2xs disabled:opacity-50"
               >
                 AI 替下一步
               </button>
               <button
                 onClick={() => setAutoPlayEve(!autoPlayEve)}
-                className={`px-3 py-1.5 rounded-xl font-bold transition-all shadow-xs ${
+                className={`px-2.5 py-1 rounded-xl font-bold transition-all shadow-2xs ${
                   autoPlayEve
-                    ? "bg-[#8C4A31] text-white"
-                    : "bg-white dark:bg-[#1E2721] text-[#2D2B2C] dark:text-[#F0F5F1] border border-[#2D2B2C]/10 dark:border-white/10"
+                    ? "bg-[var(--accent-clay)] text-white"
+                    : "bg-[var(--surface)] text-[var(--foreground)] border border-[var(--border-line-color)]"
                 }`}
               >
-                {autoPlayEve ? <Pause className="w-3.5 h-3.5 inline mr-1" /> : <Play className="w-3.5 h-3.5 inline mr-1" />}
-                {autoPlayEve ? "暂停自动" : "自动对弈"}
+                {autoPlayEve ? <Pause className="size-3.5 inline mr-1" /> : <Play className="size-3.5 inline mr-1" />}
+                {autoPlayEve ? "暂停" : "自动"}
               </button>
             </>
           )}
@@ -852,115 +862,162 @@ export default function Xiangqi() {
           <button
             onClick={handleUndo}
             disabled={history.length === 0 || thinking}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white dark:bg-[#1E2721] border border-[#2D2B2C]/10 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10 font-bold transition-all disabled:opacity-40 shadow-2xs"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[var(--surface)] border border-[var(--border-line-color)] hover:bg-black/5 font-bold transition-all disabled:opacity-40 shadow-2xs"
           >
-            <RotateCcw className="w-3.5 h-3.5 text-[#8C4A31]" />
+            <RotateCcw className="size-3.5 text-[var(--accent-clay)]" />
             <span>悔棋</span>
           </button>
 
           <button
             onClick={() => resetGame()}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white dark:bg-[#1E2721] border border-[#2D2B2C]/10 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10 font-bold transition-all shadow-2xs"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[var(--surface)] border border-[var(--border-line-color)] hover:bg-black/5 font-bold transition-all shadow-2xs"
           >
-            <RefreshCw className="w-3.5 h-3.5 text-[#36513B]" />
-            <span>重新模式</span>
+            <RefreshCw className="size-3.5 text-[var(--accent-green)]" />
+            <span>换模式</span>
           </button>
         </div>
       </div>
 
-      {/* Xiangqi Board (SVG Precision Standard Wabi-Sabi Styling) */}
-      <div className="relative mx-auto max-w-md aspect-[396/440] bg-[#E8D4B0] dark:bg-[#2A231A] rounded-2xl p-2 sm:p-3 shadow-inner border-4 border-[#8C6D46] dark:border-[#423321] select-none overflow-hidden">
-        {/* SVG Standard Lines (Palace Cross Slashes, River Lines, Corner Markers) */}
-        <StandardBoardSVG />
+      {/* Xiangqi Board — Tactile Solid Wood Tabletop */}
+      <div className="overflow-x-auto pb-2 flex justify-center">
+        <div
+          className="relative mx-auto w-full max-w-md aspect-[396/440] rounded-2xl select-none overflow-hidden shrink-0 border-4 border-[#A57849] dark:border-[#523A22]"
+          style={{
+            background: "#F3DEBD",
+            backgroundImage: `
+              repeating-linear-gradient(90deg, transparent, transparent 38px, rgba(160, 115, 65, 0.05) 39px, transparent 40px),
+              radial-gradient(ellipse at 50% 50%, #F8E8D0 0%, #EED4AA 75%, #E4C596 100%)
+            `,
+            boxShadow: "0 20px 48px rgba(75, 45, 15, 0.22), 0 4px 12px rgba(50, 30, 10, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.7), inset 0 -2px 3px rgba(120, 70, 20, 0.2)",
+          }}
+        >
+          {/* SVG Standard Lines (Palace Cross Slashes, River Lines, Corner Markers) — absolute layer 0 */}
+          <StandardBoardSVG />
 
-        {/* 90 Intersection Points Overlay (9 cols x 10 rows) */}
-        <div className="absolute inset-0 p-[22px] grid grid-cols-9 grid-rows-10">
-          {board.map((row, y) =>
-            row.map((piece, x) => {
-              const isSelected = selectedPos?.[0] === x && selectedPos?.[1] === y;
-              const isValidMoveTarget = validMoves.some((m) => m.to[0] === x && m.to[1] === y);
-              const isLastMoveFrom = lastMove?.from[0] === x && lastMove?.from[1] === y;
-              const isLastMoveTo = lastMove?.to[0] === x && lastMove?.to[1] === y;
+          {/* 90 Intersection Points (9 cols x 10 rows) — Exact mathematical centering on SVG line intersections */}
+          <div className="absolute inset-0 pointer-events-auto select-none">
+            {board.map((row, y) =>
+              row.map((piece, x) => {
+                const isSelected = selectedPos?.[0] === x && selectedPos?.[1] === y;
+                const isValidMoveTarget = validMoves.some((m) => m.to[0] === x && m.to[1] === y);
+                const isLastMoveFrom = lastMove?.from[0] === x && lastMove?.from[1] === y;
+                const isLastMoveTo = lastMove?.to[0] === x && lastMove?.to[1] === y;
 
-              // Check if THIS piece is the King currently in check!
-              const isKingInCheck = inCheck && piece?.type === "k" && piece?.side === turn;
+                // Check if THIS piece is the King currently in check!
+                const isKingInCheck = inCheck && piece?.type === "k" && piece?.side === turn;
 
-              return (
-                <div
-                  key={`${x}-${y}`}
-                  onClick={() => handleCellClick(x, y)}
-                  className="relative flex items-center justify-center cursor-pointer group"
-                >
-                  {/* Red King in Check Pulsing Halo Ring */}
-                  {isKingInCheck && (
-                    <div className="absolute inset-0 rounded-full border-4 border-red-600 animate-ping opacity-90 pointer-events-none" />
-                  )}
+                // Exact intersection coordinates mapped 1:1 to SVG viewBox (396x440):
+                // gx = 22 + x * 44 => (22 + x * 44) / 396 * 100%
+                // gy = 22 + y * 44 => (22 + y * 44) / 440 * 100%
+                const posX = ((22 + x * 44) / 396) * 100;
+                const posY = ((22 + y * 44) / 440) * 100;
 
-                  {/* Last Move Trajectory Highlight */}
-                  {(isLastMoveFrom || isLastMoveTo) && (
-                    <div className="absolute inset-0.5 rounded-full border-2 border-dashed border-[#8C4A31] animate-pulse pointer-events-none" />
-                  )}
+                return (
+                  <div
+                    key={`${x}-${y}`}
+                    onClick={() => handleCellClick(x, y)}
+                    className="absolute flex items-center justify-center cursor-pointer group -translate-x-1/2 -translate-y-1/2 size-9 sm:size-10 md:size-11"
+                    style={{
+                      left: `${posX}%`,
+                      top: `${posY}%`,
+                    }}
+                  >
+                    {/* Red King in Check Pulsing Halo Ring */}
+                    {isKingInCheck && (
+                      <div className="absolute inset-0 rounded-full border-4 border-red-600 animate-ping opacity-90 pointer-events-none" />
+                    )}
 
-                  {/* Move Target Dot */}
-                  {isValidMoveTarget && (
-                    <div className="z-20 w-3.5 h-3.5 rounded-full bg-[#36513B] opacity-85 animate-ping shadow-md" />
-                  )}
+                    {/* Last Move Origin Marker (原位 / from) — Centered amber disc with focus ring */}
+                    {isLastMoveFrom && (
+                      <div className="absolute z-10 size-7 rounded-full bg-amber-500/25 border-2 border-amber-600/80 pointer-events-none flex items-center justify-center shadow-xs animate-pulse">
+                        <span className="size-1.5 rounded-full bg-amber-700" />
+                      </div>
+                    )}
 
-                  {/* Piece Disc */}
-                  {piece && (
-                    <div
-                      className={`z-10 w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-sm sm:text-base md:text-lg shadow-md transition-transform duration-150 ${
-                        isKingInCheck
-                          ? "scale-115 ring-4 ring-red-600 bg-red-700 text-white shadow-[0_0_20px_rgba(220,38,38,0.9)] animate-pulse"
-                          : isSelected
-                          ? "scale-110 ring-4 ring-[#8C4A31]"
-                          : "hover:scale-105"
-                      } ${
-                        !isKingInCheck && piece.side === "red"
-                          ? "bg-[#FDFBF7] text-[#C82A2A] border-2 border-[#C82A2A] shadow-[inset_0_2px_4px_rgba(200,42,42,0.2)]"
-                          : !isKingInCheck && piece.side === "black"
-                          ? "bg-[#2D2B2C] text-[#F0F5F1] border-2 border-[#1A1819] shadow-[inset_0_2px_4px_rgba(255,255,255,0.1)]"
-                          : ""
-                      }`}
-                    >
-                      {PIECE_NAMES[piece.side][piece.type]}
-                    </div>
-                  )}
-                </div>
-              );
-            })
+                    {/* Last Move Target Marker (落点 / to) — Prominent glowing halo framing the piece */}
+                    {isLastMoveTo && (
+                      <div className="absolute z-20 inset-[-3px] rounded-full ring-[3px] ring-amber-500/90 shadow-[0_0_14px_rgba(245,158,11,0.6)] pointer-events-none animate-pulse" />
+                    )}
+
+                    {/* Valid Move Indicator on Empty Cell — Centered Pine Green Dot */}
+                    {isValidMoveTarget && !piece && (
+                      <div className="absolute z-20 size-3 rounded-full bg-[#1C442D] opacity-90 shadow-xs pointer-events-none animate-pulse" />
+                    )}
+
+                    {/* Valid Move Indicator on Enemy Piece (可吃子目标) — Target Ring around piece WITHOUT shrinking it */}
+                    {isValidMoveTarget && piece && (
+                      <div className="absolute z-20 inset-[-3px] rounded-full border-2 border-dashed border-red-600 ring-2 ring-red-500/50 shadow-[0_0_12px_rgba(220,38,38,0.7)] pointer-events-none animate-pulse" />
+                    )}
+
+                    {/* 3D Wood Carved Token Disc with Double Concentric Circles & Tactile Lift */}
+                    {piece && (
+                      <div
+                        className={`z-10 relative size-8 sm:size-9 md:size-10 rounded-full flex items-center justify-center font-serif font-black text-base sm:text-lg md:text-xl transition-all duration-150 select-none ${
+                          isKingInCheck
+                            ? "scale-115 ring-4 ring-red-600 shadow-[0_0_24px_rgba(220,38,38,0.95)] animate-pulse"
+                            : isSelected
+                            ? "scale-115 -translate-y-1.5 ring-4 ring-[#1C442D] shadow-[0_16px_28px_rgba(70,40,15,0.5),0_6px_10px_rgba(50,25,10,0.35)]"
+                            : "hover:scale-105 hover:-translate-y-0.5"
+                        }`}
+                        style={{
+                          background: "radial-gradient(circle at 45% 38%, #FDF3E5 0%, #F1DCBD 60%, #E3C399 100%)",
+                          boxShadow: isSelected
+                            ? "0 14px 24px rgba(70, 40, 15, 0.48), 0 4px 8px rgba(50, 25, 10, 0.3), inset 0 2px 3px rgba(255, 255, 255, 0.85), inset 0 -2px 3px rgba(120, 70, 25, 0.35)"
+                            : "0 4px 9px rgba(70, 40, 15, 0.38), 0 1px 2px rgba(50, 25, 10, 0.25), inset 0 2px 3px rgba(255, 255, 255, 0.85), inset 0 -2px 3px rgba(120, 70, 25, 0.3)",
+                          border: "1.5px solid #C49868",
+                        }}
+                      >
+                        {/* Inner concentric ring engraved into the wood */}
+                        <div className="absolute inset-[2.5px] rounded-full border border-[#B38755]/60 pointer-events-none flex items-center justify-center">
+                          <span
+                            className={piece.side === "red" ? "text-[#A01C1C]" : "text-[#181818]"}
+                            style={{
+                              textShadow: piece.side === "red"
+                                ? "0 1px 1px rgba(255, 255, 255, 0.9), 0 -1px 0 rgba(120, 20, 20, 0.3)"
+                                : "0 1px 1px rgba(255, 255, 255, 0.9), 0 -1px 0 rgba(0, 0, 0, 0.45)",
+                            }}
+                          >
+                            {PIECE_NAMES[piece.side][piece.type]}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Center Giant Check Banner Overlay */}
+          {showCheckAlert && (
+            <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none animate-in zoom-in-75 fade-in duration-200">
+              <div className="bg-red-600/95 text-white px-8 py-3.5 rounded-3xl shadow-[0_10px_40px_rgba(220,38,38,0.6)] border-2 border-red-300 flex items-center gap-3 animate-pulse">
+                <AlertTriangle className="w-8 h-8 text-yellow-300 animate-pulse" />
+                <span className="text-2xl sm:text-3xl font-black tracking-widest drop-shadow-md font-serif">
+                  {turn === "red" ? "帥 被 將 軍 ！" : "將 被 將 軍 ！"}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* GameOver Overlay */}
+          {status !== "playing" && (
+            <div className="absolute inset-0 z-30 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center space-y-4 animate-in fade-in duration-200">
+              <h3 className="text-2xl font-bold text-white font-serif">
+                {status === "red_win" ? "绝杀！红方胜出！" : "绝杀！黑方胜出！"}
+              </h3>
+              <p className="text-xs text-gray-300 font-serif">
+                {status === "red_win" ? "帅统六合，红棋大获全胜" : "将定乾坤，黑棋克敌制胜"}
+              </p>
+              <button
+                onClick={() => resetGame()}
+                className="px-6 py-2.5 rounded-2xl bg-[var(--accent-green)] text-white font-bold hover:opacity-90 active:scale-95 transition-all shadow-md text-xs sm:text-sm font-serif"
+              >
+                再来一局
+              </button>
+            </div>
           )}
         </div>
-
-        {/* Center Giant Check Banner Overlay */}
-        {showCheckAlert && (
-          <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none animate-in zoom-in-75 fade-in duration-200">
-            <div className="bg-red-600/95 text-white px-8 py-3.5 rounded-3xl shadow-[0_10px_40px_rgba(220,38,38,0.6)] border-2 border-red-300 flex items-center gap-3 animate-pulse">
-              <AlertTriangle className="w-8 h-8 text-yellow-300 animate-pulse" />
-              <span className="text-2xl sm:text-3xl font-black tracking-widest drop-shadow-md">
-                {turn === "red" ? "帥 被 將 軍 ！" : "將 被 將 軍 ！"}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* GameOver Overlay */}
-        {status !== "playing" && (
-          <div className="absolute inset-0 z-30 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center space-y-4 animate-in fade-in duration-200">
-            <h3 className="text-2xl font-bold text-white">
-              {status === "red_win" ? "绝杀！红方胜出！" : "绝杀！黑方胜出！"}
-            </h3>
-            <p className="text-xs text-gray-300">
-              {status === "red_win" ? "帅统六合，红棋大获全胜" : "将定乾坤，黑棋克敌制胜"}
-            </p>
-            <button
-              onClick={() => resetGame()}
-              className="px-6 py-2.5 rounded-2xl bg-[#36513B] text-white font-bold hover:scale-105 transition-all shadow-md"
-            >
-              再来一局
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
