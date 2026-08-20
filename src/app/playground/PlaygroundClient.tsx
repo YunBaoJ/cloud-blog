@@ -37,77 +37,96 @@ gsap.registerPlugin(useGSAP);
 
 export type GameId = "xiangqi" | "gomoku" | "snake" | "2048" | "puzzle";
 
-export const GAMES: {
-  id: GameId;
-  index: string;
-  name: string;
-  nameEn: string;
-  cover: string;
-  genre: string;
-  publisher: string;
-  version: string;
-  players: string;
-  tip: string;
-}[] = [
+export const GAMES = [
   {
-    id: "xiangqi",
+    id: "xiangqi" as const,
     index: "01",
+    code: "NUS-XQ-CHN",
     name: "中国象棋 AI",
     nameEn: "Xiangqi Master",
+    kanji: "楚河漢界",
     cover: "/playground/game-xiangqi.jpg",
+    shellColor: "from-[#8B261D] via-[#5C1610] to-[#2E0B08]",
+    accentColor: "#D97706",
+    borderColor: "border-[#C97A5E]/40",
     genre: "策略博弈 · 楚河汉界",
     publisher: "Kasumi Studio",
     version: "v2.4.0",
     players: "1 - 2 玩家 (含 AI 军师)",
     tip: "方向键 / 鼠标点选",
+    capacity: "64 MEGABIT",
   },
   {
-    id: "gomoku",
+    id: "gomoku" as const,
     index: "02",
+    code: "NUS-GMK-JPN",
     name: "五子棋",
     nameEn: "Gomoku Zen",
+    kanji: "黑白連珠",
     cover: "/playground/game-gomoku.jpg",
+    shellColor: "from-[#1C442D] via-[#122E1E] to-[#0A1A11]",
+    accentColor: "#7CD090",
+    borderColor: "border-[#5E9E75]/40",
     genre: "经典连珠 · 15×15",
     publisher: "Kasumi Studio",
     version: "v1.8.2",
     players: "1 - 2 玩家 (含启发式 AI)",
     tip: "方向键 / 鼠标点选",
+    capacity: "32 MEGABIT",
   },
   {
-    id: "snake",
+    id: "snake" as const,
     index: "03",
+    code: "NUS-SNK-RET",
     name: "草墨贪吃蛇",
     nameEn: "Cyber Snake",
+    kanji: "靈蛇游境",
     cover: "/playground/game-snake.jpg",
+    shellColor: "from-[#2A4B3A] via-[#1B3226] to-[#0E1B14]",
+    accentColor: "#10B981",
+    borderColor: "border-[#67B888]/40",
     genre: "复古街机 · 敏捷走位",
     publisher: "Retro Pixel",
     version: "v1.2.0",
     players: "1 玩家",
     tip: "WASD / 方向键 · 触屏滑动",
+    capacity: "16 MEGABIT",
   },
   {
-    id: "2048",
+    id: "2048" as const,
     index: "04",
+    code: "NUS-2048-LAB",
     name: "2048",
     nameEn: "Merge 2048",
+    kanji: "合璧至尊",
     cover: "/playground/game-2048.jpg",
+    shellColor: "from-[#B46D28] via-[#7B4614] to-[#422408]",
+    accentColor: "#F59E0B",
+    borderColor: "border-[#E5A866]/40",
     genre: "脑力益智 · 指数合成",
     publisher: "Puzzle Lab",
     version: "v1.0.5",
     players: "1 玩家",
     tip: "WASD / 方向键 · 触屏滑动",
+    capacity: "32 MEGABIT",
   },
   {
-    id: "puzzle",
+    id: "puzzle" as const,
     index: "05",
+    code: "NUS-SLD-LOG",
     name: "数字华容道",
     nameEn: "Slide 15",
+    kanji: "乾坤推移",
     cover: "/playground/game-puzzle.jpg",
+    shellColor: "from-[#4B5563] via-[#333C48] to-[#1A1F26]",
+    accentColor: "#93C5FD",
+    borderColor: "border-[#9CA3AF]/40",
     genre: "机械解谜 · 几何复位",
     publisher: "Logic Works",
     version: "v1.1.0",
     players: "1 玩家",
     tip: "点击相邻方块滑动",
+    capacity: "16 MEGABIT",
   },
 ];
 
@@ -227,31 +246,49 @@ function GameModal({
 // ──────────────────────────────────────────────────────────────────
 export default function PlaygroundClient() {
   const isMounted = useMounted();
-  const rawHashGame = useSyncExternalStore(
-    subscribeToHash,
-    getGameFromHash,
-    () => null
-  );
+  const rawHashGame = useSyncExternalStore(subscribeToHash, getGameFromHash, () => null);
 
   const [activeModalGame, setActiveModalGame] = useState<GameId | null>(null);
-  const [selectedIdx, setSelectedIdx] = useState(0);
-  const [isPoweredOn, setIsPoweredOn] = useState(false);
+  const [insertedCartridge, setInsertedCartridge] = useState<GameId | null>("xiangqi");
+  const [isBooting, setIsBooting] = useState(false);
+  const [isPoweredOn, setIsPoweredOn] = useState(true);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState("12:00");
   const [credits, setCredits] = useState(2);
   const pageRef = useRef<HTMLDivElement>(null);
 
-  const activeGameInfo = GAMES[selectedIdx];
+  const activeGameIdx = insertedCartridge
+    ? Math.max(0, GAMES.findIndex((g) => g.id === insertedCartridge))
+    : 0;
+  const activeGameInfo = GAMES[activeGameIdx];
+
+  // Insert a cartridge with sound, haptics, and auto-power boot
+  const insertCartridge = useCallback((gameId: GameId) => {
+    playGameSound("2048-merge");
+    triggerGameHaptic("heavy");
+    setInsertedCartridge(gameId);
+    setIsOptionsOpen(false);
+    setIsPoweredOn(true);
+    setIsBooting(true);
+    setTimeout(() => {
+      setIsBooting(false);
+    }, 600);
+  }, []);
+
+  // Eject current cartridge
+  const ejectCartridge = useCallback(() => {
+    playGameSound("2048-over");
+    triggerGameHaptic("medium");
+    setInsertedCartridge(null);
+    setIsOptionsOpen(false);
+  }, []);
 
   // Hash change auto-triggers game
   useEffect(() => {
     if (rawHashGame) {
       setActiveModalGame(rawHashGame);
-      const foundIdx = GAMES.findIndex((g) => g.id === rawHashGame);
-      if (foundIdx !== -1) {
-        setSelectedIdx(foundIdx);
-        setIsPoweredOn(true);
-      }
+      setInsertedCartridge(rawHashGame);
+      setIsPoweredOn(true);
     }
   }, [rawHashGame]);
 
@@ -289,24 +326,24 @@ export default function PlaygroundClient() {
   }, []);
 
   const prevGame = useCallback(() => {
-    playGameSound("puzzle-move");
-    triggerGameHaptic("soft");
-    if (!isPoweredOn) {
-      setIsPoweredOn(true);
+    if (!insertedCartridge) {
+      insertCartridge(GAMES[0].id);
       return;
     }
-    setSelectedIdx((prev) => (prev === 0 ? GAMES.length - 1 : prev - 1));
-  }, [isPoweredOn]);
+    const currentIdx = GAMES.findIndex((g) => g.id === insertedCartridge);
+    const nextIdx = currentIdx === 0 ? GAMES.length - 1 : currentIdx - 1;
+    insertCartridge(GAMES[nextIdx].id);
+  }, [insertedCartridge, insertCartridge]);
 
   const nextGame = useCallback(() => {
-    playGameSound("puzzle-move");
-    triggerGameHaptic("soft");
-    if (!isPoweredOn) {
-      setIsPoweredOn(true);
+    if (!insertedCartridge) {
+      insertCartridge(GAMES[0].id);
       return;
     }
-    setSelectedIdx((prev) => (prev === GAMES.length - 1 ? 0 : prev + 1));
-  }, [isPoweredOn]);
+    const currentIdx = GAMES.findIndex((g) => g.id === insertedCartridge);
+    const nextIdx = currentIdx === GAMES.length - 1 ? 0 : currentIdx + 1;
+    insertCartridge(GAMES[nextIdx].id);
+  }, [insertedCartridge, insertCartridge]);
 
   // Global Keyboard Gamepad Shortcuts
   useEffect(() => {
@@ -325,8 +362,10 @@ export default function PlaygroundClient() {
         e.preventDefault();
         if (!isPoweredOn) {
           powerOn();
+        } else if (insertedCartridge) {
+          openGame(insertedCartridge);
         } else {
-          openGame(activeGameInfo.id);
+          insertCartridge(GAMES[0].id);
         }
       } else if (e.key === "c" || e.key === "C") {
         e.preventDefault();
@@ -334,9 +373,12 @@ export default function PlaygroundClient() {
         triggerGameHaptic("medium");
         setCredits((c) => Math.min(99, c + 1));
         if (!isPoweredOn) setIsPoweredOn(true);
+      } else if (e.key === "e" || e.key === "E") {
+        e.preventDefault();
+        if (insertedCartridge) ejectCartridge();
       } else if (e.key === "h" || e.key === "H" || e.key === "?") {
         e.preventDefault();
-        if (isPoweredOn) {
+        if (isPoweredOn && insertedCartridge) {
           playGameSound("puzzle-move");
           triggerGameHaptic("soft");
           setIsOptionsOpen((prev) => !prev);
@@ -352,7 +394,7 @@ export default function PlaygroundClient() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [activeModalGame, isPoweredOn, isOptionsOpen, activeGameInfo, prevGame, nextGame, openGame, powerOn]);
+  }, [activeModalGame, isPoweredOn, isOptionsOpen, insertedCartridge, prevGame, nextGame, openGame, powerOn, insertCartridge, ejectCartridge]);
 
   useGSAP(
     () => {
@@ -394,25 +436,92 @@ export default function PlaygroundClient() {
         {/* ================================================================= */}
         {/* 🎮 独立路由页面专属实体掌机 (Standalone Dedicated Handheld Console) */}
         {/* ================================================================= */}
-        <div className="playground-page-anim relative mx-auto w-full max-w-5xl pt-7 sm:pt-8">
+        <div className="playground-page-anim relative mx-auto w-full max-w-5xl pt-10 sm:pt-12">
           
-          {/* 顶部 L1 / R1 实体肩键 (Elevated Shoulder Triggers) */}
-          <div className="absolute top-0 inset-x-12 sm:inset-x-24 flex justify-between z-0 pointer-events-auto select-none">
+          {/* 顶部 L1 / 实体卡槽 / R1 复合机头 (Top Shoulder Triggers + Physical Cartridge Bay) */}
+          <div className="absolute top-0 inset-x-6 sm:inset-x-16 flex items-end justify-between z-0 pointer-events-auto select-none">
+            {/* L1 Trigger */}
             <button
               type="button"
               onClick={prevGame}
-              className="h-8 sm:h-9 px-6 sm:px-8 rounded-t-2xl sm:rounded-t-3xl bg-[#26352A] dark:bg-[#152319] text-white/95 text-xs font-mono font-bold tracking-wider hover:bg-[#36513B] active:translate-y-1 transition-all shadow-[0_-4px_12px_rgba(0,0,0,0.15)] border-t-2 border-x-2 border-white/25 flex items-center gap-2 cursor-pointer group"
-              title="切换到上一个游戏 [ L1 ]"
+              className="h-9 sm:h-10 px-5 sm:px-7 rounded-t-2xl sm:rounded-t-3xl bg-[#26352A] dark:bg-[#152319] text-white/95 text-xs font-mono font-bold tracking-wider hover:bg-[#36513B] active:translate-y-1 transition-all shadow-[0_-4px_12px_rgba(0,0,0,0.15)] border-t-2 border-x-2 border-white/25 flex items-center gap-2 cursor-pointer group"
+              title="切换上一个卡带 [ L1 ]"
             >
               <span className="group-hover:-translate-x-0.5 transition-transform text-[#7CD090]">◀</span>
               <span>[ L1 ]</span>
               <span className="hidden sm:inline text-[10px] text-white/60">PREV</span>
             </button>
+
+            {/* 🎴 中央实体卡槽 (Physical Cartridge Bay with Lock & Eject Mechanism) */}
+            <div className="relative -mb-1 flex flex-col items-center">
+              {insertedCartridge ? (
+                /* 已插卡状态：3D 卡带突起插在槽中 */
+                <div className="relative group animate-in slide-in-from-top-3 duration-200">
+                  <div
+                    className={`w-44 sm:w-56 h-12 sm:h-14 rounded-t-xl sm:rounded-t-2xl bg-gradient-to-b ${activeGameInfo.shellColor} p-1.5 sm:p-2 border-t-2 border-x-2 ${activeGameInfo.borderColor} shadow-[0_-6px_20px_rgba(0,0,0,0.3)] flex items-center justify-between gap-2`}
+                  >
+                    {/* 卡带顶部防滑槽 */}
+                    <div className="flex flex-col gap-0.5 pl-1 opacity-40">
+                      <span className="w-3 h-0.5 bg-white rounded-full" />
+                      <span className="w-3 h-0.5 bg-white rounded-full" />
+                      <span className="w-3 h-0.5 bg-white rounded-full" />
+                    </div>
+
+                    {/* 卡带微标签 */}
+                    <div className="flex-1 text-center truncate">
+                      <p className="text-[11px] sm:text-xs font-black text-white tracking-wider truncate font-serif drop-shadow-sm">
+                        {activeGameInfo.kanji} · {activeGameInfo.name}
+                      </p>
+                      <span className="text-[8px] sm:text-[9px] font-mono text-amber-300 font-bold tracking-widest uppercase">
+                        {activeGameInfo.code} · LOCKED
+                      </span>
+                    </div>
+
+                    {/* 弹出按键 (EJECT) */}
+                    <button
+                      type="button"
+                      onClick={ejectCartridge}
+                      className="size-7 rounded-lg bg-red-950/80 hover:bg-red-800 text-red-200 border border-red-500/50 flex items-center justify-center text-[10px] font-mono font-bold transition-all active:scale-90 shadow-sm cursor-pointer"
+                      title="弹卡 (EJECT / E 键)"
+                      aria-label="弹出卡带"
+                    >
+                      ⏏
+                    </button>
+                  </div>
+
+                  {/* 卡槽插口金属咬合线 */}
+                  <div className="w-48 sm:w-60 h-2 bg-[#121A14] rounded-t-md border-t border-black/60 mx-auto" />
+                </div>
+              ) : (
+                /* 空卡槽状态：深凹金属插槽 */
+                <div
+                  onClick={() => insertCartridge(GAMES[0].id)}
+                  className="w-44 sm:w-56 h-8 sm:h-9 rounded-t-xl bg-[#151D17] border-t-2 border-x-2 border-[#36513B]/40 shadow-inner flex items-center justify-center gap-1.5 px-3 cursor-pointer group hover:bg-[#1C2820] transition-colors"
+                  title="点击插入默认卡带"
+                >
+                  <div className="flex gap-1 opacity-30">
+                    {[...Array(8)].map((_, i) => (
+                      <span key={i} className="w-1 h-3 bg-amber-400 rounded-xs" />
+                    ))}
+                  </div>
+                  <span className="text-[9px] sm:text-[10px] font-mono text-amber-400 font-bold animate-pulse">
+                    NO CARD · 插入卡带
+                  </span>
+                  <div className="flex gap-1 opacity-30">
+                    {[...Array(8)].map((_, i) => (
+                      <span key={i} className="w-1 h-3 bg-amber-400 rounded-xs" />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* R1 Trigger */}
             <button
               type="button"
               onClick={nextGame}
-              className="h-8 sm:h-9 px-6 sm:px-8 rounded-t-2xl sm:rounded-t-3xl bg-[#26352A] dark:bg-[#152319] text-white/95 text-xs font-mono font-bold tracking-wider hover:bg-[#36513B] active:translate-y-1 transition-all shadow-[0_-4px_12px_rgba(0,0,0,0.15)] border-t-2 border-x-2 border-white/25 flex items-center gap-2 cursor-pointer group"
-              title="切换到下一个游戏 [ R1 ]"
+              className="h-9 sm:h-10 px-5 sm:px-7 rounded-t-2xl sm:rounded-t-3xl bg-[#26352A] dark:bg-[#152319] text-white/95 text-xs font-mono font-bold tracking-wider hover:bg-[#36513B] active:translate-y-1 transition-all shadow-[0_-4px_12px_rgba(0,0,0,0.15)] border-t-2 border-x-2 border-white/25 flex items-center gap-2 cursor-pointer group"
+              title="切换下一个卡带 [ R1 ]"
             >
               <span className="hidden sm:inline text-[10px] text-white/60">NEXT</span>
               <span>[ R1 ]</span>
@@ -431,13 +540,13 @@ export default function PlaygroundClient() {
               <div className="flex items-center gap-1.5">
                 <span
                   className={`size-2 rounded-full transition-all ${
-                    isPoweredOn
+                    isPoweredOn && insertedCartridge
                       ? "bg-[#7CD090] animate-pulse shadow-[0_0_8px_#7CD090]"
                       : "bg-amber-400/80 animate-ping shadow-[0_0_8px_#FBBF24]"
                   }`}
                 />
                 <span className="font-mono text-[9px] font-bold text-[#6F7E70] tracking-widest uppercase">
-                  {isPoweredOn ? "ONLINE" : "INSERT"}
+                  {isPoweredOn && insertedCartridge ? "ONLINE" : "STANDBY"}
                 </span>
               </div>
 
@@ -516,9 +625,60 @@ export default function PlaygroundClient() {
                   </div>
 
                 </div>
+              ) : !insertedCartridge ? (
+                /* ========================================================= */
+                /* 📭 状态 2：已通电但空卡槽画面 (No Cartridge Inserted BIOS) */
+                /* ========================================================= */
+                <div className="relative z-10 flex-1 flex flex-col justify-between py-6 text-center animate-in fade-in zoom-in-95 duration-200">
+                  <div className="flex items-center justify-between text-[11px] font-mono text-white/50 border-b border-white/10 pb-2.5 px-2">
+                    <span className="font-bold text-amber-400">KASUMI BIOS v1.99</span>
+                    <span className="text-white/60">{currentTime}</span>
+                  </div>
+
+                  <div className="space-y-4 py-8 max-w-sm mx-auto">
+                    <div className="size-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-amber-400 shadow-inner animate-pulse">
+                      <Gamepad2 className="size-8" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-lg font-mono font-bold text-white tracking-wide">
+                        NO CARTRIDGE INSERTED
+                      </h4>
+                      <p className="text-xs font-mono text-[#7A736A] dark:text-[#9EB3A4]">
+                        未检测到卡带 · 请从下方卡架点击或拖拽游戏卡插入顶部卡槽
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => insertCartridge(GAMES[0].id)}
+                      className="px-5 py-2 rounded-full bg-[#36513B] text-[#7CD090] hover:bg-[#46654C] hover:text-white transition-all text-xs font-mono font-bold inline-flex items-center gap-1.5 shadow-sm cursor-pointer"
+                    >
+                      <span>快速装载首发卡带 ➔</span>
+                    </button>
+                  </div>
+
+                  <div className="text-[10px] font-mono text-white/30 border-t border-white/10 pt-2">
+                    SYSTEM READY · 64-BIT DUAL CHANNEL
+                  </div>
+                </div>
+              ) : isBooting ? (
+                /* ========================================================= */
+                /* ⚡ 状态 3：卡带自检载入微动效 (ROM Booting Splash) */
+                /* ========================================================= */
+                <div className="relative z-10 flex-1 flex flex-col items-center justify-center py-6 text-center animate-in fade-in duration-150">
+                  <div className="space-y-3 font-mono text-left max-w-xs w-full p-4 rounded-xl bg-black/60 border border-white/15">
+                    <p className="text-xs font-bold text-[#7CD090] animate-pulse">
+                      [ LOADING ROM: {activeGameInfo.code} ]
+                    </p>
+                    <div className="text-[10px] text-white/70 space-y-0.5">
+                      <p>&gt; BANK 0-64M: OK</p>
+                      <p>&gt; CHECKSUM: PASS</p>
+                      <p className="text-amber-300 font-bold">&gt; BOOTING ENGINE...</p>
+                    </div>
+                  </div>
+                </div>
               ) : (
                 /* ========================================================= */
-                /* 🕹️ 状态 2：游戏机正式运行与卡带轮播界面 (Console Running OS) */
+                /* 🕹️ 状态 4：卡带已装载，游戏机正式运行 (Console Running OS) */
                 /* ========================================================= */
                 <div className="relative z-10 flex-1 flex flex-col justify-between animate-in fade-in zoom-in-95 duration-200">
                   
@@ -545,12 +705,12 @@ export default function PlaygroundClient() {
                   {/* 2. 真实主机游戏卡带封面轮播舞台 */}
                   <div className="py-3 sm:py-5 flex flex-col items-center justify-center">
                     <div className="flex items-center justify-center gap-3 sm:gap-4.5 w-full overflow-x-hidden px-2">
-                      {GAMES.map((game, idx) => {
-                        const isSelected = selectedIdx === idx;
+                      {GAMES.map((game) => {
+                        const isSelected = insertedCartridge === game.id;
                         return (
                           <div
                             key={game.id}
-                            onClick={() => setSelectedIdx(idx)}
+                            onClick={() => insertCartridge(game.id)}
                             className={`relative rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer shrink-0 ${
                               isSelected
                                 ? "size-28 sm:size-36 ring-4 ring-white shadow-[0_0_30px_rgba(255,255,255,0.4)] -translate-y-2 z-20 scale-105"
@@ -568,7 +728,7 @@ export default function PlaygroundClient() {
                             
                             {isSelected && (
                               <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/60 backdrop-blur-md text-[9px] font-mono text-[#7CD090] font-bold">
-                                0{idx + 1}
+                                {game.index}
                               </div>
                             )}
                             <span className="absolute bottom-1.5 left-2 right-2 text-[10px] sm:text-xs font-bold text-white truncate">
@@ -599,7 +759,9 @@ export default function PlaygroundClient() {
                   <div className="pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 px-2 text-[11px] font-mono text-white/70">
                     <div className="flex items-center gap-2 text-white/50 text-[10px]">
                       <span className="px-1.5 py-0.5 rounded bg-white/10 text-white font-bold">[ L / R ]</span>
-                      <span>选择游戏</span>
+                      <span>切卡</span>
+                      <span className="px-1.5 py-0.5 rounded bg-red-500/20 text-red-300 font-bold ml-1">[ E ]</span>
+                      <span>弹卡</span>
                     </div>
 
                     <div className="flex items-center gap-4 text-[10px] sm:text-[11px]">
@@ -623,7 +785,7 @@ export default function PlaygroundClient() {
               )}
 
               {/* 4. 帮助指南抽屉面板 */}
-              {isOptionsOpen && isPoweredOn && (
+              {isOptionsOpen && isPoweredOn && insertedCartridge && (
                 <div className="absolute inset-0 z-30 bg-black/85 backdrop-blur-md p-6 flex flex-col justify-between animate-in fade-in zoom-in-95 duration-200">
                   <div className="flex items-center justify-between border-b border-white/15 pb-3">
                     <div className="flex items-center gap-2">
@@ -701,7 +863,7 @@ export default function PlaygroundClient() {
                   onClick={() => {
                     if (!isPoweredOn) {
                       setIsPoweredOn(true);
-                    } else {
+                    } else if (insertedCartridge) {
                       setIsOptionsOpen((prev) => !prev);
                     }
                   }}
@@ -718,7 +880,7 @@ export default function PlaygroundClient() {
                 </button>
 
                 {/* 2. 实体 PLAY 确认开玩按键 (A) */}
-                {isPoweredOn ? (
+                {isPoweredOn && insertedCartridge ? (
                   <button
                     type="button"
                     onClick={() => openGame(activeGameInfo.id)}
@@ -754,7 +916,7 @@ export default function PlaygroundClient() {
 
           {/* 掌机底部 SELECT / START 实体胶囊按键 */}
           <div className="flex items-center justify-center gap-6 pt-3 select-none">
-            {isPoweredOn ? (
+            {isPoweredOn && insertedCartridge ? (
               <>
                 <button
                   type="button"
@@ -769,6 +931,14 @@ export default function PlaygroundClient() {
                   className="px-4 py-1 rounded-full bg-[#36513B] text-white hover:bg-[#46654C] transition-all text-[10px] font-mono font-bold flex items-center gap-1 shadow-xs cursor-pointer"
                 >
                   <span>(A) 启动游戏 ▶</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={ejectCartridge}
+                  className="px-3 py-1 rounded-full bg-red-500/10 hover:bg-red-500 hover:text-white transition-all text-[10px] font-mono font-bold text-red-500 flex items-center gap-1 cursor-pointer"
+                  title="弹出卡带"
+                >
+                  <span>⏏ 弹卡 (Eject)</span>
                 </button>
                 <button
                   type="button"
@@ -793,62 +963,96 @@ export default function PlaygroundClient() {
         </div>
 
         {/* ================================================================= */}
-        {/* 🎴 掌机下方 5 盒实体卡带插槽 (Quick Cartridge Rack) */}
+        {/* 🎴 掌机下方 5 盒 3D 实体游戏卡带陈列台 (3D Physical Cartridge Rack) */}
         {/* ================================================================= */}
-        <div className="playground-page-anim space-y-3 pt-2">
-          <div className="flex items-center justify-between text-xs font-mono text-[#7A736A] dark:text-[#9EB3A4] px-1">
-            <span className="font-bold flex items-center gap-1.5 text-[#36513B] dark:text-[#7CD090]">
-              <Sparkles className="size-3.5" />
-              <span>CARTRIDGE RACK · 实体卡带插槽</span>
+        <div className="playground-page-anim space-y-4 pt-4">
+          <div className="flex flex-wrap items-center justify-between text-xs font-mono text-[#7A736A] dark:text-[#9EB3A4] px-1 gap-2">
+            <span className="font-bold flex items-center gap-2 text-[#36513B] dark:text-[#7CD090]">
+              <Sparkles className="size-4" />
+              <span className="text-sm">CARTRIDGE RACK · 实体卡带插槽阵列</span>
             </span>
-            <span>点击任意卡带通电载入</span>
+            <span className="text-[11px] bg-black/5 dark:bg-white/5 px-2.5 py-1 rounded-full border border-black/5 dark:border-white/5">
+              点击卡带即刻【插卡开机】· 支持卡带热拔插
+            </span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
-            {GAMES.map((game, idx) => {
-              const isSelected = isPoweredOn && selectedIdx === idx;
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {GAMES.map((game) => {
+              const isInserted = insertedCartridge === game.id;
               return (
-                <button
+                <div
                   key={game.id}
-                  type="button"
                   onClick={() => {
-                    playGameSound("2048-merge");
-                    triggerGameHaptic("medium");
-                    setSelectedIdx(idx);
-                    setIsPoweredOn(true);
-                    setIsOptionsOpen(false);
+                    if (isInserted) {
+                      ejectCartridge();
+                    } else {
+                      insertCartridge(game.id);
+                    }
                   }}
-                  className={`group relative text-left p-3.5 sm:p-4 rounded-2xl border transition-all duration-300 flex flex-col justify-between gap-3 cursor-pointer isolate ${
-                    isSelected
-                      ? "bg-white dark:bg-[#1E2E23] border-[#36513B] dark:border-[#7CD090] shadow-[0_10px_25px_rgba(54,81,59,0.15)] -translate-y-1.5 ring-2 ring-[#36513B]/20"
-                      : "bg-white/70 dark:bg-[#16231A]/70 border-[#36513B]/10 dark:border-white/10 hover:border-[#36513B]/40 hover:bg-white dark:hover:bg-[#1A281E] hover:-translate-y-0.5"
+                  className={`group relative rounded-2xl p-4 transition-all duration-300 flex flex-col justify-between gap-3.5 cursor-pointer isolate ${
+                    isInserted
+                      ? "bg-[#FAF7F2] dark:bg-[#111A13] border-2 border-dashed border-[#7CD090] shadow-[inset_0_2px_8px_rgba(0,0,0,0.15)] opacity-85 scale-[0.98]"
+                      : "bg-white dark:bg-[#1E2E23] border border-[#26352A]/15 dark:border-white/15 hover:border-[#7CD090] hover:shadow-[0_16px_32px_rgba(54,81,59,0.22)] hover:-translate-y-2 hover:scale-[1.02]"
                   }`}
                 >
-                  {/* 不可见防抖命中层 */}
-                  <div className="absolute -inset-2 pointer-events-auto" aria-hidden="true" />
+                  {/* 顶部防滑肋槽与 ROM 编号 */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-3.5 rounded-xs bg-[#26352A]/40 dark:bg-white/30" />
+                      <span className="w-1.5 h-3.5 rounded-xs bg-[#26352A]/40 dark:bg-white/30" />
+                      <span className="font-mono text-[11px] font-bold text-[#36513B] dark:text-[#7CD090]">
+                        ROM 0{game.index}
+                      </span>
+                    </div>
 
-                  <div className="flex items-center justify-between w-full">
-                    <span className="font-mono text-xs font-bold text-[#36513B] dark:text-[#7CD090]">
-                      ROM 0{idx + 1}
-                    </span>
                     <span
-                      className={`size-2 rounded-full transition-all ${
-                        isSelected
-                          ? "bg-[#7CD090] animate-ping"
-                          : "bg-black/20 dark:bg-white/20"
+                      className={`text-[9px] font-mono px-2 py-0.5 rounded-full font-bold transition-all ${
+                        isInserted
+                          ? "bg-[#7CD090] text-[#121413] shadow-[0_0_8px_#7CD090]"
+                          : "bg-black/5 dark:bg-white/10 text-[#7A736A] dark:text-[#9EB3A4] group-hover:bg-[#7CD090] group-hover:text-[#121413]"
                       }`}
-                    />
+                    >
+                      {isInserted ? "● 已装载" : "插卡 ➔"}
+                    </span>
                   </div>
 
-                  <div>
-                    <p className="font-bold text-sm text-[#26352A] dark:text-[#F0F5F1] group-hover:text-[#36513B] dark:group-hover:text-[#7CD090] transition-colors">
-                      {game.name}
-                    </p>
-                    <p className="text-[11px] text-[#7A736A] dark:text-[#9EB3A4] line-clamp-1 mt-0.5">
-                      {game.genre}
-                    </p>
+                  {/* 卡带 3D 封面与烫金全息贴纸 */}
+                  <div className={`relative h-24 rounded-xl overflow-hidden bg-gradient-to-br ${game.shellColor} p-2 flex flex-col justify-between border border-white/20 shadow-md group-hover:shadow-lg transition-shadow`}>
+                    <div className="flex items-center justify-between text-white">
+                      <span className="text-[9px] font-mono font-bold tracking-widest text-amber-300">
+                        {game.code}
+                      </span>
+                      <span className="text-[8px] font-mono px-1 py-0.2 rounded bg-black/40 text-white/80">
+                        {game.capacity}
+                      </span>
+                    </div>
+
+                    <div className="text-center space-y-0.5">
+                      <p className="font-serif font-black text-sm text-white tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                        {game.kanji}
+                      </p>
+                      <p className="text-[10px] font-bold text-white/90 truncate">
+                        {game.name}
+                      </p>
+                    </div>
+
+                    {/* 底部全息激光微条 */}
+                    <div className="h-1 w-full bg-gradient-to-r from-amber-400 via-emerald-400 to-cyan-400 rounded-full opacity-70" />
                   </div>
-                </button>
+
+                  {/* 卡带底部：金色金手指插脚触点 */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-center gap-1 py-0.5 px-2 bg-black/10 dark:bg-black/30 rounded-md">
+                      {[...Array(9)].map((_, i) => (
+                        <span key={i} className="w-1 h-2 rounded-xs bg-amber-400/80 group-hover:bg-amber-300" />
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-between text-[10px] font-mono text-[#7A736A] dark:text-[#9EB3A4]">
+                      <span className="truncate">{game.genre}</span>
+                      <span className="text-[9px] opacity-75">{game.publisher}</span>
+                    </div>
+                  </div>
+                </div>
               );
             })}
           </div>
