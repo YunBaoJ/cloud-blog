@@ -151,16 +151,13 @@ export default function PlaygroundTeaser() {
     () => {
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       gsap.from(".playground-console-anim", {
-        y: 28,
+        y: 20,
         opacity: 0,
         scale: 0.98,
-        duration: 0.6,
-        stagger: 0.08,
+        duration: 0.5,
+        stagger: 0.06,
         ease: "power2.out",
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top 85%",
-        },
+        clearProps: "all",
       });
     },
     { scope: containerRef }
@@ -170,17 +167,17 @@ export default function PlaygroundTeaser() {
     <section
       ref={containerRef}
       id="playground"
-      className="relative w-full border-t border-[#36513B]/16 dark:border-white/16 bg-transparent px-4 py-20 sm:px-6 md:py-28 lg:px-8 overflow-hidden select-none"
+      className="relative min-h-[100dvh] w-full overflow-hidden border-t border-[#36513B]/16 bg-transparent px-4 py-20 select-none dark:border-white/16 sm:px-6 md:py-28 lg:px-8"
     >
       {/* Background Ambient Pine Glow */}
       <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-[#36513B]/6 dark:bg-[#7CD090]/4 blur-3xl rounded-full pointer-events-none" />
 
-      <div className="relative z-10 max-w-6xl mx-auto space-y-12">
+      <div className="relative z-10 max-w-6xl mx-auto space-y-8 sm:space-y-10">
         {/* Section Header */}
         <div className="playground-console-anim flex flex-col sm:flex-row sm:items-end justify-between gap-6">
           <div className="space-y-3">
             <p className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#6F7E70] uppercase">
-              03 / INSPIRATION PLAYGROUND
+              04 / INSPIRATION PLAYGROUND
             </p>
             <h2 className="font-[family-name:var(--section-heading-font)] text-5xl font-semibold leading-[0.9] tracking-[-0.1em] text-[#26352A] dark:text-[#F0F5F1] sm:text-6xl">
               灵感<em className="ml-1 font-[family-name:var(--section-heading-font)] not-italic font-medium">掌机</em>
@@ -194,7 +191,7 @@ export default function PlaygroundTeaser() {
             href="/playground"
             className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#36513B] dark:text-[#7CD090] hover:text-[#283E2C] dark:hover:text-white transition-colors group self-start sm:self-end"
           >
-            <span>进入全屏游乐场 (共 5 款)</span>
+            <span>查看全部</span>
             <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
           </Link>
         </div>
@@ -202,7 +199,7 @@ export default function PlaygroundTeaser() {
         {/* ================================================================= */}
         {/* 🎮 真实街机/掌机硬件机身 (Arcade Console Hardware Frame) */}
         {/* ================================================================= */}
-        <div className="playground-console-anim relative mx-auto w-full max-w-5xl pt-7 sm:pt-8">
+        <div className="playground-console-anim relative mx-auto w-full max-w-6xl pt-7 sm:pt-8">
           
           {/* 顶部 L1 / R1 实体肩键 (Elevated Shoulder Triggers) */}
           <div className="absolute top-0 inset-x-12 sm:inset-x-24 flex justify-between z-0 pointer-events-auto select-none">
@@ -320,7 +317,7 @@ export default function PlaygroundTeaser() {
                   {/* Arcade Bottom Copyright & Tips */}
                   <div className="text-[10px] font-mono text-white/40 border-t border-white/10 pt-2 flex items-center justify-between px-1">
                     <span>© 2026 KASUMI STUDIO</span>
-                    <span>点击下方卡带或按 START 键载入</span>
+                    <span>按右侧 [COIN] 或下方 [START] 键开机</span>
                   </div>
 
                 </div>
@@ -588,66 +585,6 @@ export default function PlaygroundTeaser() {
                 <span>投币开机 (INSERT COIN)</span>
               </button>
             )}
-          </div>
-        </div>
-
-        {/* ================================================================= */}
-        {/* 🎴 掌机下方 5 盒实体卡带插槽 (Quick Cartridge Rack) */}
-        {/* ================================================================= */}
-        <div className="playground-console-anim space-y-3 pt-2">
-          <div className="flex items-center justify-between text-xs font-mono text-[#7A736A] dark:text-[#9EB3A4] px-1">
-            <span className="font-bold flex items-center gap-1.5 text-[#36513B] dark:text-[#7CD090]">
-              <Sparkles className="size-3.5" />
-              <span>CARTRIDGE RACK · 实体卡带插槽</span>
-            </span>
-            <span>点击任意卡带通电载入</span>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
-            {PLAYGROUND_GAMES.map((game, idx) => {
-              const isSelected = isPoweredOn && selectedIdx === idx;
-              return (
-                <button
-                  key={game.id}
-                  type="button"
-                  onClick={() => {
-                    setSelectedIdx(idx);
-                    setIsPoweredOn(true);
-                    setIsOptionsOpen(false);
-                  }}
-                  className={`group relative text-left p-3.5 sm:p-4 rounded-2xl border transition-all duration-300 flex flex-col justify-between gap-3 cursor-pointer isolate ${
-                    isSelected
-                      ? "bg-white dark:bg-[#1E2E23] border-[#36513B] dark:border-[#7CD090] shadow-[0_10px_25px_rgba(54,81,59,0.15)] -translate-y-1.5 ring-2 ring-[#36513B]/20"
-                      : "bg-white/70 dark:bg-[#16231A]/70 border-[#36513B]/10 dark:border-white/10 hover:border-[#36513B]/40 hover:bg-white dark:hover:bg-[#1A281E] hover:-translate-y-0.5"
-                  }`}
-                >
-                  {/* 不可见防抖命中层 */}
-                  <div className="absolute -inset-2 pointer-events-auto" aria-hidden="true" />
-
-                  <div className="flex items-center justify-between w-full">
-                    <span className="font-mono text-xs font-bold text-[#36513B] dark:text-[#7CD090]">
-                      ROM 0{idx + 1}
-                    </span>
-                    <span
-                      className={`size-2 rounded-full transition-all ${
-                        isSelected
-                          ? "bg-[#7CD090] animate-ping"
-                          : "bg-black/20 dark:bg-white/20"
-                      }`}
-                    />
-                  </div>
-
-                  <div>
-                    <p className="font-bold text-sm text-[#26352A] dark:text-[#F0F5F1] group-hover:text-[#36513B] dark:group-hover:text-[#7CD090] transition-colors">
-                      {game.name}
-                    </p>
-                    <p className="text-[11px] text-[#7A736A] dark:text-[#9EB3A4] line-clamp-1 mt-0.5">
-                      {game.genre}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
           </div>
         </div>
 

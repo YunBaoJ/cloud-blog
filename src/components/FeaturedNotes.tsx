@@ -10,7 +10,6 @@ import {
   Code2,
   Clock,
   Sparkles,
-  RotateCw,
 } from "lucide-react";
 import type { NoteItem } from "@/lib/notes";
 import gsap from "gsap";
@@ -21,8 +20,9 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 interface FeaturedNotesProps {
   initialNotes: NoteItem[];
-  totalNotesCount?: number;
 }
+
+const NOTE_ROTATIONS = ["rotate-[2deg]", "-rotate-[2deg]", "rotate-[1.5deg]"];
 
 function getCategoryIcon(iconName: string) {
   const className = "size-3.5";
@@ -36,10 +36,7 @@ function getCategoryIcon(iconName: string) {
   }
 }
 
-// 3 张手帐札记卡的自然错落摆放角度
-const NOTE_ROTATIONS = ["-rotate-2", "rotate-2", "-rotate-1"];
-
-export default function FeaturedNotes({ initialNotes, totalNotesCount }: FeaturedNotesProps) {
+export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const notes = initialNotes.slice(0, 3);
 
@@ -47,18 +44,13 @@ export default function FeaturedNotes({ initialNotes, totalNotesCount }: Feature
     () => {
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       gsap.from(".journal-card-anim", {
-        y: 28,
-        autoAlpha: 0,
-        scale: 0.96,
+        y: 20,
+        opacity: 0,
+        scale: 0.98,
         duration: 0.5,
-        stagger: 0.08,
+        stagger: 0.06,
         ease: "power2.out",
         clearProps: "all",
-        overwrite: "auto",
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top 85%",
-        },
       });
     },
     { scope: containerRef }
@@ -70,12 +62,12 @@ export default function FeaturedNotes({ initialNotes, totalNotesCount }: Feature
     <section
       ref={containerRef}
       id="notes"
-      className="relative w-full border-t border-[#36513B]/16 dark:border-white/16 bg-transparent px-4 py-20 sm:px-6 md:py-28 lg:px-8 overflow-hidden select-none"
+      className="relative min-h-[100dvh] w-full overflow-hidden border-t border-[#36513B]/16 bg-transparent px-4 py-20 select-none dark:border-white/16 sm:px-6 md:py-28 lg:px-8"
     >
       {/* Background Ambient Pine Glow */}
       <div className="absolute top-1/2 right-0 -translate-y-1/2 w-96 h-96 bg-[#36513B]/6 dark:bg-[#7CD090]/4 blur-3xl rounded-full pointer-events-none" />
 
-      <div className="relative z-10 max-w-6xl mx-auto space-y-12">
+      <div className="relative z-10 max-w-6xl mx-auto space-y-8 sm:space-y-10">
         {/* Section Header */}
         <div className="journal-card-anim flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-3">
@@ -83,7 +75,7 @@ export default function FeaturedNotes({ initialNotes, totalNotesCount }: Feature
               01 / FEATURED ESSAYS
             </p>
             <h2 className="font-[family-name:var(--section-heading-font)] text-5xl font-semibold leading-[0.9] tracking-[-0.1em] text-[#26352A] dark:text-[#F0F5F1] sm:text-6xl">
-              精选<em className="ml-1 font-[family-name:var(--section-heading-font)] not-italic font-medium">手记</em>
+              精选<em className="ml-1 font-[family-name:var(--section-heading-font)] not-italic font-medium">笔记</em>
             </h2>
             <p className="text-sm sm:text-base text-[#5A5551] dark:text-[#9EB3A4] max-w-lg font-normal">
               从工程架构到生活感知，记录实践中沉淀下的思考与灵感。
@@ -94,23 +86,23 @@ export default function FeaturedNotes({ initialNotes, totalNotesCount }: Feature
             href="/notes"
             className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#36513B] dark:text-[#7CD090] hover:text-[#283E2C] dark:hover:text-white transition-colors group self-start sm:self-end"
           >
-            <span>查看全部手记 ({totalNotesCount ?? initialNotes.length} 篇)</span>
+            <span>查看全部</span>
             <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
           </Link>
         </div>
 
         {/* 3 Artisan Journal 3D Flip Cards (Jitter-free Static Hitbox Architecture) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 items-stretch pt-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 items-stretch pt-2">
           {notes.map((note, index) => (
             <div
               key={note.id}
-              className="journal-card-anim group relative h-[420px] w-full [perspective:1000px] cursor-pointer isolate"
+              className="journal-card-anim group relative h-[420px] sm:h-[440px] w-full [perspective:1000px] cursor-pointer isolate"
             >
               {/* Invisible Hitbox Extension to completely eliminate edge flickers */}
               <div className="absolute -inset-4 pointer-events-auto" aria-hidden="true" />
 
               {/* 3D Rotating Flipper & Motion Holder */}
-              <div className={`relative h-full w-full rounded-3xl transition-all duration-500 transform ${NOTE_ROTATIONS[index]} group-hover:rotate-0 group-hover:-translate-y-3 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] shadow-[0_12px_32px_rgba(38,53,42,0.06)] group-hover:shadow-[0_26px_50px_rgba(54,81,59,0.18)]`}>
+              <div className={`relative h-full w-full rounded-3xl shadow-[0_12px_32px_rgba(38,53,42,0.06)] transition-all duration-500 transform ${NOTE_ROTATIONS[index]} [transform-style:preserve-3d] group-hover:-translate-y-3 group-hover:rotate-0 group-hover:[transform:rotateY(180deg)] group-hover:shadow-[0_26px_50px_rgba(54,81,59,0.18)]`}>
                 
                 {/* ========================================================= */}
                 {/* FRONT SIDE: 活页手帐封面 (Front Face) */}
@@ -157,27 +149,23 @@ export default function FeaturedNotes({ initialNotes, totalNotesCount }: Feature
 
                     {/* Title & Synopsis */}
                     <div className="space-y-1.5">
-                      <h3 className="text-base sm:text-lg font-bold text-[#26352A] dark:text-[#F0F5F1] leading-snug line-clamp-2">
+                      <h3 className="min-h-[3.5rem] text-base font-bold leading-snug text-[#26352A] line-clamp-2 dark:text-[#F0F5F1] sm:text-lg">
                         {note.title}
                       </h3>
 
-                      <p className="text-xs text-[#5A5551] dark:text-[#9EB3A4] leading-relaxed line-clamp-2">
+                      <p className="min-h-[2.75rem] text-xs leading-relaxed text-[#5A5551] line-clamp-2 dark:text-[#9EB3A4]">
                         {note.summary}
                       </p>
                     </div>
                   </div>
 
                   {/* Card Footer Bar */}
-                  <div className="pt-3 border-t border-[#36513B]/12 dark:border-white/8 flex items-center justify-between text-xs text-[#6D7C6E] dark:text-[#9EB3A4] pl-3">
+                  <div className="flex shrink-0 items-center justify-between border-t border-[#36513B]/12 pt-3 pl-3 text-xs text-[#6D7C6E] dark:border-white/8 dark:text-[#9EB3A4]">
                     <div className="flex items-center gap-1.5 font-mono text-[11px]">
                       <Calendar className="size-3.5" />
                       <span>{note.date}</span>
                     </div>
 
-                    <div className="font-semibold text-[#36513B] dark:text-[#7CD090] inline-flex items-center gap-1 text-xs">
-                      <span>悬停翻面</span>
-                      <RotateCw className="size-3.5" />
-                    </div>
                   </div>
                 </div>
 
