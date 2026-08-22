@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -12,11 +12,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import type { NoteItem } from "@/lib/notes";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
-
-gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 interface FeaturedNotesProps {
   initialNotes: NoteItem[];
@@ -37,37 +32,20 @@ function getCategoryIcon(iconName: string) {
 }
 
 export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const notes = initialNotes.slice(0, 3);
-
-  useGSAP(
-    () => {
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-      gsap.from(".journal-card-anim", {
-        y: 20,
-        opacity: 0,
-        scale: 0.98,
-        duration: 0.5,
-        stagger: 0.06,
-        ease: "power2.out",
-        clearProps: "all",
-      });
-    },
-    { scope: containerRef }
-  );
 
   if (notes.length === 0) return null;
 
   return (
     <section
-      ref={containerRef}
       id="notes"
+      data-home-scroll-section
       className="relative min-h-[100dvh] w-full overflow-hidden border-t border-[#36513B]/16 bg-transparent px-4 py-20 select-none dark:border-white/16 sm:px-6 md:py-28 lg:px-8"
     >
       {/* Background Ambient Pine Glow */}
-      <div className="absolute top-1/2 right-0 -translate-y-1/2 w-96 h-96 bg-[#36513B]/6 dark:bg-[#7CD090]/4 blur-3xl rounded-full pointer-events-none" />
+      <div data-home-scroll-ambient className="absolute top-1/2 right-0 -translate-y-1/2 w-96 h-96 bg-[#36513B]/6 dark:bg-[#7CD090]/4 blur-3xl rounded-full pointer-events-none" />
 
-      <div className="relative z-10 max-w-6xl mx-auto space-y-8 sm:space-y-10">
+      <div data-home-scroll-content className="relative z-10 max-w-6xl mx-auto space-y-8 sm:space-y-10">
         {/* Section Header */}
         <div className="journal-card-anim flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-3">

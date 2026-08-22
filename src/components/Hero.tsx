@@ -153,7 +153,7 @@ export default function Hero() {
         </div>
 
         <a
-          href="#latest-sections"
+          href="#notes"
           className="hero-anim-item ml-auto inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 bg-white/14 hover:bg-white/22 backdrop-blur-xl text-xs font-semibold text-[#FAF7F2] transition-all duration-300 shadow-md group"
         >
           <span>探索下方</span>

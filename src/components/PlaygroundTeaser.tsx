@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -20,11 +20,6 @@ import {
   RotateCcw,
   Coins,
 } from "lucide-react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
-
-gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 export type GameId = "xiangqi" | "gomoku" | "snake" | "2048" | "puzzle";
 
@@ -111,7 +106,6 @@ export default function PlaygroundTeaser() {
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState("23:59");
   const [credits, setCredits] = useState(2);
-  const containerRef = useRef<HTMLDivElement>(null);
   const activeGame = PLAYGROUND_GAMES[selectedIdx];
 
   // Real-time clock for console status bar
@@ -147,32 +141,16 @@ export default function PlaygroundTeaser() {
     setSelectedIdx((prev) => (prev === PLAYGROUND_GAMES.length - 1 ? 0 : prev + 1));
   };
 
-  useGSAP(
-    () => {
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-      gsap.from(".playground-console-anim", {
-        y: 20,
-        opacity: 0,
-        scale: 0.98,
-        duration: 0.5,
-        stagger: 0.06,
-        ease: "power2.out",
-        clearProps: "all",
-      });
-    },
-    { scope: containerRef }
-  );
-
   return (
     <section
-      ref={containerRef}
       id="playground"
+      data-home-scroll-section
       className="relative min-h-[100dvh] w-full overflow-hidden border-t border-[#36513B]/16 bg-transparent px-4 py-20 select-none dark:border-white/16 sm:px-6 md:py-28 lg:px-8"
     >
       {/* Background Ambient Pine Glow */}
-      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-[#36513B]/6 dark:bg-[#7CD090]/4 blur-3xl rounded-full pointer-events-none" />
+      <div data-home-scroll-ambient className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-[#36513B]/6 dark:bg-[#7CD090]/4 blur-3xl rounded-full pointer-events-none" />
 
-      <div className="relative z-10 max-w-6xl mx-auto space-y-8 sm:space-y-10">
+      <div data-home-scroll-content className="relative z-10 max-w-6xl mx-auto space-y-8 sm:space-y-10">
         {/* Section Header */}
         <div className="playground-console-anim flex flex-col sm:flex-row sm:items-end justify-between gap-6">
           <div className="space-y-3">

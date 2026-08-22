@@ -1,15 +1,9 @@
 "use client";
 
-import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Calendar } from "lucide-react";
 import { GALLERY_PHOTOS } from "@/data/siteContent";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
-
-gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const FEATURED_ARTWORKS = GALLERY_PHOTOS.slice(0, 4);
 const cardStyles = [
@@ -20,29 +14,12 @@ const cardStyles = [
 ];
 
 export default function GalleryTeaser() {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useGSAP(
-    () => {
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-      gsap.from(".gallery-card-anim", {
-        y: 20,
-        opacity: 0,
-        scale: 0.98,
-        duration: 0.5,
-        stagger: 0.06,
-        ease: "power2.out",
-        clearProps: "all",
-      });
-    },
-    { scope: containerRef }
-  );
   return (
-    <section ref={containerRef} className="relative min-h-[100dvh] w-full overflow-hidden border-t border-[#36513B]/16 bg-transparent px-4 py-20 select-none dark:border-white/16 sm:px-6 md:py-28 lg:px-8">
+    <section data-home-scroll-section className="relative min-h-[100dvh] w-full overflow-hidden border-t border-[#36513B]/16 bg-transparent px-4 py-20 select-none dark:border-white/16 sm:px-6 md:py-28 lg:px-8">
       {/* Background Pine & Bamboo Accent */}
-      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-[#36513B]/8 blur-3xl rounded-full pointer-events-none" />
+      <div data-home-scroll-ambient className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-[#36513B]/8 blur-3xl rounded-full pointer-events-none" />
 
-      <div className="relative z-10 mx-auto max-w-[1180px] space-y-8 sm:space-y-10">
+      <div data-home-scroll-content className="relative z-10 mx-auto max-w-[1180px] space-y-8 sm:space-y-10">
         {/* Header */}
         <div className="gallery-card-anim flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-3">

@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>数字小屋 · 浏览节奏预览</title>
+    <style>
+      :root {
+        --paper: #f2f3ed;
+        --ink: #26352a;
+        --muted: #718074;
+        --line: rgba(38, 53, 42, 0.16);
+        --green: #36513b;
+        --clay: #a46649;
+        --surface: rgba(255, 254, 249, 0.86);
+        --soft: #e6ece4;
+        --shadow: 0 24px 58px rgba(35, 53, 42, 0.1);
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        min-width: 320px;
+        margin: 0;
+        color: var(--ink);
+        font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+        background:
+          radial-gradient(circle at 13% 4%, rgba(185, 208, 189, 0.38), transparent 28rem),
+          linear-gradient(135deg, #eef1ea 0%, var(--paper) 45%, #f7f5ee 100%);
+      }
+
+      body::before {
+        position: fixed;
+        z-index: -2;
+        inset: 0;
+        content: "";
+        opacity: 0.085;
+        background: url("/hero/hero-ryo-hd.png") center / cover no-repeat;
+        filter: saturate(0.72) contrast(0.9);
+      }
+
+      a { color: inherit; text-decoration: none; }
+      button { font: inherit; }
+
+      .topbar {
+        position: fixed;
+        z-index: 20;
+        top: 24px;
+        left: 50%;
+        display: flex;
+        width: min(960px, calc(100% - 32px));
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 8px 10px 8px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.72);
+        border-radius: 999px;
+        background: rgba(247, 248, 242, 0.78);
+        box-shadow: 0 12px 38px rgba(34, 48, 38, 0.12);
+        backdrop-filter: blur(22px) saturate(1.2);
+        transform: translateX(-50%);
+      }
+
+      .brand { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; white-space: nowrap; }
+      .brand-mark { display: grid; width: 28px; height: 28px; place-items: center; border-radius: 50%; color: #f7f7ef; background: var(--green); font-size: 13px; }
+      .topbar nav { display: flex; gap: clamp(10px, 2vw, 26px); color: #536158; font-size: 13px; }
+      .topbar nav a { padding: 7px 0; transition: color 180ms ease; }
+      .topbar nav a:hover { color: var(--green); }
+      .preview-pill { border: 1px solid rgba(54, 81, 59, 0.18); border-radius: 999px; padding: 7px 11px; color: var(--green); background: rgba(226, 235, 228, 0.62); font-size: 11px; font-weight: 700; white-space: nowrap; }
+
+      .progress { position: fixed; z-index: 18; top: 50%; right: clamp(12px, 3vw, 42px); display: grid; gap: 13px; transform: translateY(-50%); }
+      .progress a { position: relative; display: block; width: 8px; height: 8px; border-radius: 50%; background: #b7beb6; transition: transform 180ms ease, background-color 180ms ease; }
+      .progress a span { position: absolute; top: 50%; right: 18px; width: max-content; color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; opacity: 0; transform: translateY(-50%) translateX(4px); transition: 180ms ease; }
+      .progress a:hover span, .progress a.active span { opacity: 1; transform: translateY(-50%); }
+      .progress a.active { background: var(--green); transform: scale(1.55); }
+
+      .scene { position: relative; min-height: 100svh; padding: 150px max(28px, calc((100vw - 1180px) / 2)) 84px; border-top: 1px solid var(--line); overflow: clip; }
+      .scene::after { position: absolute; right: -9vw; bottom: -13vw; z-index: -1; width: 37vw; height: 37vw; border-radius: 50%; content: ""; background: rgba(203, 218, 205, 0.32); filter: blur(12px); }
+      .scene:first-of-type { border-top: 0; }
+
+      .hero { display: grid; min-height: 100svh; align-items: end; padding-bottom: 110px; color: #f9faf4; background: #18241d; }
+      .hero::before { position: absolute; z-index: -1; inset: 0; content: ""; background: linear-gradient(90deg, rgba(13, 23, 17, 0.78), rgba(13, 23, 17, 0.3) 58%, rgba(13, 23, 17, 0.54)), url("/hero/hero-ryo-hd.png") 65% center / cover; filter: saturate(0.8) contrast(1.03); }
+      .hero::after { display: none; }
+      .hero-copy { width: min(690px, 100%); }
+      .eyebrow { margin: 0 0 18px; font-size: 11px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
+      .hero .eyebrow { color: #bbceb8; }
+      .hero h1 { max-width: 650px; margin: 0; font-size: clamp(46px, 7vw, 86px); font-weight: 600; line-height: 1.04; letter-spacing: -0.075em; }
+      .hero h1 em { color: #c3d6bf; font-style: normal; font-weight: 400; }
+      .hero p { max-width: 550px; margin: 22px 0 0; color: rgba(249, 250, 244, 0.78); font-size: 16px; line-height: 1.8; }
+      .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+      .button { display: inline-flex; min-height: 44px; align-items: center; gap: 9px; border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 999px; padding: 0 18px; color: #fff; background: rgba(255, 255, 255, 0.09); font-size: 13px; font-weight: 700; transition: transform 180ms ease, background-color 180ms ease; }
+      .button:hover { background: rgba(255, 255, 255, 0.18); transform: translateY(-2px); }
+      .button.solid { color: var(--ink); background: #f7f8f1; }
+
+      .section-head { display: flex; align-items: end; justify-content: space-between; gap: 32px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+      .section-head > div { max-width: 680px; }
+      .section-head .eyebrow { margin-bottom: 13px; color: var(--green); }
+      h2 { margin: 0; font-size: clamp(40px, 5vw, 68px); font-weight: 600; line-height: 0.98; letter-spacing: -0.08em; }
+      h2 em { font-style: normal; font-weight: 400; }
+      .section-head p { margin: 18px 0 0; color: var(--muted); font-size: 15px; line-height: 1.75; }
+      .all-link { display: inline-flex; align-items: center; gap: 8px; padding-bottom: 4px; color: var(--green); font-size: 14px; font-weight: 800; white-space: nowrap; }
+      .all-link::after { content: "→"; font-size: 19px; font-weight: 400; transition: transform 180ms ease; }
+      .all-link:hover::after { transform: translateX(4px); }
+
+      .notes-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr); gap: 22px; padding-top: clamp(44px, 6vw, 88px); }
+      .note-card { display: grid; min-height: 220px; grid-template-columns: 42% 1fr; border: 1px solid rgba(38, 53, 42, 0.12); border-radius: 22px; overflow: hidden; background: var(--surface); box-shadow: 0 12px 32px rgba(38, 53, 42, 0.06); transition: transform 220ms ease, box-shadow 220ms ease; }
+      .note-card:hover { box-shadow: var(--shadow); transform: translateY(-5px); }
+      .note-card img { width: 100%; height: 100%; min-height: 220px; object-fit: cover; }
+      .note-copy { display: flex; min-width: 0; flex-direction: column; justify-content: center; padding: 28px; }
+      .meta { color: var(--green); font-size: 11px; font-weight: 800; letter-spacing: 0.08em; }
+      .note-copy h3 { margin: 11px 0 8px; font-size: clamp(18px, 2vw, 25px); line-height: 1.28; letter-spacing: -0.045em; }
+      .note-copy p { display: -webkit-box; margin: 0; overflow: hidden; color: var(--muted); font-size: 13px; line-height: 1.7; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+      .note-copy small { margin-top: 16px; color: var(--muted); font-size: 12px; }
+      .note-side { display: grid; gap: 22px; }
+      .note-side .note-card { min-height: 0; grid-template-columns: 1fr; }
+      .note-side .note-card img { display: none; }
+      .note-side .note-copy { min-height: 170px; }
+
+      .project-stage { position: relative; height: min(420px, 36vw); min-height: 350px; margin-top: clamp(38px, 6vw, 78px); }
+      .project-card { position: absolute; bottom: 38px; display: flex; width: min(292px, 25vw); min-width: 220px; height: 270px; flex-direction: column; border: 1px solid rgba(38, 53, 42, 0.13); border-radius: 20px; overflow: hidden; background: #fffef9; box-shadow: 0 22px 42px rgba(31, 51, 38, 0.14); transition: transform 260ms cubic-bezier(.2,.8,.2,1), box-shadow 260ms ease; }
+      .project-card:hover { z-index: 10; box-shadow: 0 28px 56px rgba(31, 51, 38, 0.24); transform: translateY(-17px) rotate(0deg) !important; }
+      .project-card img { width: 100%; height: 142px; object-fit: cover; }
+      .project-card .project-copy { display: flex; height: 128px; flex-direction: column; justify-content: space-between; padding: 15px 16px; }
+      .project-copy .serial { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: 0.09em; }
+      .project-copy h3 { margin: 8px 0; font-size: 20px; line-height: 1.05; letter-spacing: -0.06em; }
+      .project-copy footer { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 8px; color: var(--muted); font-size: 11px; }
+      .card-one { left: 4%; z-index: 1; transform: rotate(-7deg); }
+      .card-two { left: 22%; z-index: 2; transform: rotate(-3.5deg); }
+      .card-three { left: 40%; z-index: 3; transform: rotate(0deg); }
+      .card-four { left: 58%; z-index: 4; transform: rotate(3.5deg); }
+      .card-five { left: 76%; z-index: 5; transform: rotate(7deg); }
+
+      .gallery-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; padding-top: clamp(58px, 7vw, 96px); }
+      .art-card { position: relative; border: 1px solid rgba(38, 53, 42, 0.11); border-radius: 18px; padding: 12px; background: var(--surface); box-shadow: 0 12px 28px rgba(38, 53, 42, 0.08); transition: transform 220ms ease, box-shadow 220ms ease; }
+      .art-card::before { position: absolute; top: -11px; left: 50%; width: 88px; height: 22px; content: ""; border: 1px solid rgba(171, 139, 91, 0.22); background: rgba(247, 230, 199, 0.78); transform: translateX(-50%) rotate(-1.5deg); }
+      .art-card:hover { box-shadow: var(--shadow); transform: translateY(-8px) rotate(0deg) !important; }
+      .art-card img { display: block; width: 100%; aspect-ratio: 4 / 3; border-radius: 11px; object-fit: cover; }
+      .art-card h3 { margin: 14px 2px 5px; font-size: 16px; letter-spacing: -0.04em; }
+      .art-card p { margin: 0 2px 3px; color: var(--muted); font-size: 11px; }
+      .art-card:nth-child(1) { transform: rotate(-2deg); }
+      .art-card:nth-child(2) { transform: translateY(20px) rotate(1.5deg); }
+      .art-card:nth-child(3) { transform: rotate(-1deg); }
+      .art-card:nth-child(4) { transform: translateY(16px) rotate(2deg); }
+
+      .play-console { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 0; margin-top: clamp(46px, 6vw, 80px); overflow: hidden; border: 1px solid rgba(15, 25, 18, 0.78); border-radius: 28px; background: #0d130f; box-shadow: 0 32px 70px rgba(20, 30, 23, 0.2); }
+      .screen { min-height: 290px; padding: 32px; color: #edf1e9; background: radial-gradient(circle at 65% 35%, rgba(128, 174, 120, 0.22), transparent 19rem), linear-gradient(135deg, #14221a, #090c0a); }
+      .screen p { color: #aab9a9; font-size: 13px; }
+      .screen h3 { max-width: 420px; margin: 18px 0; font-size: clamp(28px, 4vw, 50px); line-height: 1.03; letter-spacing: -0.07em; }
+      .screen .button { border-color: rgba(193, 223, 188, 0.3); }
+      .game-list { display: grid; gap: 1px; background: rgba(255, 255, 255, 0.08); }
+      .game-list div { display: flex; min-height: 96px; align-items: center; justify-content: space-between; padding: 20px 26px; color: #e7efe5; background: #152019; transition: background-color 180ms ease; }
+      .game-list div:hover { background: #1c3022; }
+      .game-list small { color: #9fafa1; }
+
+      .footer-note { padding: 36px 0 0; color: var(--muted); font-size: 12px; text-align: center; }
+      .reveal { opacity: 0; transform: translateY(20px); transition: opacity 500ms ease, transform 500ms cubic-bezier(.2,.7,.2,1); }
+      .reveal.visible { opacity: 1; transform: none; }
+
+      @media (max-width: 900px) {
+        .topbar nav { display: none; }
+        .topbar { justify-content: space-between; }
+        .scene { padding-right: 28px; padding-left: 28px; }
+        .notes-layout, .play-console { grid-template-columns: 1fr; }
+        .project-stage { height: 390px; }
+        .project-card { width: 250px; }
+        .card-one { left: -4%; }.card-two { left: 15%; }.card-three { left: 34%; }.card-four { left: 53%; }.card-five { left: 72%; }
+        .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 25px 16px; }
+      }
+
+      @media (max-width: 620px) {
+        .topbar { top: 12px; }.preview-pill { display: none; }
+        .progress { right: 14px; }.progress a span { display: none; }
+        .scene { min-height: auto; padding-top: 112px; padding-bottom: 76px; }
+        .hero { min-height: 100svh; padding-bottom: 82px; }
+        .section-head { align-items: flex-start; flex-direction: column; gap: 18px; }
+        .note-card { grid-template-columns: 1fr; }.note-card img { min-height: 160px; height: 160px; }
+        .note-side { grid-template-columns: 1fr; }
+        .project-stage { height: 350px; margin-right: -28px; margin-left: -28px; overflow: hidden; }
+        .project-card { width: 220px; height: 250px; }.project-card img { height: 126px; }.project-card .project-copy { height: 124px; }
+        .card-one { left: -13%; }.card-two { left: 9%; }.card-three { left: 31%; }.card-four { left: 53%; }.card-five { left: 75%; }
+        .gallery-grid { grid-template-columns: 1fr; max-width: 330px; margin: auto; }.art-card:nth-child(even) { transform: translateX(12px) rotate(1.5deg); }
+      }
+
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; }.reveal, .reveal.visible, .project-card, .art-card, .button { transition: none; transform: none; } }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#home"><span class="brand-mark">叶</span>Kasumi 的数字小屋</a>
+      <nav aria-label="预览导航"><a href="#notes">笔记</a><a href="#projects">项目</a><a href="#gallery">画廊</a><a href="#playground">游乐场</a></nav>
+      <span class="preview-pill">交互预览</span>
+    </header>
+
+    <nav class="progress" aria-label="分栏进度"><a class="active" href="#home"><span>首页</span></a><a href="#notes"><span>笔记</span></a><a href="#projects"><span>项目</span></a><a href="#gallery"><span>画廊</span></a><a href="#playground"><span>游乐</span></a></nav>
+
+    <main>
+      <section id="home" class="scene hero">
+        <div class="hero-copy reveal">
+          <p class="eyebrow">Kasumi · Digital Cottage</p>
+          <h1>写代码，也<em>收藏</em>生活。</h1>
+          <p>一间用来沉淀工程实践、视觉灵感与轻巧实验的数字小屋。标题保持静态，让第一眼先安静下来。</p>
+          <div class="hero-actions"><a class="button solid" href="#notes">从笔记开始</a><a class="button" href="#projects">查看案例 →</a></div>
+        </div>
+      </section>
+
+      <section id="notes" class="scene">
+        <header class="section-head reveal"><div><p class="eyebrow">Writing / Notes</p><h2>精选<em>笔记</em></h2><p>保留一条清晰的阅读入口；卡片不翻面，悬停只给出微小的抬升与阅读反馈。</p></div><a class="all-link" href="#notes">查看全部</a></header>
+        <div class="notes-layout reveal">
+          <article class="note-card"><img src="/projects/dormitory-system/login-student.png" alt="智慧宿舍系统登录界面" /><div class="note-copy"><span class="meta">工程实践 · 2026-08-15</span><h3>从零构建智慧宿舍管理系统</h3><p>以角色权限、状态流程和实际页面为线索，完整记录项目中的工程选择。</p><small>阅读笔记 →</small></div></article>
+          <div class="note-side"><article class="note-card"><div class="note-copy"><span class="meta">代码与思考 · 2026-08-01</span><h3>Next.js App Router 的架构边界</h3><p>把路由、数据与交互拆到恰当的位置。</p></div></article><article class="note-card"><div class="note-copy"><span class="meta">生活与摄影 · 2026-07-28</span><h3>胶片摄影里的侘寂美学</h3><p>记录留白、颗粒与时间感。</p></div></article></div>
+        </div>
+      </section>
+
+      <section id="projects" class="scene">
+        <header class="section-head reveal"><div><p class="eyebrow">Selected work</p><h2>精选<em>项目</em></h2><p>左到右展开，层级自然递进。只有真实可访问的案例使用“查看”，其余明确标示为计划或留白。</p></div><a class="all-link" href="#projects">进入项目档案</a></header>
+        <div class="project-stage reveal" aria-label="项目卡片扇形陈列">
+          <article class="project-card card-one"><img src="/gallery/【搜图壁纸】四格-卡通.png" alt="卡通插画封面" /><div class="project-copy"><span class="serial">CASE 01 / IN PROGRESS</span><h3>智慧宿舍管理系统</h3><footer><span>Vue · Spring Boot</span><b>查看 →</b></footer></div></article>
+          <article class="project-card card-two"><img src="/gallery/【哲风壁纸】剪影-壁纸-天空.png" alt="天空剪影封面" /><div class="project-copy"><span class="serial">CASE 02 / PLANNING</span><h3>个人作品归档工具</h3><footer><span>内容组织</span><b>筹备中</b></footer></div></article>
+          <article class="project-card card-three"><img src="/gallery/【哲风壁纸】二次元-卡通.png" alt="二次元卡通封面" /><div class="project-copy"><span class="serial">CASE 03 / PLANNING</span><h3>Linux 运维练习集</h3><footer><span>命令与排障</span><b>筹备中</b></footer></div></article>
+          <article class="project-card card-four"><img src="/gallery/【用户壁纸】持剑-黑发少女.jpg" alt="黑发少女插画封面" /><div class="project-copy"><span class="serial">CASE 04 / PLANNING</span><h3>小型服务监控面板</h3><footer><span>可观测性</span><b>筹备中</b></footer></div></article>
+          <article class="project-card card-five"><img src="/gallery/【用户壁纸】蓝发-少女特写.jpg" alt="蓝发少女插画封面" /><div class="project-copy"><span class="serial">CASE 05 / NOTEBOOK</span><h3>下一件待记录的事</h3><footer><span>持续补充</span><b>留白</b></footer></div></article>
+        </div>
+      </section>
+
+      <section id="gallery" class="scene">
+        <header class="section-head reveal"><div><p class="eyebrow">Visual archive</p><h2>作品<em>画廊</em></h2><p>画廊用纸张与作品本身建立节奏：横向对齐的卡片、克制的悬停位移，不让标签压住画面。</p></div><a class="all-link" href="#gallery">查看全部</a></header>
+        <div class="gallery-grid reveal">
+          <article class="art-card"><img src="/gallery/【用户壁纸】蓝发-少女特写.jpg" alt="蓝发少女" /><h3>蓝发少女 · 静谧片刻</h3><p>个人收藏 · 2026-08-12</p></article>
+          <article class="art-card"><img src="/gallery/【用户壁纸】持剑-黑发少女.jpg" alt="持剑少女" /><h3>持剑少女 · 暗色剪影</h3><p>个人收藏 · 2026-08-10</p></article>
+          <article class="art-card"><img src="/gallery/【搜图壁纸】四格-卡通.png" alt="四格卡通" /><h3>四格卡通 · 轻快灵感</h3><p>个人收藏 · 2026-08-05</p></article>
+          <article class="art-card"><img src="/gallery/【哲风壁纸】二次元-卡通.png" alt="二次元卡通" /><h3>二次元卡通 · 梦幻纪元</h3><p>个人收藏 · 2026-07-28</p></article>
+        </div>
+      </section>
+
+      <section id="playground" class="scene">
+        <header class="section-head reveal"><div><p class="eyebrow">Small experiments</p><h2>灵感<em>游乐场</em></h2><p>维持游乐场的独立气质，但在首页只呈现一个安静的入口，避免数种动效同时争夺注意力。</p></div><a class="all-link" href="#playground">进入游乐场</a></header>
+        <div class="play-console reveal"><div class="screen"><p class="meta">BROWSER ARCADE / ALWAYS OPEN</p><h3>给好奇心<br />留一盏灯。</h3><a class="button" href="#playground">开始游玩 →</a></div><div class="game-list"><div><span>贪吃蛇<br /><small>像素反应与节奏</small></span><b>01</b></div><div><span>五子棋<br /><small>策略与轻量 AI</small></span><b>02</b></div><div><span>中国象棋<br /><small>局面与推演</small></span><b>03</b></div></div></div>
+        <p class="footer-note">预览目标：保留普通页面滚动，消除翻页式强制感；滚动位置只用于低干扰的方位提示，不劫持滚轮。</p>
+      </section>
+    </main>
+
+    <script>
+      const sections = [...document.querySelectorAll('.scene')];
+      const dots = [...document.querySelectorAll('.progress a')];
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+      }, { threshold: 0.12 });
+      document.querySelectorAll('.reveal').forEach((element) => revealObserver.observe(element));
+      const sectionObserver = new IntersectionObserver((entries) => {
+        const active = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!active) return;
+        dots.forEach((dot) => dot.classList.toggle('active', dot.getAttribute('href') === `#${active.target.id}`));
+      }, { threshold: [0.35, 0.55, 0.75] });
+      sections.forEach((section) => sectionObserver.observe(section));
+    </script>
+  </body>
+</html>

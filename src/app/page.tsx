@@ -5,6 +5,7 @@ import GalleryTeaser from "@/components/GalleryTeaser";
 import PlaygroundTeaser from "@/components/PlaygroundTeaser";
 import NewsletterSection from "@/components/NewsletterSection";
 import Footer from "@/components/Footer";
+import HomeScrollMotion from "@/components/HomeScrollMotion";
 import { getFeaturedNotes } from "@/lib/notes";
 
 export default function Home() {
@@ -26,6 +27,8 @@ export default function Home() {
         <NewsletterSection />
         <Footer />
       </section>
+
+      <HomeScrollMotion />
     </>
   );
 }
