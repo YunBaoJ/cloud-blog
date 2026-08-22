@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
-import { BookOpen, Gamepad2, ArrowRight, ArrowDown, Feather, Sparkles } from "lucide-react";
+import { BookOpen, Gamepad2, ArrowRight } from "lucide-react";
 import TextType from "@/components/ui/TextType";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -38,14 +38,14 @@ export default function Hero() {
   return (
     <section 
       ref={heroRef} 
-      className="relative isolate min-h-[100dvh] w-full flex flex-col justify-between overflow-hidden bg-[#17211B] px-6 sm:px-12 lg:px-20 pt-28 pb-16 md:pt-32 md:pb-20 transition-colors duration-300 select-none"
+      className="relative isolate min-h-[100dvh] w-full flex flex-col overflow-hidden bg-[#17211B] px-6 sm:px-12 lg:px-20 pt-24 pb-16 md:pb-20 transition-colors duration-300"
       aria-label="首页视觉展示区"
     >
       {/* 1. Full-Bleed High-Res Background Wallpaper with Locked Cinema Filter */}
       <div className="absolute inset-0 z-0 w-full h-full overflow-hidden">
         <Image
           src={HERO_BG}
-          alt="Sora的数字客房背景壁纸"
+          alt="Kasumi的数字小屋背景壁纸"
           fill
           priority
           unoptimized
@@ -60,14 +60,6 @@ export default function Hero() {
         />
       </div>
 
-      {/* Top Floating Brand Capsule */}
-      <div className="relative z-20 w-full max-w-6xl mx-auto flex items-center justify-between pt-2">
-        <div className="inline-flex items-center gap-2 text-xs font-mono tracking-widest text-white/60 uppercase">
-          <Sparkles className="w-3.5 h-3.5 text-[#9DB289]" />
-          <span>Sora Cottage · 2026</span>
-        </div>
-      </div>
-
       {/* Main Content Layout */}
       <div className="relative z-10 w-full max-w-6xl mx-auto flex-1 flex flex-col justify-center py-12 md:py-16">
         <div className="max-w-3xl sm:max-w-4xl text-left space-y-8 sm:space-y-10">
@@ -78,7 +70,7 @@ export default function Hero() {
               <div className="relative w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/80 shadow-md bg-white/10 transition-transform duration-300 group-hover:scale-105">
                 <Image
                   src="/avatar/my-avatar.jpg"
-                  alt="Sora Avatar"
+                  alt="Kasumi 的头像"
                   fill
                   priority
                   sizes="40px"
@@ -88,12 +80,8 @@ export default function Hero() {
             </div>
 
             <div className="flex items-center gap-2.5">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#9DB289] opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#9DB289]" />
-              </span>
               <span className="text-sm font-semibold tracking-wider text-[#FAF7F2]">
-                Sora · 数字客房
+                Kasumi · 数字小屋
               </span>
             </div>
           </div>
@@ -140,25 +128,6 @@ export default function Hero() {
           </div>
 
         </div>
-      </div>
-
-      {/* Bottom Status Dock & Scroll Navigation */}
-      <div className="relative z-10 w-full max-w-6xl mx-auto flex items-center justify-between pt-6 pb-4">
-        <div className="hero-anim-item hidden sm:flex items-center gap-3 px-4.5 py-2.5 rounded-full border border-white/20 bg-white/14 backdrop-blur-xl shadow-lg text-xs font-medium text-[#FAF7F2]/90">
-          <Feather className="w-4 h-4 text-[#D79B7B]" />
-          <span>随笔文字与思考</span>
-          <span className="w-1 h-1 rounded-full bg-white/40" />
-          <Sparkles className="w-3.5 h-3.5 text-[#9DB289]" />
-          <span>胶片与记录切片</span>
-        </div>
-
-        <a
-          href="#notes"
-          className="hero-anim-item ml-auto inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 bg-white/14 hover:bg-white/22 backdrop-blur-xl text-xs font-semibold text-[#FAF7F2] transition-all duration-300 shadow-md group"
-        >
-          <span>探索下方</span>
-          <ArrowDown className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-y-0.5" />
-        </a>
       </div>
 
       {/* 4. Official SpringBlog Parallax Wave Divider */}

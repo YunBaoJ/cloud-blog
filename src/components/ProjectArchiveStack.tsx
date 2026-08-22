@@ -30,7 +30,7 @@ function ProjectCard({ item, size = "home" }: { item: ProjectArchiveItem; size?:
   const isIndex = size === "index";
   const cardClass = `group relative block isolate ${
     isIndex ? "h-[292px] w-full max-w-[414px]" : "h-[250px] w-[350px] shrink-0"
-  } overflow-hidden rounded-[22px] border border-[#26352A]/13 bg-[#FFFEF9] shadow-[0_19px_32px_rgba(38,53,42,0.15)] transition-[transform,box-shadow] duration-300 motion-reduce:transition-none`;
+  } overflow-hidden rounded-3xl border border-[#26352A]/13 bg-[#FFFEF9] shadow-[0_19px_32px_rgba(38,53,42,0.15)] transition-[transform,box-shadow] duration-300 motion-reduce:transition-none`;
 
   const content = (
     <>
@@ -137,7 +137,7 @@ export default function ProjectArchiveStack({ items, variant = "home" }: Project
 
               {/* 内层卡片：承载原本 100% 相同的扇形倾角与浮升动效 */}
               <div
-                className={`relative transition-all duration-300 ease-out transform motion-reduce:transition-none group-hover:shadow-[0_28px_48px_rgba(38,53,42,0.22)] rounded-[22px] ${config.motionClass}`}
+                className={`relative transition-all duration-300 ease-out transform motion-reduce:transition-none group-hover:shadow-[0_28px_48px_rgba(38,53,42,0.22)] rounded-3xl ${config.motionClass}`}
               >
                 <ProjectCard item={item} />
               </div>

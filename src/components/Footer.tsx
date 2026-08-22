@@ -32,7 +32,7 @@ export default function Footer() {
 
   const handleCopyQuote = () => {
     const current = INSPIRATIONS[quoteIndex];
-    navigator.clipboard.writeText(`"${current.text}" — ${current.author}`);
+    navigator.clipboard.writeText(`"${current.text}" - ${current.author}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -54,7 +54,7 @@ export default function Footer() {
                 “{currentQuote.text}”
               </p>
               <p className="text-xs font-mono text-[#7A736A] dark:text-[#9EB3A4] mt-1">
-                — {currentQuote.author}
+                {currentQuote.author}
               </p>
             </div>
           </div>

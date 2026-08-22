@@ -18,6 +18,7 @@ interface FeaturedNotesProps {
 }
 
 const NOTE_ROTATIONS = ["rotate-[2deg]", "-rotate-[2deg]", "rotate-[1.5deg]"];
+const NOTE_OFFSETS = ["md:-translate-y-4", "md:translate-y-6", "md:translate-y-0"];
 
 function getCategoryIcon(iconName: string) {
   const className = "size-3.5";
@@ -40,7 +41,7 @@ export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
     <section
       id="notes"
       data-home-scroll-section
-      className="relative min-h-[100dvh] w-full overflow-hidden border-t border-[#36513B]/16 bg-transparent px-4 py-20 select-none dark:border-white/16 sm:px-6 md:py-28 lg:px-8"
+      className="relative min-h-[100dvh] w-full overflow-hidden border-t border-[#36513B]/16 bg-transparent px-4 py-20 dark:border-white/16 sm:px-6 md:py-28 lg:px-8"
     >
       {/* Background Ambient Pine Glow */}
       <div data-home-scroll-ambient className="absolute top-1/2 right-0 -translate-y-1/2 w-96 h-96 bg-[#36513B]/6 dark:bg-[#7CD090]/4 blur-3xl rounded-full pointer-events-none" />
@@ -49,9 +50,6 @@ export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
         {/* Section Header */}
         <div className="journal-card-anim flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-3">
-            <p className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#6F7E70] uppercase">
-              01 / FEATURED ESSAYS
-            </p>
             <h2 className="font-[family-name:var(--section-heading-font)] text-5xl font-semibold leading-[0.9] tracking-[-0.1em] text-[#26352A] dark:text-[#F0F5F1] sm:text-6xl">
               精选<em className="ml-1 font-[family-name:var(--section-heading-font)] not-italic font-medium">笔记</em>
             </h2>
@@ -64,7 +62,7 @@ export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
             href="/notes"
             className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#36513B] dark:text-[#7CD090] hover:text-[#283E2C] dark:hover:text-white transition-colors group self-start sm:self-end"
           >
-            <span>查看全部</span>
+            <span>全部笔记</span>
             <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
           </Link>
         </div>
@@ -74,7 +72,7 @@ export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
           {notes.map((note, index) => (
             <div
               key={note.id}
-              className="journal-card-anim group relative h-[420px] sm:h-[440px] w-full [perspective:1000px] cursor-pointer isolate"
+              className={`journal-card-anim group relative h-[420px] sm:h-[440px] w-full [perspective:1000px] cursor-pointer isolate ${NOTE_OFFSETS[index % NOTE_OFFSETS.length]}`}
             >
               {/* Invisible Hitbox Extension to completely eliminate edge flickers */}
               <div className="absolute -inset-4 pointer-events-auto" aria-hidden="true" />
@@ -89,9 +87,7 @@ export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
                   
                   {/* Top Washi Bookmark Ribbon (右上角和纸便签贴) */}
                   <div className="absolute -top-3.5 right-6 w-24 h-7 bg-[#F5E8D3]/90 dark:bg-[#2A3B30]/90 border border-[#E8D7BE]/70 dark:border-white/10 rotate-[2deg] backdrop-blur-2xs shadow-2xs z-20 pointer-events-none rounded-xs flex items-center justify-center">
-                    <span className="font-mono text-[10px] font-bold text-[#8C4A31] dark:text-[#E5987D] tracking-wider">
-                      NOTE · 0{index + 1}
-                    </span>
+                    <span className="w-14 h-px bg-[#8C4A31]/25 dark:bg-white/30" />
                   </div>
 
                   {/* Left Binder Punch Holes (左侧活页扣孔细节) */}
@@ -160,10 +156,7 @@ export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
                   </div>
 
                   <div className="space-y-4 pr-3">
-                    <div className="flex items-center justify-between text-xs text-white/80 font-mono">
-                      <span className="font-bold text-[#E5987D]">
-                        NOTE · 0{index + 1}
-                      </span>
+                    <div className="flex items-center justify-end text-xs text-white/80 font-mono">
                       <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/15 text-white text-[11px]">
                         <Clock className="size-3 text-[#E5987D]" />
                         <span>{note.readTime ?? "5 min"}</span>
