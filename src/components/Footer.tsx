@@ -134,7 +134,7 @@ export default function Footer() {
               <Mail className="w-4 h-4" />
             </a>
             <a
-              href="https://github.com"
+              href="https://github.com/YunBaoJ/cloud-blog"
               target="_blank"
               rel="noreferrer"
               className="p-2.5 rounded-full bg-white border border-[#2D2B2C]/8 hover:text-[#36513B] hover:border-[#36513B]/30 hover:scale-110 transition-all"

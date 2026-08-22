@@ -69,7 +69,7 @@ src/data/siteContent.ts     Gallery data and other non-article static content
 src/lib/site.ts             Site-wide configuration
 public/gallery/             Gallery source images referenced by siteContent.ts
 src/app/globals.css         Shared theme tokens and global visual rules
-src/components/RouteTheme.tsx  Non-home background and paper-layer system
+src/app/layout.tsx          Ambient wallpaper layer, dual-tone overlay, anti-flash theme bootstrap
 src/components/Hero.tsx     Home-only dark Hero
 ```
 
@@ -100,7 +100,7 @@ git diff --check
 
 - Framework: Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4.
 - The shared layout includes theme handling, floating navigation, reading progress, and metadata-based search.
-- Non-home route background layering is implemented in `RouteTheme`; do not move the background image into individual pages unless the user asks for a route-specific exception.
+- The fixed ambient wallpaper and dual-tone overlay live in `src/app/layout.tsx`; `RouteTheme` is retained only as a pass-through wrapper. Do not move the background image into individual pages unless the user asks for a route-specific exception.
 - The home route composes `Hero`, statistics, featured notes, gallery teaser, playground teaser, newsletter, and footer.
 - Gallery records currently live in `GALLERY_PHOTOS` in `src/data/siteContent.ts`.
 - Local development runs at `http://localhost:3000` when started with `npm run dev`.
@@ -115,6 +115,7 @@ git diff --check
 | Remove gallery categories | Confirmed | They added interface noise without helping the growing archive. |
 | Use SpringBlog as a gallery reference | Confirmed | Its quiet staggered layout and light detail presentation match the desired direction. |
 | Use English project documentation | Confirmed | The user requested English `design.md`, planning documentation, and this handoff. |
+| 2026-08-22 accessibility & polish audit fixes | Confirmed | User approved fixing all findings: game-modal Esc/focus trap, keyboard-hijack guard, anti-flash theme bootstrap, ambient-image priority, footer repo link, markdown link rendering, hash-close history semantics, note-card clamp constants. Handoff ownership section updated where implementation had drifted. |
 
 ## When to Ask the User
 

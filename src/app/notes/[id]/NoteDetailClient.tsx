@@ -240,7 +240,7 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
 }
 
 function renderFormattedInlineText(text: string): React.ReactNode {
-  const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|`.*?`)/g);
+  const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|`.*?`|\[[^\]]*\]\([^)\s]*\))/g);
 
   return parts.map((part, index) => {
     if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
@@ -265,6 +265,24 @@ function renderFormattedInlineText(text: string): React.ReactNode {
         >
           {part.slice(1, -1)}
         </code>
+      );
+    }
+    const linkMatch = part.match(/^\[([^\]]*)\]\(([^)\s]*)\)$/);
+    if (linkMatch) {
+      const [, label, href] = linkMatch;
+      const linkClass =
+        "text-[#36513B] dark:text-[#7CD090] underline underline-offset-2 hover:opacity-75";
+      if (/^(https?:\/\/|mailto:)/.test(href)) {
+        return (
+          <a key={index} href={href} target="_blank" rel="noreferrer" className={linkClass}>
+            {label}
+          </a>
+        );
+      }
+      return (
+        <Link key={index} href={href} className={linkClass}>
+          {label}
+        </Link>
       );
     }
     return part;

@@ -82,12 +82,20 @@ export default function RootLayout({
         suppressHydrationWarning
         className="antialiased selection:bg-[#E2EBE4] selection:text-[#36513B] min-h-[100dvh] bg-[linear-gradient(135deg,rgb(236,240,235)_0%,rgb(242,243,237)_40%,rgb(247,245,238)_100%)] dark:bg-[#142219]"
       >
+        {/* 首帧主题同步：渲染前读取偏好，避免暗色用户白屏闪烁（后续切换仍由 ThemeProvider 接管） */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              '(function(){try{var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}var d=t==="dark";document.documentElement.classList.toggle("dark",d);document.documentElement.style.colorScheme=d?"dark":"light"}catch(e){}})();',
+          }}
+        />
         {/* Global Immersive Fixed Wallpaper Ambient Overlay across ALL pages */}
         <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.14] dark:opacity-[0.18] transition-opacity duration-700">
           <Image
             src="/hero/hero-ryo-hd.png"
             alt=""
             fill
+            priority
             sizes="100vw"
             aria-hidden="true"
             className="object-cover object-center"

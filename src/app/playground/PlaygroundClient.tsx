@@ -127,6 +127,11 @@ export const GAMES = [
   },
 ];
 
+// 悬浮便利贴卡片尺寸口径：卡片为 w-36(144px)，初始定位与拖拽钳制共用同一包络
+const NOTE_CARD_WIDTH = 144;
+const NOTE_EDGE_MARGIN = 4;
+const NOTE_HEIGHT_BUDGET = 190;
+
 function subscribeToHash(callback: () => void) {
   window.addEventListener("hashchange", callback);
   window.addEventListener("popstate", callback);
@@ -154,6 +159,46 @@ function GameModal({
   close: () => void;
 }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Esc 关闭 + Tab 焦点陷阱；打开时聚焦关闭按钮，卸载时还原触发元素焦点
+  useEffect(() => {
+    if (!isOpen) return;
+    const invoker = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const raf = requestAnimationFrame(() => closeButtonRef.current?.focus());
+
+    const handleDialogKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+        return;
+      }
+      if (event.key !== "Tab" || !dialogRef.current) return;
+      const focusable = Array.from(
+        dialogRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handleDialogKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleDialogKeyDown);
+      cancelAnimationFrame(raf);
+      invoker?.focus();
+    };
+  }, [close, isOpen]);
 
   return createPortal(
     <div
@@ -161,12 +206,16 @@ function GameModal({
         isFullscreen ? "p-0" : "p-2.5 sm:p-6"
       }`}
       style={{ display: isOpen ? "flex" : "none" }}
+      role="dialog"
+      aria-modal="true"
+      aria-label={activeInfo?.name ?? "游戏窗口"}
       aria-hidden={!isOpen}
       onClick={(e) => {
         if (e.target === e.currentTarget) close();
       }}
     >
       <div
+        ref={dialogRef}
         className={`relative flex flex-col overflow-hidden bg-[#FAF7F2] dark:bg-[#18261D] border border-[var(--border-line-color)] shadow-[0_24px_80px_rgba(0,0,0,0.3)] transition-all duration-200 ${
           isFullscreen
             ? "w-full h-full rounded-none"
@@ -199,6 +248,7 @@ function GameModal({
               {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
             </button>
             <button
+              ref={closeButtonRef}
               onClick={close}
               className="p-1.5 sm:p-2 rounded-xl text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-black/5 dark:hover:bg-white/8 transition-colors cursor-pointer"
               aria-label="关闭"
@@ -249,6 +299,9 @@ export default function PlaygroundClient() {
   const [currentTime, setCurrentTime] = useState("12:00");
   const [credits, setCredits] = useState(2);
   const pageRef = useRef<HTMLDivElement>(null);
+  const bootTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const userDraggedRef = useRef(false);
+  const hashEntryOursRef = useRef(false);
 
   // Floating sticky note positions (keyed by game id)
   const [floatPos, setFloatPos] = useState<Record<string, { x: number; y: number }>>(() =>
@@ -257,6 +310,35 @@ export default function PlaygroundClient() {
     )
   );
   const dragging = useRef<{ id: string; ox: number; oy: number } | null>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
+
+  // 窄屏下依据看板实际尺寸分散初始卡位：与拖拽钳制共用同一包络，避免盖住把手或越出边界；
+  // 跨断点 resize 时重排，但用户手动拖拽过后不再重置位置
+  useEffect(() => {
+    const applyNarrowLayout = () => {
+      const board = boardRef.current;
+      if (!board || userDraggedRef.current) return;
+      const w = board.clientWidth;
+      const h = board.clientHeight;
+      if (!w || !h || w >= 768) return;
+      const maxX = Math.max(6, w - NOTE_CARD_WIDTH - NOTE_EDGE_MARGIN);
+      const maxY = Math.max(6, h - NOTE_HEIGHT_BUDGET);
+      const clampX = (f: number) => Math.min(maxX, Math.max(6, Math.round(w * f)));
+      setFloatPos({
+        xiangqi: { x: clampX(0.03), y: 14 },
+        gomoku: { x: clampX(0.31), y: 22 },
+        snake: { x: clampX(0.59), y: 14 },
+        "2048": { x: clampX(0.17), y: Math.max(6, maxY - 12) },
+        puzzle: { x: clampX(0.45), y: maxY },
+      });
+    };
+    const raf = requestAnimationFrame(applyNarrowLayout);
+    window.addEventListener("resize", applyNarrowLayout);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", applyNarrowLayout);
+    };
+  }, []);
 
 
   const activeGameIdx = insertedCartridge
@@ -272,9 +354,14 @@ export default function PlaygroundClient() {
     setIsOptionsOpen(false);
     setIsPoweredOn(true);
     setIsBooting(true);
-    setTimeout(() => {
+    if (bootTimerRef.current) clearTimeout(bootTimerRef.current);
+    bootTimerRef.current = setTimeout(() => {
       setIsBooting(false);
     }, 600);
+  }, []);
+
+  useEffect(() => () => {
+    if (bootTimerRef.current) clearTimeout(bootTimerRef.current);
   }, []);
 
   // Eject current cartridge
@@ -293,8 +380,16 @@ export default function PlaygroundClient() {
       setActiveModalGame(rawHashGame);
       setInsertedCartridge(rawHashGame);
       setIsPoweredOn(true);
+    } else {
+      // 浏览器后退清空了 hash：同步收起弹窗
+      if (activeModalGame) setActiveModalGame(null);
     }
   }
+
+  // hash 归零即视为当前历史条目不再归属本会话的打开动作（渲染期不可写 ref，放到 effect）
+  useEffect(() => {
+    if (!rawHashGame) hashEntryOursRef.current = false;
+  }, [rawHashGame]);
 
   // Real-time clock for console status bar
   useEffect(() => {
@@ -314,9 +409,15 @@ export default function PlaygroundClient() {
     triggerGameHaptic("medium");
     setActiveModalGame(gameId);
     window.location.hash = gameId;
+    hashEntryOursRef.current = true;
   }, []);
 
   const closeGame = useCallback(() => {
+    if (window.location.hash && hashEntryOursRef.current) {
+      // 本次会话内打开的：后退消耗掉这条 hash 历史，避免关闭后按「后退」又弹出游戏
+      window.history.back();
+      return;
+    }
     setActiveModalGame(null);
     if (window.location.hash) {
       window.history.pushState(null, "", window.location.pathname);
@@ -352,7 +453,14 @@ export default function PlaygroundClient() {
   // Global Keyboard Gamepad Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (activeModalGame || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+      if (
+        activeModalGame ||
+        e.ctrlKey ||
+        e.metaKey ||
+        e.altKey ||
+        (e.target instanceof HTMLElement &&
+          e.target.closest("input, textarea, select, button, a[href], [role='button'], [contenteditable]"))
+      ) {
         return;
       }
 
@@ -982,6 +1090,7 @@ export default function PlaygroundClient() {
 
           {/* 悬浮便利贴区 (relative container) */}
           <div
+            ref={boardRef}
             className="relative w-full rounded-3xl bg-[#F4F0E8]/60 dark:bg-[#111A13]/60 border border-[#26352A]/10 dark:border-white/8"
             style={{ height: 320 }}
             onMouseMove={(e) => {
@@ -993,8 +1102,8 @@ export default function PlaygroundClient() {
               setFloatPos((prev) => ({
                 ...prev,
                 [drag.id]: {
-                  x: Math.max(0, Math.min(rect.width - 148, x)),
-                  y: Math.max(0, Math.min(rect.height - 190, y)),
+                  x: Math.max(0, Math.min(rect.width - (NOTE_CARD_WIDTH + NOTE_EDGE_MARGIN), x)),
+                  y: Math.max(0, Math.min(rect.height - NOTE_HEIGHT_BUDGET, y)),
                 },
               }));
             }}
@@ -1011,8 +1120,8 @@ export default function PlaygroundClient() {
               setFloatPos((prev) => ({
                 ...prev,
                 [drag.id]: {
-                  x: Math.max(0, Math.min(rect.width - 148, x)),
-                  y: Math.max(0, Math.min(rect.height - 190, y)),
+                  x: Math.max(0, Math.min(rect.width - (NOTE_CARD_WIDTH + NOTE_EDGE_MARGIN), x)),
+                  y: Math.max(0, Math.min(rect.height - NOTE_HEIGHT_BUDGET, y)),
                 },
               }));
             }}
@@ -1060,6 +1169,7 @@ export default function PlaygroundClient() {
                     // Only drag from header, not from the click button
                     if ((e.target as HTMLElement).closest("button")) return;
                     const rect = e.currentTarget.getBoundingClientRect();
+                    userDraggedRef.current = true;
                     dragging.current = {
                       id: game.id,
                       ox: e.clientX - rect.left,
@@ -1071,6 +1181,7 @@ export default function PlaygroundClient() {
                     if ((e.target as HTMLElement).closest("button")) return;
                     const touch = e.touches[0];
                     const rect = e.currentTarget.getBoundingClientRect();
+                    userDraggedRef.current = true;
                     dragging.current = {
                       id: game.id,
                       ox: touch.clientX - rect.left,

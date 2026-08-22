@@ -98,6 +98,7 @@ export default function CommandMenu({ notes }: CommandMenuProps) {
   const mounted = useMounted();
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const selectedItemRef = useRef<HTMLButtonElement>(null);
   const invokerRef = useRef<HTMLElement | null>(null);
   const recentRaw = useSyncExternalStore(subscribeToRecentSearches, getRecentSearchesSnapshot, () => "[]");
   const recentSearches = useMemo(() => {
@@ -169,6 +170,11 @@ export default function CommandMenu({ notes }: CommandMenuProps) {
       window.requestAnimationFrame(() => invokerRef.current?.focus());
     };
   }, [closeMenu, isOpen]);
+
+  // 键盘上下移动时让选中项滚入可视区
+  useEffect(() => {
+    selectedItemRef.current?.scrollIntoView({ block: "nearest" });
+  }, [selectedIndex]);
 
   const normalizedQuery = query.toLocaleLowerCase().trim();
   const matches = (values: string[]) => !normalizedQuery || values.some((value) => value.toLocaleLowerCase().includes(normalizedQuery));
@@ -317,6 +323,7 @@ export default function CommandMenu({ notes }: CommandMenuProps) {
                   return (
                     <button
                       key={item.path}
+                      ref={isSelected ? selectedItemRef : undefined}
                       type="button"
                       onClick={() => handleSelect(item.path)}
                       onMouseEnter={() => setSelectedIndex(itemIndex)}
