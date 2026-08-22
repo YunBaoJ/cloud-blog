@@ -28,7 +28,7 @@ It is not a corporate portfolio, a camera-specification archive, or a dashboard.
 - Inner pages use a pale green-paper background with a fixed, low-opacity floral image beneath the content.
 - Navigation is a centered floating glass pill. It is part of the site identity and should not be replaced by a conventional full-width bar without user direction.
 - The aesthetic is quiet, fresh, natural, and editorial; avoid generic SaaS, neon, purple gradients, loud bento cards, and heavy dark overlays on inner pages.
-- The home Hero title is intentionally static. Do not restore a looping/typewriter title effect, because it caused visible flashing.
+- The home Hero title intentionally uses a looping `TextType` typewriter that cycles through four phrases. This is a deliberate brand expression; do not replace it with a static title without user direction.
 - Do not add a page-wide transition that fades or flashes images.
 
 ### Gallery rules
@@ -111,7 +111,7 @@ git diff --check
 | --- | --- | --- |
 | Use palette 04, Mossland Warm Light | Confirmed | The user selected it after reviewing four SpringBlog-inspired alternatives. |
 | Preserve the default dark home Hero | Confirmed | The user preferred the original Hero structure over a pale replacement. |
-| Keep Hero title static | Confirmed | Animated title behavior was visually unstable and appeared to flash. |
+| Keep Hero title static | Superseded | Originally static because of flashing; the looping `TextType` typewriter was deliberately re-introduced and is now the confirmed behavior. |
 | Remove gallery categories | Confirmed | They added interface noise without helping the growing archive. |
 | Use SpringBlog as a gallery reference | Confirmed | Its quiet staggered layout and light detail presentation match the desired direction. |
 | Use English project documentation | Confirmed | The user requested English `design.md`, planning documentation, and this handoff. |
