@@ -79,7 +79,7 @@ export default function RootLayout({
     >
       <body
         suppressHydrationWarning
-        className="antialiased selection:bg-[#E2EBE4] selection:text-[#36513B] min-h-screen bg-[linear-gradient(135deg,rgb(236,240,235)_0%,rgb(242,243,237)_40%,rgb(247,245,238)_100%)] dark:bg-[#142219]"
+        className="antialiased selection:bg-[#E2EBE4] selection:text-[#36513B] min-h-[100dvh] bg-[linear-gradient(135deg,rgb(236,240,235)_0%,rgb(242,243,237)_40%,rgb(247,245,238)_100%)] dark:bg-[#142219]"
       >
         {/* Global Immersive Fixed Wallpaper Ambient Overlay across ALL pages */}
         <div 

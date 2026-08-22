@@ -129,22 +129,17 @@ export default function AboutContent() {
       <section className="px-5 pb-16 pt-28 sm:px-8 lg:px-12 lg:pb-20 lg:pt-32">
         <div className="mx-auto max-w-6xl">
           {/* Standard Inner Page Header Rhythm */}
-          <div className="flex items-end justify-between gap-8 border-b border-[var(--border-line-color)] pb-10">
-            <div className="max-w-3xl">
-              <div className="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-[var(--accent-green)]">
-                <User className="size-4" strokeWidth={1.8} aria-hidden="true" />
-                <span>关于</span>
-              </div>
-              <h1 className="text-4xl font-light tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
-                关于 Kasumi
-              </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:text-base sm:leading-7">
-                一间坐落在互联网角落的数字小屋，记录技术探索、视觉灵感与生活趣味。
-              </p>
+          <div className="max-w-3xl border-b border-[var(--border-line-color)] pb-10">
+            <div className="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-[var(--accent-green)]">
+              <User className="size-4" strokeWidth={1.8} aria-hidden="true" />
+              <span>关于</span>
             </div>
-            <span className="hidden shrink-0 pb-1 text-xs font-medium text-[var(--muted)] sm:block">
-              自 2025 年持续耕耘
-            </span>
+            <h1 className="text-4xl font-light tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
+              关于 Kasumi
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:text-base sm:leading-7">
+              一间坐落在互联网角落的数字小屋，自 2025 年起持续耕耘，记录技术探索、视觉灵感与生活趣味。
+            </p>
           </div>
 
           {/* Asymmetric Editorial Hero */}

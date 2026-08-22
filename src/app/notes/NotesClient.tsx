@@ -2,7 +2,7 @@
 
 import Footer from "@/components/Footer";
 import type { NoteItem } from "@/lib/notes";
-import { ArrowRight, BookOpen, Search } from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -35,15 +35,11 @@ export default function NotesClient({ initialNotes }: NotesClientProps) {
   });
 
   return (
-    <main className="min-h-screen bg-transparent text-[var(--foreground)]">
+    <main className="min-h-[100dvh] bg-transparent text-[var(--foreground)]">
       <section className="px-5 pb-8 pt-28 sm:px-8 lg:px-12 lg:pt-32">
         <div className="mx-auto max-w-6xl">
           <div className="flex items-end justify-between gap-8 border-b border-[var(--border-line-color)] pb-10">
             <div className="max-w-3xl">
-              <div className="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-[var(--accent-green)]">
-                <BookOpen className="size-4" strokeWidth={1.8} aria-hidden="true" />
-                <span>随笔笔记</span>
-              </div>
               <h1 className="text-4xl font-light tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
                 随笔笔记
               </h1>

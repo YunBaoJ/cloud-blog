@@ -13,21 +13,19 @@ export default function ProjectsPage() {
   const planningCount = PROJECT_ARCHIVE_ITEMS.length - publishedCount;
 
   return (
-    <main className="min-h-screen bg-transparent px-4 py-32 sm:px-6 sm:py-40 lg:px-8">
+    <main className="min-h-[100dvh] bg-transparent px-4 py-20 sm:px-6 md:py-24 lg:px-8">
       <div className="mx-auto max-w-[1320px]">
         <header className="border-b border-[var(--border-line-color)] pb-12">
           <div className="inline-flex items-center gap-2 rounded-full bg-[#E2EBE4] px-3.5 py-1 text-xs font-semibold text-[#36513B] dark:bg-[#23382C] dark:text-[#7CD090]">
             <Layers3 className="size-3.5" aria-hidden="true" />
             项目档案
           </div>
-          <div className="mt-5 flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
-            <div>
-              <h1 className="text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-6xl">正在做的事</h1>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)] sm:text-base">
-                只保留已经完成、正在推进或尚待记录的真实项目。未公开的内容不会伪装成案例。
-              </p>
-            </div>
-            <p className="text-xs font-medium text-[var(--muted)]">{publishedCount} 个案例 · {planningCount} 项后续记录</p>
+          <div className="mt-5">
+            <h1 className="text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-6xl">正在做的事</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)] sm:text-base">
+              只保留已经完成、正在推进或尚待记录的真实项目。未公开的内容不会伪装成案例。
+            </p>
+            <p className="mt-4 text-xs font-medium text-[var(--muted)]">{publishedCount} 个案例 · {planningCount} 项后续记录</p>
           </div>
         </header>
 

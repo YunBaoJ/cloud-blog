@@ -4,10 +4,9 @@ import { useState, useRef } from "react";
 import Footer from "@/components/Footer";
 import ArticleTOC from "@/components/ArticleTOC";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Clock, Eye, ChevronRight, ChevronLeft, Copy, Check, Type, Sparkles, Maximize2, Minimize2, ChevronDown, ChevronUp, Share2, Bookmark, X } from "lucide-react";
+import { ArrowLeft, Calendar, ChevronRight, ChevronLeft, Copy, Check, Type, Sparkles, Maximize2, Minimize2, ChevronDown, ChevronUp, Share2, Bookmark, X } from "lucide-react";
 import type { NoteItem } from "@/lib/notes";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { useReadingPreferences } from "@/lib/useReadingPreferences";
 import { notify } from "@/lib/toast";
@@ -20,7 +19,7 @@ interface RelatedNote {
 }
 
 if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, useGSAP);
+  gsap.registerPlugin(useGSAP);
 }
 
 interface NoteDetailClientProps {
@@ -513,7 +512,7 @@ export default function NoteDetailClient({ note, prevNote, nextNote, relatedNote
     .filter(Boolean) as { id: string; title: string; level: number }[];
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-transparent text-[var(--foreground)] transition-colors duration-300">
+    <div ref={containerRef} className="min-h-[100dvh] bg-transparent text-[var(--foreground)] transition-colors duration-300">
       <main className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 space-y-10">
         {/* Left Dynamic Sticky Track for ArticleTOC — 0 impact on main width, moves with page */}
         <div className="absolute -left-64 top-28 bottom-20 w-56 pointer-events-none">
@@ -551,7 +550,7 @@ export default function NoteDetailClient({ note, prevNote, nextNote, relatedNote
               className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all ${
                 fontSizeLevel === "sm"
                   ? "bg-[#36513B] text-white shadow-2xs"
-                  : "text-[#7A736A] hover:bg-gray-100 dark:hover:bg-white/10"
+                  : "text-[var(--muted)] hover:bg-[var(--surface-2)]"
               }`}
             >
               小
@@ -562,7 +561,7 @@ export default function NoteDetailClient({ note, prevNote, nextNote, relatedNote
               className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all ${
                 fontSizeLevel === "base"
                   ? "bg-[#36513B] text-white shadow-2xs"
-                  : "text-[#7A736A] hover:bg-gray-100 dark:hover:bg-white/10"
+                  : "text-[var(--muted)] hover:bg-[var(--surface-2)]"
               }`}
             >
               中
@@ -573,7 +572,7 @@ export default function NoteDetailClient({ note, prevNote, nextNote, relatedNote
               className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all ${
                 fontSizeLevel === "lg"
                   ? "bg-[#36513B] text-white shadow-2xs"
-                  : "text-[#7A736A] hover:bg-gray-100 dark:hover:bg-white/10"
+                  : "text-[var(--muted)] hover:bg-[var(--surface-2)]"
               }`}
             >
               大

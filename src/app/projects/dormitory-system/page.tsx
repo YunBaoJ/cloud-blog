@@ -33,7 +33,7 @@ export default function DormitorySystemPage() {
   const project = DORMITORY_SYSTEM_PROJECT;
 
   return (
-    <main className="min-h-screen bg-transparent py-24 sm:py-32">
+    <main className="min-h-[100dvh] bg-transparent py-24 sm:py-32">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 space-y-16">
         
         {/* 1. Header Navigation & Title */}

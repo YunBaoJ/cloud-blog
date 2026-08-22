@@ -150,10 +150,6 @@ export default function GalleryClient({ initialPhotos = GALLERY_PHOTOS }: { init
         <section className="px-5 pb-9 pt-28 sm:px-8 lg:px-12 lg:pt-32">
           <div className="mx-auto max-w-6xl">
             <div className="max-w-3xl">
-              <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">
-                <ImageIcon className="size-4" strokeWidth={1.8} />
-                <span>作品画廊</span>
-              </div>
               <h1 className="text-4xl font-light tracking-[-0.05em] sm:text-5xl">
                 作品画廊
               </h1>
