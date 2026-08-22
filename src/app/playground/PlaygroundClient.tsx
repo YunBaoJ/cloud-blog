@@ -990,13 +990,14 @@ export default function PlaygroundClient() {
             className="relative w-full rounded-3xl bg-[#F4F0E8]/60 dark:bg-[#111A13]/60 border border-[#26352A]/10 dark:border-white/8"
             style={{ height: 320 }}
             onMouseMove={(e) => {
-              if (!dragging.current) return;
+              const drag = dragging.current;
+              if (!drag) return;
               const rect = e.currentTarget.getBoundingClientRect();
-              const x = e.clientX - rect.left - dragging.current.ox;
-              const y = e.clientY - rect.top - dragging.current.oy;
+              const x = e.clientX - rect.left - drag.ox;
+              const y = e.clientY - rect.top - drag.oy;
               setFloatPos((prev) => ({
                 ...prev,
-                [dragging.current!.id]: {
+                [drag.id]: {
                   x: Math.max(0, Math.min(rect.width - 148, x)),
                   y: Math.max(0, Math.min(rect.height - 190, y)),
                 },
@@ -1005,14 +1006,16 @@ export default function PlaygroundClient() {
             onMouseUp={() => { dragging.current = null; }}
             onMouseLeave={() => { dragging.current = null; }}
             onTouchMove={(e) => {
-              if (!dragging.current) return;
+              const drag = dragging.current;
+              if (!drag) return;
               const touch = e.touches[0];
+              if (!touch) return;
               const rect = e.currentTarget.getBoundingClientRect();
-              const x = touch.clientX - rect.left - dragging.current.ox;
-              const y = touch.clientY - rect.top - dragging.current.oy;
+              const x = touch.clientX - rect.left - drag.ox;
+              const y = touch.clientY - rect.top - drag.oy;
               setFloatPos((prev) => ({
                 ...prev,
-                [dragging.current!.id]: {
+                [drag.id]: {
                   x: Math.max(0, Math.min(rect.width - 148, x)),
                   y: Math.max(0, Math.min(rect.height - 190, y)),
                 },
