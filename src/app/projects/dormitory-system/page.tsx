@@ -1,18 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { 
-  ArrowLeft, 
-  Layers, 
-  Cpu, 
-  ShieldCheck, 
-  CheckCircle2, 
-  Code2, 
-  Database, 
-  Server, 
+import {
+  ArrowLeft,
+  Layers,
+  Cpu,
+  ShieldCheck,
+  CheckCircle2,
+  Code2,
+  Database,
+  Server,
   ExternalLink,
   BookOpen,
-  Sparkles,
-  MonitorSmartphone 
+  MonitorSmartphone
 } from "lucide-react";
 import { DORMITORY_SYSTEM_PROJECT } from "@/data/projects";
 import ProjectScreenshotGallery from "./ProjectScreenshotGallery";
@@ -104,7 +103,7 @@ export default function DormitorySystemPage() {
             </p>
           </div>
 
-          <ProjectScreenshotGallery screenshots={project.screenshots} />
+          <ProjectScreenshotGallery />
         </section>
 
         {/* 3. Deep Architecture & Sequence Diagrams */}

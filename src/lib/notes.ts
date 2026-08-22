@@ -193,21 +193,6 @@ function extractFirstImage(rawContent: string): { src: string; alt: string } | n
 }
 
 /**
- * 根据文章 ID 确定性挑选画廊中的精选照片作为默认封面
- */
-function pickGalleryCover(id: string): { src: string; alt: string } {
-  if (!GALLERY_PHOTOS || GALLERY_PHOTOS.length === 0) {
-    return { src: "/og-cover.jpg", alt: "文章精选封面" };
-  }
-  const seed = [...id].reduce((sum, c) => sum + c.charCodeAt(0), 0);
-  const photo = GALLERY_PHOTOS[seed % GALLERY_PHOTOS.length];
-  return {
-    src: photo.src,
-    alt: photo.title || "画廊精选封面",
-  };
-}
-
-/**
  * 从正文中提取首个 H1 标题
  */
 function extractH1Title(rawContent: string): string | null {

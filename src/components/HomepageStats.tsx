@@ -1,6 +1,6 @@
 "use client";
 
-import { Code2, Camera, Feather, BookOpen, MapPin, Radio, Sparkles } from "lucide-react";
+import { Code2, Camera, Feather, BookOpen, MapPin, Radio } from "lucide-react";
 
 interface HomepageStatsProps {
   notesCount?: number;

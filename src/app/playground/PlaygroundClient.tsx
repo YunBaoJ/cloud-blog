@@ -13,12 +13,9 @@ import {
   X,
   Play,
   Sparkles,
-  Volume2,
   Battery,
   Wifi,
-  Menu,
   Gamepad2,
-  Settings,
   HelpCircle,
   Trophy,
   RotateCcw,
@@ -158,10 +155,6 @@ function GameModal({
 }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  useEffect(() => {
-    if (!isOpen) setIsFullscreen(false);
-  }, [isOpen]);
-
   return createPortal(
     <div
       className={`fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 dark:bg-black/70 backdrop-blur-md transition-all duration-200 ${
@@ -292,14 +285,16 @@ export default function PlaygroundClient() {
     setIsOptionsOpen(false);
   }, []);
 
-  // Hash change auto-triggers game
-  useEffect(() => {
+  // Hash change auto-triggers game（渲染期同步外部 store，避免 effect 内同步 setState）
+  const [prevHashGame, setPrevHashGame] = useState(rawHashGame);
+  if (rawHashGame !== prevHashGame) {
+    setPrevHashGame(rawHashGame);
     if (rawHashGame) {
       setActiveModalGame(rawHashGame);
       setInsertedCartridge(rawHashGame);
       setIsPoweredOn(true);
     }
-  }, [rawHashGame]);
+  }
 
   // Real-time clock for console status bar
   useEffect(() => {
@@ -428,7 +423,7 @@ export default function PlaygroundClient() {
         <div className="playground-page-anim space-y-3">
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs font-bold text-[#7CD090] tracking-widest uppercase">
-              // RETRO HANDHELD ARCADE
+              {"// RETRO HANDHELD ARCADE"}
             </span>
             <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#36513B]/10 dark:bg-white/10 text-[#36513B] dark:text-[#7CD090] font-mono">
               POCKET CONSOLE · 1998

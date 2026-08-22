@@ -18,7 +18,7 @@ gsap.registerPlugin(useGSAP);
 const PAGE_SIZE = 60;
 
 export default function GalleryClient({ initialPhotos = GALLERY_PHOTOS }: { initialPhotos?: GalleryPhoto[] }) {
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const visibleCount = PAGE_SIZE;
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(() => new Set());
   const mounted = useMounted();
   const modalContentRef = useRef<HTMLDivElement>(null);

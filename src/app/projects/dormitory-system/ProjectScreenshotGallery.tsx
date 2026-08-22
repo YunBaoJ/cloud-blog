@@ -1,12 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, useRef, type ReactNode } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
-import { X, ZoomIn, ZoomOut, RotateCcw, Shield, UserCheck, GraduationCap, KeyRound, CheckCircle2, Layers, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
-import { DORMITORY_CATEGORIES, type ProjectCategory } from "@/data/projects";
+import { X, ZoomIn, ZoomOut, RotateCcw, Shield, UserCheck, GraduationCap, KeyRound, CheckCircle2, Layers, ShieldCheck, ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
+import { DORMITORY_CATEGORIES } from "@/data/projects";
 
-const CATEGORY_ICONS: Record<string, any> = {
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
   login: KeyRound,
   student: GraduationCap,
   manager: UserCheck,
@@ -15,11 +15,7 @@ const CATEGORY_ICONS: Record<string, any> = {
 
 const THUMBNAIL_PAGE_SIZE = 3;
 
-export default function ProjectScreenshotGallery({
-  screenshots,
-}: {
-  screenshots?: any;
-} = {}) {
+export default function ProjectScreenshotGallery() {
   const [selectedCatIndex, setSelectedCatIndex] = useState(1); // 默认高亮学生服务台
   const [selectedShotIndex, setSelectedShotIndex] = useState(0); // 当前分类下的第几张
   const [thumbPage, setThumbPage] = useState(0); // 缩略图页码 (每页 3 张)
@@ -33,7 +29,8 @@ export default function ProjectScreenshotGallery({
   const dragStartRef = useRef({ startX: 0, startY: 0, panX: 0, panY: 0 });
 
   useEffect(() => {
-    setMounted(true);
+    const raf = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   const currentCategory = DORMITORY_CATEGORIES[selectedCatIndex] || DORMITORY_CATEGORIES[0];
@@ -48,25 +45,25 @@ export default function ProjectScreenshotGallery({
   );
 
   // 重置缩放和平移
-  const resetZoom = () => {
+  const resetZoom = useCallback(() => {
     setScale(1);
     setPan({ x: 0, y: 0 });
-  };
+  }, []);
 
   // 切换大分类时重置子页面索引与缩略图页码
-  const handleCategoryChange = (idx: number) => {
+  const handleCategoryChange = useCallback((idx: number) => {
     setSelectedCatIndex(idx);
     setSelectedShotIndex(0);
     setThumbPage(0);
     resetZoom();
-  };
+  }, [resetZoom]);
 
   // 选择具体截图时，自动同步所在缩略图页码并重置缩放
-  const handleSelectShot = (globalIdx: number) => {
+  const handleSelectShot = useCallback((globalIdx: number) => {
     setSelectedShotIndex(globalIdx);
     setThumbPage(Math.floor(globalIdx / THUMBNAIL_PAGE_SIZE));
     resetZoom();
-  };
+  }, [resetZoom]);
 
   // 滚轮缩放事件监听
   const handleWheelZoom = (e: React.WheelEvent) => {
@@ -136,7 +133,7 @@ export default function ProjectScreenshotGallery({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isLightboxOpen, selectedShotIndex, currentScreenshots.length]);
+  }, [isLightboxOpen, selectedShotIndex, currentScreenshots.length, handleSelectShot, handleCategoryChange, resetZoom]);
 
   // 控制放大预览时的页面背景滚动
   useEffect(() => {
@@ -144,7 +141,6 @@ export default function ProjectScreenshotGallery({
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
-      resetZoom();
     }
     return () => {
       document.body.style.overflow = "";
@@ -402,7 +398,10 @@ export default function ProjectScreenshotGallery({
           aria-label="截图高清全景查看"
           className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--background)]/90 p-4 backdrop-blur-md sm:p-6 lg:p-8 animate-in fade-in duration-200"
           onClick={(e) => {
-            if (e.target === e.currentTarget) setIsLightboxOpen(false);
+            if (e.target === e.currentTarget) {
+              setIsLightboxOpen(false);
+              resetZoom();
+            }
           }}
         >
           {/* 中间主题卡片容器 */}
@@ -459,7 +458,10 @@ export default function ProjectScreenshotGallery({
                 {/* Close Button */}
                 <button
                   type="button"
-                  onClick={() => setIsLightboxOpen(false)}
+                  onClick={() => {
+                    setIsLightboxOpen(false);
+                    resetZoom();
+                  }}
                   className="rounded-full p-2 text-[var(--muted)] ring-1 ring-[var(--border-line-color)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--foreground)] active:scale-[0.98] cursor-pointer"
                   aria-label="关闭预览"
                   title="关闭 (Esc)"
@@ -568,17 +570,4 @@ export default function ProjectScreenshotGallery({
 
     </div>
   );
-}
-
-// 保留 ProjectScreenshotPreview 导出以兼容旧引用
-export function ProjectScreenshotPreview({
-  screenshot,
-  priority = false,
-  children,
-}: {
-  screenshot?: any;
-  priority?: boolean;
-  children?: ReactNode;
-}) {
-  return <>{children}</>;
 }

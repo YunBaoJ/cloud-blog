@@ -1,26 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  KeyRound, 
-  ShieldCheck, 
-  Workflow, 
-  Database, 
-  Copy, 
-  Check, 
-  ArrowRight, 
-  Lock, 
-  UserCheck, 
-  GraduationCap, 
-  Shield, 
-  ArrowDown, 
-  CheckCircle2, 
-  Clock, 
-  AlertCircle,
-  FileCheck2,
-  Server,
-  Layers,
-  Sparkles
+import {
+  KeyRound,
+  Copy,
+  Check,
+  ArrowRight,
+  UserCheck,
+  GraduationCap,
+  Shield,
+  ArrowDown,
+  Layers
 } from "lucide-react";
 
 export default function SystemArchitectureDiagrams() {

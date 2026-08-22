@@ -6,17 +6,10 @@ import Image from "next/image";
 import {
   ArrowRight,
   Play,
-  Sparkles,
-  Volume2,
   Battery,
   Wifi,
-  Menu,
-  Gamepad2,
-  X,
-  Settings,
   HelpCircle,
   Trophy,
-  Power,
   RotateCcw,
   Coins,
 } from "lucide-react";
@@ -105,7 +98,7 @@ export default function PlaygroundTeaser() {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState("23:59");
-  const [credits, setCredits] = useState(2);
+  const [credits] = useState(2);
   const activeGame = PLAYGROUND_GAMES[selectedIdx];
 
   // Real-time clock for console status bar

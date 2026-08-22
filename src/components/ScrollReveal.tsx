@@ -25,8 +25,8 @@ export default function ScrollReveal({
   useEffect(() => {
     // 尊重用户的减少动效系统偏好
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setIsVisible(true);
-      return;
+      const raf = requestAnimationFrame(() => setIsVisible(true));
+      return () => cancelAnimationFrame(raf);
     }
 
     const observer = new IntersectionObserver(
