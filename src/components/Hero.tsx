@@ -48,7 +48,6 @@ export default function Hero() {
           alt="Kasumi的数字小屋背景壁纸"
           fill
           priority
-          unoptimized
           sizes="100vw"
           className="object-cover object-[right_center] transition-all duration-700"
           style={{ filter: CINEMA_IMG_FILTER }}
