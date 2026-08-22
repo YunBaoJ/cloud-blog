@@ -31,7 +31,7 @@ export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
       ease: "power2.out",
       clearProps: "all",
     });
-  }, { scope: mainRef, dependencies: [selectedCategory, selectedTag, searchQuery] });
+  }, { scope: mainRef, dependencies: [selectedCategory, selectedTag] });
 
   const dynamicCategories = Array.from(new Set(notesList.map((n) => n.category).filter(Boolean)));
   const categories = ["全部", ...dynamicCategories];
@@ -67,7 +67,7 @@ export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
   const grouped = years.map((yr) => [yr, notesByYear[yr]] as [string, NoteItem[]]);
 
   return (
-    <main ref={mainRef} className="min-h-screen bg-transparent text-[var(--foreground)]">
+    <main ref={mainRef} className="min-h-[100dvh] bg-transparent text-[var(--foreground)]">
       {/* Header Section */}
       <section className="relative px-5 pb-9 pt-28 sm:px-8 lg:px-12 lg:pt-32">
         <div className="mx-auto max-w-6xl">
@@ -86,13 +86,13 @@ export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
 
           {/* Search Bar */}
           <div className="relative mt-12 max-w-lg border-t border-[var(--border-line-color)] pt-4">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7A736A]" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted)]" />
             <input
               type="text"
               placeholder="搜索文章标题或摘要…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white border border-[#2D2B2C]/10 text-sm text-[#2D2B2C] placeholder:text-[#B0A99F] focus:outline-none focus:border-[#36513B]/50 focus:ring-2 focus:ring-[#36513B]/10 transition-all shadow-sm"
+              className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[var(--surface)] border border-[var(--border-line-color)] text-sm text-[var(--foreground)] placeholder:text-[var(--muted)] focus:outline-none focus:border-[color:var(--accent-green)]/50 focus:ring-2 focus:ring-[color:var(--accent-green)]/10 transition-all shadow-sm"
             />
           </div>
         </div>
@@ -105,20 +105,20 @@ export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 rounded-2xl bg-white border border-[#2D2B2C]/8 shadow-xs text-center space-y-1">
-              <span className="text-2xl font-extrabold text-[#36513B]">{notesList.length}</span>
-              <p className="text-[11px] text-[#7A736A] font-medium">全部文章</p>
+            <div className="p-4 rounded-2xl bg-[var(--surface)] border border-[var(--border-line-color)] shadow-xs text-center space-y-1">
+              <span className="text-2xl font-extrabold text-[var(--accent-green)]">{notesList.length}</span>
+              <p className="text-[11px] text-[var(--muted)] font-medium">全部文章</p>
             </div>
-            <div className="p-4 rounded-2xl bg-white border border-[#2D2B2C]/8 shadow-xs text-center space-y-1">
-              <span className="text-2xl font-extrabold text-[#8C4A31]">{ALL_CATEGORIES.length}</span>
-              <p className="text-[11px] text-[#7A736A] font-medium">内容分类</p>
+            <div className="p-4 rounded-2xl bg-[var(--surface)] border border-[var(--border-line-color)] shadow-xs text-center space-y-1">
+              <span className="text-2xl font-extrabold text-[var(--accent-clay)]">{ALL_CATEGORIES.length}</span>
+              <p className="text-[11px] text-[var(--muted)] font-medium">内容分类</p>
             </div>
           </div>
 
           {/* Category Filter */}
           <div className="space-y-3">
-            <h3 className="text-xs font-bold text-[#2D2B2C] uppercase tracking-wider flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-[#36513B]" />
+            <h3 className="text-xs font-bold text-[var(--foreground)] tracking-wider flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-[var(--accent-green)]" />
               分类筛选
             </h3>
             <div className="space-y-1.5">
@@ -126,8 +126,8 @@ export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
                 onClick={() => setActiveCategory(null)}
                 className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   !activeCategory
-                    ? "bg-[#36513B] text-white shadow-sm"
-                    : "bg-white hover:bg-[#F4F1EA] text-[#5A5551] border border-[#2D2B2C]/8"
+                    ? "bg-[var(--accent-green)] text-white shadow-sm"
+                    : "bg-[var(--surface)] hover:bg-[var(--surface-2)] text-[var(--muted)] border border-[var(--border-line-color)]"
                 }`}
               >
                 全部分类
@@ -136,11 +136,11 @@ export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat === activeCategory ? null : cat)}
-                  className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                    activeCategory === cat
-                      ? "bg-[#36513B] text-white shadow-sm"
-                      : "bg-white hover:bg-[#F4F1EA] text-[#5A5551] border border-[#2D2B2C]/8"
-                  }`}
+                    className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                      activeCategory === cat
+                        ? "bg-[var(--accent-green)] text-white shadow-sm"
+                        : "bg-[var(--surface)] hover:bg-[var(--surface-2)] text-[var(--muted)] border border-[var(--border-line-color)]"
+                    }`}
                 >
                   {cat}
                 </button>
@@ -150,8 +150,8 @@ export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
 
           {/* Tag Cloud */}
           <div className="space-y-3">
-            <h3 className="text-xs font-bold text-[#2D2B2C] uppercase tracking-wider flex items-center gap-1.5">
-              <Tag className="w-3.5 h-3.5 text-[#8C4A31]" />
+            <h3 className="text-xs font-bold text-[var(--foreground)] tracking-wider flex items-center gap-1.5">
+              <Tag className="w-3.5 h-3.5 text-[var(--accent-clay)]" />
               标签云
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -161,8 +161,8 @@ export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
                   onClick={() => setActiveTag(tag === activeTag ? null : tag)}
                   className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all ${
                     activeTag === tag
-                      ? "bg-[#8C4A31] text-white shadow-sm"
-                      : "bg-[#FAF0EA] text-[#8C4A31] hover:bg-[#8C4A31] hover:text-white"
+                      ? "bg-[var(--accent-clay)] text-white shadow-sm"
+                      : "bg-[var(--surface-2)] text-[var(--accent-clay)] hover:bg-[var(--accent-clay)] hover:text-white"
                   }`}
                 >
                   {tag}
@@ -178,46 +178,46 @@ export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
           {grouped.length === 0 ? (
             <div className="py-20 text-center space-y-3">
               <Search className="size-10 text-[var(--muted)] mx-auto opacity-50" />
-              <p className="text-[#7A736A] text-base">没有找到匹配的文章，换个关键词试试？</p>
+              <p className="text-[var(--muted)] text-base">没有找到匹配的文章，换个关键词试试？</p>
             </div>
           ) : (
             grouped.map(([year, notes]) => (
               <div key={year} className="space-y-4">
                 {/* Year Heading */}
                 <div className="flex items-center gap-3">
-                  <Calendar className="w-5 h-5 text-[#2B4C6F]" />
-                  <h2 className="text-xl font-bold text-[#2D2B2C]">
+                  <Calendar className="w-5 h-5 text-[var(--accent-green)]" />
+                  <h2 className="text-xl font-bold text-[var(--foreground)]">
                     {year} 年
                   </h2>
-                  <span className="text-xs font-mono text-[#7A736A] px-2 py-0.5 rounded-full bg-[#E2EBE4]">
+                  <span className="text-xs font-mono text-[var(--muted)] px-2 py-0.5 rounded-full bg-[var(--surface-2)]">
                     {notes.length} 篇
                   </span>
-                  <div className="flex-1 h-px bg-[#2D2B2C]/10" />
+                  <div className="flex-1 h-px bg-[var(--border-line-color)]" />
                 </div>
 
                 {/* Timeline List */}
-                <div className="pl-4 border-l-2 border-[#2D2B2C]/10 space-y-3">
+                <div className="pl-4 border-l-2 border-[var(--border-line-color)] space-y-3">
                   {notes.map((note) => (
                     <Link
                       key={note.id}
                       href={`/notes/${note.id}`}
-                      className="archive-card-anim group flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 rounded-2xl bg-white border border-[#2D2B2C]/6 hover:border-[#36513B]/30 hover:shadow-[0_4px_20px_rgba(54,81,59,0.08)] transition-all gap-3"
+                      className="archive-card-anim group flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 rounded-2xl bg-[var(--surface)]/80 border border-[var(--border-line-color)] hover:border-[color:var(--accent-green)]/40 hover:shadow-[0_4px_20px_rgba(54,81,59,0.08)] transition-all gap-3"
                     >
                       <div className="space-y-1.5 flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 text-xs text-[#7A736A]">
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--muted)]">
                           <span className="font-mono">{note.date}</span>
-                          <span className="px-2 py-0.5 rounded-full bg-[#E2EBE4] text-[#36513B] font-semibold">
+                          <span className="px-2 py-0.5 rounded-full bg-[var(--surface-2)] text-[var(--accent-green)] font-semibold">
                             {note.category}
                           </span>
                         </div>
-                        <h3 className="text-sm sm:text-base font-bold text-[#2D2B2C] group-hover:text-[#36513B] transition-colors leading-snug">
+                        <h3 className="text-sm sm:text-base font-bold text-[var(--foreground)] group-hover:text-[var(--accent-green)] transition-colors leading-snug">
                           {note.title}
                         </h3>
                         <div className="flex flex-wrap gap-1.5 pt-0.5">
                           {note.tags.map((tag) => (
                             <span
                               key={tag}
-                              className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-[#FAF0EA] text-[#8C4A31]"
+                              className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-[var(--surface-2)] text-[var(--accent-clay)]"
                             >
                               {tag}
                             </span>
@@ -225,7 +225,7 @@ export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-[#36513B] self-start sm:self-center flex-shrink-0 group-hover:gap-2.5 transition-all">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--accent-green)] self-start sm:self-center flex-shrink-0 group-hover:gap-2.5 transition-all">
                         <span>阅读全文</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </div>

@@ -177,9 +177,6 @@ export default function NotesClient({ initialNotes }: NotesClientProps) {
                     }`}
                   >
                     <div className="flex items-center gap-3 text-xs font-semibold text-[var(--accent-green)]">
-                      <span className="font-mono tracking-[0.1em] text-[var(--accent-clay)]">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
                       <span>{note.category}</span>
                       <time dateTime={note.date}>{note.date}</time>
                     </div>

@@ -100,11 +100,6 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
         {/* Code Header Bar with Mac Window Dots */}
         <div className="flex items-center justify-between px-4 py-2.5 bg-[#0D140E] border-b border-white/10 text-xs font-mono">
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F56] inline-block" />
-              <span className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E] inline-block" />
-              <span className="w-2.5 h-2.5 rounded-full bg-[#27C93F] inline-block" />
-            </div>
             <span className="text-[11px] text-[#9EB3A4] font-bold uppercase tracking-wider ml-2 font-mono">
               {lang || "code"}
             </span>
@@ -196,11 +191,6 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 bg-[#0D140E] border-b border-white/10">
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-full bg-[#FF5F56]" />
-                  <span className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
-                  <span className="w-3 h-3 rounded-full bg-[#27C93F]" />
-                </div>
                 <span className="text-sm font-mono font-bold text-[#7CD090] uppercase tracking-wider ml-2">
                   {lang || "code"} · 独立沉浸式视窗 ({linesCount} 行)
                 </span>

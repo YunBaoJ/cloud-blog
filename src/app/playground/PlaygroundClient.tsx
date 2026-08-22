@@ -421,7 +421,7 @@ export default function PlaygroundClient() {
   );
 
   return (
-    <div ref={pageRef} className="min-h-screen flex flex-col justify-between select-none">
+    <div ref={pageRef} className="min-h-[100dvh] flex flex-col justify-between">
       <main className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 sm:pt-32 pb-20 space-y-12">
         
         {/* Page Header */}
@@ -756,7 +756,10 @@ export default function PlaygroundClient() {
                         </span>
                       </div>
                       <p className="text-xs font-mono text-[#7CD090]">
-                        {activeGameInfo.publisher} · {activeGameInfo.genre} · {activeGameInfo.players}
+                        {activeGameInfo.publisher} · {activeGameInfo.genre}
+                      </p>
+                      <p className="text-[10px] font-mono text-white/50">
+                        {activeGameInfo.players}
                       </p>
                     </div>
                   </div>

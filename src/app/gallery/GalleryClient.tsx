@@ -278,7 +278,7 @@ export default function GalleryClient({ initialPhotos = GALLERY_PHOTOS }: { init
 
               <div className="mt-8 space-y-6">
                 <div>
-                  <p className="text-[10px] font-mono font-semibold tracking-[0.16em] text-[var(--accent-green)]">[01] 作品信息</p>
+                  <p className="text-[10px] font-mono font-semibold tracking-[0.16em] text-[var(--accent-green)]">作品信息</p>
                   <div className="mt-3 space-y-3 rounded-lg border border-[var(--border-line-color)] p-4 text-xs text-[var(--muted)]">
                     <div className="flex justify-between gap-4"><span>类型</span><span>{selectedPhoto.categoryLabel}</span></div>
                     <div className="flex justify-between gap-4"><span>来源</span><span>{selectedPhoto.source}</span></div>
@@ -293,7 +293,7 @@ export default function GalleryClient({ initialPhotos = GALLERY_PHOTOS }: { init
                   </div>
                 </div>
                 <div>
-                  <p className="text-[10px] font-mono font-semibold tracking-[0.16em] text-[var(--accent-green)]">[02] 浏览说明</p>
+                  <p className="text-[10px] font-mono font-semibold tracking-[0.16em] text-[var(--accent-green)]">浏览说明</p>
                   <div className="mt-3 rounded-lg border border-[var(--border-line-color)] p-4 text-xs leading-6 text-[var(--muted)]">
                     使用左右按钮、键盘方向键或横向滑动浏览；双击图片可快速缩放。
                   </div>

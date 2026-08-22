@@ -9,7 +9,6 @@ import {
   CheckCircle2,
   Clock3,
   Code2,
-  Cpu,
   Gamepad2,
   Heart,
   ImageIcon,
@@ -152,7 +151,6 @@ export default function AboutContent() {
           <div className="mt-12 grid items-center gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-14">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border-line-color)] bg-[var(--surface)]/70 px-3.5 py-1 text-xs font-medium text-[var(--accent-green)] shadow-xs backdrop-blur-xs">
-                <span className="size-2 rounded-full bg-[var(--accent-green)]" />
                 <span>你好，欢迎来到这里</span>
               </div>
 
@@ -165,7 +163,7 @@ export default function AboutContent() {
                   这间小屋建于 Next.js 之上，是我在喧嚣网络之外保留的一处自留地。这里不追求高频流量或刻板履历，而是专注于三件事：把学到的工程技术理清、把打动自己的视觉画面收录、把有趣的灵感做成能够直接在浏览器里玩耍的小实验。
                 </p>
                 <p>
-                  从 Spring Boot 与 Java 企业级后端架构，到 React、Next.js 与现代前端审美工程；从设计系统里的呼吸节奏，到胶片摄影里的残缺美学——这里记录着我真实走过的技术脉络与生活侧影。
+                  从 Spring Boot 与 Java 企业级后端架构，到 React、Next.js 与现代前端审美工程；从设计系统里的呼吸节奏，到胶片摄影里的残缺美学。这里记录着我真实走过的技术脉络与生活侧影。
                 </p>
               </div>
 
@@ -220,7 +218,7 @@ export default function AboutContent() {
                 />
                 <figcaption className="absolute bottom-3 left-3 right-3 rounded-xl border border-white/60 bg-[var(--surface)]/85 px-3.5 py-2 text-xs font-medium text-[var(--foreground)] shadow-xs backdrop-blur-md dark:border-white/10">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="truncate">📍 编码、写作与思考的数字工坊角落</span>
+                    <span className="truncate">编码、写作与思考的数字工坊角落</span>
                     <span className="shrink-0 text-[10px] text-[var(--muted)]">Kasumi Space</span>
                   </div>
                 </figcaption>
@@ -235,8 +233,7 @@ export default function AboutContent() {
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-col justify-between gap-4 border-b border-[var(--border-line-color)] pb-6 sm:flex-row sm:items-end">
             <div>
-              <p className="text-xs font-semibold text-[var(--accent-green)]">空间向导</p>
-              <h2 id="cottage-rooms-title" className="mt-2 text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
+              <h2 id="cottage-rooms-title" className="text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
                 这间小屋的空间版图
               </h2>
             </div>
@@ -290,11 +287,7 @@ export default function AboutContent() {
             {/* Left: Building Principles */}
             <div className="flex flex-col justify-between rounded-[2rem] border border-white/70 bg-[var(--surface)]/80 p-7 shadow-[0_16px_40px_rgba(51,72,58,0.06)] backdrop-blur-md sm:p-10 dark:border-white/10">
               <div>
-                <div className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--accent-green)]">
-                  <Sparkles className="size-4" strokeWidth={1.8} />
-                  <span>营造法则</span>
-                </div>
-                <h2 id="craft-philosophy-title" className="mt-3 text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
+                <h2 id="craft-philosophy-title" className="text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
                   让软件回归温润与纯粹
                 </h2>
                 <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
@@ -323,11 +316,7 @@ export default function AboutContent() {
             {/* Right: Digital Workbench Tech Stack */}
             <div className="flex flex-col justify-between rounded-[2rem] border border-white/70 bg-[var(--surface)]/80 p-7 shadow-[0_16px_40px_rgba(51,72,58,0.06)] backdrop-blur-md sm:p-10 dark:border-white/10">
               <div>
-                <div className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--accent-green)]">
-                  <Cpu className="size-4" strokeWidth={1.8} />
-                  <span>技术工坊</span>
-                </div>
-                <h2 className="mt-3 text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
+                <h2 className="text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
                   支撑这间小屋的基石
                 </h2>
                 <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
@@ -362,8 +351,7 @@ export default function AboutContent() {
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-col justify-between gap-4 border-b border-[var(--border-line-color)] pb-6 sm:flex-row sm:items-end">
             <div>
-              <p className="text-xs font-semibold text-[var(--accent-green)]">日常侧影</p>
-              <h2 id="hobbies-section-title" className="mt-2 text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
+              <h2 id="hobbies-section-title" className="text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
                 代码之外的日常志趣
               </h2>
             </div>
@@ -413,11 +401,7 @@ export default function AboutContent() {
           <div className="rounded-[2.25rem] border border-white/80 bg-gradient-to-br from-[var(--surface)] to-[var(--surface-2)]/80 p-8 shadow-[0_20px_50px_rgba(51,72,58,0.08)] backdrop-blur-md sm:p-12 lg:p-16 dark:border-white/10 dark:from-[var(--surface)] dark:to-[var(--surface-2)]">
             <div className="grid gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] lg:gap-14 lg:items-center">
               <div>
-                <div className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--accent-green)]">
-                  <Mail className="size-4" strokeWidth={1.8} />
-                  <span>信箱与交流</span>
-                </div>
-                <h2 id="contact-section-title" className="mt-3 text-2xl font-semibold tracking-[-0.035em] sm:text-4xl">
+                <h2 id="contact-section-title" className="text-2xl font-semibold tracking-[-0.035em] sm:text-4xl">
                   保持联系，欢迎给我写信
                 </h2>
                 <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--muted)] sm:text-base">
