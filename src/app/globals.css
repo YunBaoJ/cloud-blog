@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   /* Light mode tokens — Pine Green × Warm Paper blended palette */
   --background: rgb(242, 243, 237);   /* midpoint blend of #ECF0EB + #F7F5EE */
