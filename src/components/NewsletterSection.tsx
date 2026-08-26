@@ -5,7 +5,7 @@ export default function NewsletterSection() {
   return (
     <section className="relative w-full px-4 bg-transparent select-none">
       <div className="max-w-4xl mx-auto">
-        <div className="relative bg-white/90 dark:bg-[#16231A]/90 backdrop-blur-md rounded-3xl p-8 sm:p-12 border border-[#2D2B2C]/8 dark:border-white/10 shadow-[0_8px_32px_rgba(45,43,44,0.05)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-center space-y-6 overflow-hidden">
+        <div data-home-mail-card className="relative bg-white/90 dark:bg-[#16231A]/90 backdrop-blur-md rounded-3xl p-8 sm:p-12 border border-[#2D2B2C]/8 dark:border-white/10 shadow-[0_8px_32px_rgba(45,43,44,0.05)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-center space-y-6 overflow-hidden">
           
           {/* Ambient Glow */}
           <div className="absolute -top-12 -right-12 w-48 h-48 bg-[#FDEEE9] dark:bg-[#36513B]/20 rounded-full blur-2xl pointer-events-none" />

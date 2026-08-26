@@ -30,7 +30,7 @@ function ProjectCard({ item, size = "home" }: { item: ProjectArchiveItem; size?:
   const isIndex = size === "index";
   const cardClass = `group relative block isolate ${
     isIndex ? "h-[292px] w-full max-w-[414px]" : "h-[250px] w-[350px] shrink-0"
-  } overflow-hidden rounded-3xl border border-[#26352A]/13 bg-[#FFFEF9] shadow-[0_19px_32px_rgba(38,53,42,0.15)] transition-[transform,box-shadow] duration-300 motion-reduce:transition-none`;
+  } overflow-hidden rounded-3xl border border-[#26352A]/13 bg-[#FFFEF9] shadow-[0_19px_32px_rgba(38,53,42,0.15)] transition-[box-shadow,border-color] duration-300 motion-safe:hover:border-[#36513B]/35 motion-safe:hover:shadow-[0_26px_42px_rgba(38,53,42,0.22)] motion-reduce:transition-none`;
 
   const content = (
     <>
@@ -41,11 +41,11 @@ function ProjectCard({ item, size = "home" }: { item: ProjectArchiveItem; size?:
             alt=""
             fill
             sizes={isIndex ? "(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 414px" : "350px"}
-            className={`object-cover ${cover.position ?? "object-center"}`}
+            className={`object-cover transition-transform duration-500 ease-out motion-safe:group-hover:scale-[1.06] ${cover.position ?? "object-center"}`}
           />
         )}
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,28,0.08),rgba(20,38,28,0.36))]" />
-        <span className="absolute left-4 top-4 rounded-full bg-[#FFFEF9]/92 px-2.5 py-1 text-[10px] font-bold text-[#36513B] shadow-sm">
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,28,0.08),rgba(20,38,28,0.36))] transition-opacity duration-300 motion-safe:group-hover:opacity-70" />
+        <span className="absolute left-4 top-4 rounded-full bg-[#FFFEF9]/92 px-2.5 py-1 text-[10px] font-bold text-[#36513B] shadow-sm transition-transform duration-300 motion-safe:group-hover:translate-x-1">
           {item.status}
         </span>
       </div>

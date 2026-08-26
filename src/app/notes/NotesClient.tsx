@@ -40,8 +40,8 @@ export default function NotesClient({ initialNotes }: NotesClientProps) {
         <div className="mx-auto max-w-6xl">
           <div className="flex items-end justify-between gap-8 border-b border-[var(--border-line-color)] pb-10">
             <div className="max-w-3xl">
-              <h1 className="text-4xl font-light tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
-                随笔笔记
+              <h1 className="inner-page-title">
+                <span className="inner-page-title__lead">随笔</span><span className="inner-page-title__rest">笔记</span>
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:text-base sm:leading-7">
                 记录技术实践、设计观察与日常灵感，慢慢整理成一份持续生长的个人杂志。

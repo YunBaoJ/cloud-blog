@@ -1,0 +1,18 @@
+packages:
+  - .
+
+nodeLinker: hoisted
+autoInstallPeers: false
+onlyBuiltDependencies:
+  - cloudflared
+  - cpu-features
+  - ssh2
+allowBuilds:
+  cloudflared: true
+  cpu-features: true
+  node-pty: true
+  ssh2: true
+minimumReleaseAgeExclude:
+  - '@yejiming/dsh-gomoku@0.0.1'
+  - dsh-desktop-app@0.3.0
+  - dsh-context@0.29.0

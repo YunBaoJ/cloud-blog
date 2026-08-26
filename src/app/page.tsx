@@ -23,9 +23,11 @@ export default function Home() {
 
       <PlaygroundTeaser />
 
-      <section className="min-h-[100dvh] border-t border-[#36513B]/16 px-4 py-20 dark:border-white/16 sm:px-6 md:py-28">
+      <section className="flex min-h-[100dvh] flex-col border-t border-[#36513B]/16 pt-20 dark:border-white/16 md:pt-28">
         <NewsletterSection />
-        <Footer />
+        <div className="mt-auto pt-16 md:pt-24">
+          <Footer />
+        </div>
       </section>
 
       <HomeScrollMotion />

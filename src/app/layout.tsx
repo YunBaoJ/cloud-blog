@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import AgentationDevtools from "@/components/AgentationDevtools";
 import CommandMenu from "@/components/CommandMenu";
 import Navbar from "@/components/Navbar";
 import ReadingProgress from "@/components/ReadingProgress";
@@ -80,7 +81,7 @@ export default function RootLayout({
     >
       <body
         suppressHydrationWarning
-        className="antialiased selection:bg-[#E2EBE4] selection:text-[#36513B] min-h-[100dvh] bg-[linear-gradient(135deg,rgb(236,240,235)_0%,rgb(242,243,237)_40%,rgb(247,245,238)_100%)] dark:bg-[#142219]"
+        className="antialiased selection:bg-[#E2EBE4] selection:text-[#36513B] min-h-[100dvh] bg-[linear-gradient(135deg,rgb(236,240,235)_0%,rgb(242,243,237)_40%,rgb(247,245,238)_100%)] dark:bg-[#1C211E]"
       >
         {/* 首帧主题同步：渲染前读取偏好，避免暗色用户白屏闪烁（后续切换仍由 ThemeProvider 接管） */}
         <script
@@ -90,7 +91,7 @@ export default function RootLayout({
           }}
         />
         {/* Global Immersive Fixed Wallpaper Ambient Overlay across ALL pages */}
-        <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.14] dark:opacity-[0.18] transition-opacity duration-700">
+        <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.14] dark:opacity-[0.10] transition-opacity duration-700">
           <Image
             src="/hero/hero-ryo-hd.png"
             alt=""
@@ -102,7 +103,7 @@ export default function RootLayout({
           />
         </div>
         {/* Dual-tone overlay: pine-green (236,240,235) blended into warm-paper (247,245,238) */}
-        <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(ellipse_at_20%_0%,rgba(236,240,235,0.55),transparent_55%),radial-gradient(ellipse_at_80%_100%,rgba(247,245,238,0.60),transparent_55%),linear-gradient(160deg,rgba(236,240,235,0.30)_0%,rgba(247,245,238,0.45)_100%)] dark:bg-[radial-gradient(circle_at_50%_20%,rgba(20,34,25,0.5),rgba(20,34,25,0.95))]" />
+        <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(ellipse_at_20%_0%,rgba(236,240,235,0.55),transparent_55%),radial-gradient(ellipse_at_80%_100%,rgba(247,245,238,0.60),transparent_55%),linear-gradient(160deg,rgba(236,240,235,0.30)_0%,rgba(247,245,238,0.45)_100%)] dark:bg-[radial-gradient(circle_at_50%_20%,rgba(57,68,61,0.36),rgba(28,33,30,0.94))]" />
 
         <div id="site-root" className="relative z-10">
           <ThemeProvider>
@@ -112,6 +113,7 @@ export default function RootLayout({
               <Navbar />
               <CommandMenu notes={searchNotes} />
               {children}
+              <AgentationDevtools />
             </RouteTheme>
           </ThemeProvider>
         </div>

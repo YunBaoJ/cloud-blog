@@ -17,7 +17,6 @@ import {
   Palette,
   Rss,
   Sparkles,
-  User,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -130,12 +129,8 @@ export default function AboutContent() {
         <div className="mx-auto max-w-6xl">
           {/* Standard Inner Page Header Rhythm */}
           <div className="max-w-3xl border-b border-[var(--border-line-color)] pb-10">
-            <div className="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-[var(--accent-green)]">
-              <User className="size-4" strokeWidth={1.8} aria-hidden="true" />
-              <span>关于</span>
-            </div>
-            <h1 className="text-4xl font-light tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
-              关于 Kasumi
+            <h1 className="inner-page-title">
+              <span className="inner-page-title__lead">关于</span><span className="inner-page-title__rest">小屋</span>
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:text-base sm:leading-7">
               一间坐落在互联网角落的数字小屋，自 2025 年起持续耕耘，记录技术探索、视觉灵感与生活趣味。

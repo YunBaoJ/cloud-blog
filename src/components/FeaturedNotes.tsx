@@ -17,8 +17,8 @@ interface FeaturedNotesProps {
   initialNotes: NoteItem[];
 }
 
-const NOTE_ROTATIONS = ["rotate-[2deg]", "-rotate-[2deg]", "rotate-[1.5deg]"];
-const NOTE_OFFSETS = ["md:-translate-y-4", "md:translate-y-6", "md:translate-y-0"];
+const NOTE_ROTATIONS = ["rotate-[3deg]", "-rotate-[3deg]", "rotate-[3deg]"];
+const NOTE_OFFSETS = ["md:-translate-y-2", "md:translate-y-2", "md:translate-y-0"];
 
 function getCategoryIcon(iconName: string) {
   const className = "size-3.5";
@@ -41,14 +41,15 @@ export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
     <section
       id="notes"
       data-home-scroll-section
-      className="relative min-h-[100dvh] w-full overflow-hidden border-t border-[#36513B]/16 bg-transparent px-4 py-20 dark:border-white/16 sm:px-6 md:py-28 lg:px-8"
+      className="relative min-h-[100dvh] w-full overflow-hidden bg-transparent px-4 py-20 sm:px-6 md:py-28 lg:px-8"
     >
+      <div data-home-scroll-divider className="absolute inset-x-0 top-0 h-px origin-left bg-[#36513B]/16 dark:bg-white/16" aria-hidden="true" />
       {/* Background Ambient Pine Glow */}
       <div data-home-scroll-ambient className="absolute top-1/2 right-0 -translate-y-1/2 w-96 h-96 bg-[#36513B]/6 dark:bg-[#7CD090]/4 blur-3xl rounded-full pointer-events-none" />
 
       <div data-home-scroll-content className="relative z-10 max-w-6xl mx-auto space-y-8 sm:space-y-10">
         {/* Section Header */}
-        <div className="journal-card-anim flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div data-home-scroll-heading className="journal-card-anim flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-3">
             <h2 className="font-[family-name:var(--section-heading-font)] text-5xl font-semibold leading-[0.9] tracking-[-0.1em] text-[#26352A] dark:text-[#F0F5F1] sm:text-6xl">
               精选<em className="ml-1 font-[family-name:var(--section-heading-font)] not-italic font-medium">笔记</em>
@@ -68,7 +69,7 @@ export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
         </div>
 
         {/* 3 Artisan Journal 3D Flip Cards (Jitter-free Static Hitbox Architecture) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 items-stretch pt-2">
+        <div data-home-scroll-rail className="grid grid-cols-1 items-stretch gap-6 pt-12 md:grid-cols-3 sm:gap-10 sm:pt-16 lg:gap-14">
           {notes.map((note, index) => (
             <div
               key={note.id}
@@ -83,7 +84,7 @@ export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
                 {/* ========================================================= */}
                 {/* FRONT SIDE: 活页手帐封面 (Front Face) */}
                 {/* ========================================================= */}
-                <div className="absolute inset-0 h-full w-full rounded-3xl bg-[#FFFEF9] dark:bg-[#1C261F] border border-[#26352A]/12 dark:border-white/12 p-6 [backface-visibility:hidden] flex flex-col justify-between overflow-visible">
+                <div className="absolute inset-0 h-full w-full rounded-3xl border border-[#26352A]/12 bg-[#FFFEF9] p-6 [backface-visibility:hidden] flex flex-col justify-between overflow-visible dark:border-white/12 dark:bg-[#1C261F]">
                   
                   {/* Top Washi Bookmark Ribbon (右上角和纸便签贴) */}
                   <div className="absolute -top-3.5 right-6 w-24 h-7 bg-[#F5E8D3]/90 dark:bg-[#2A3B30]/90 border border-[#E8D7BE]/70 dark:border-white/10 rotate-[2deg] backdrop-blur-2xs shadow-2xs z-20 pointer-events-none rounded-xs flex items-center justify-center">
@@ -146,7 +147,7 @@ export default function FeaturedNotes({ initialNotes }: FeaturedNotesProps) {
                 {/* ========================================================= */}
                 {/* BACK SIDE: 松针绿深度手记内页 (Back Face) */}
                 {/* ========================================================= */}
-                <div className="absolute inset-0 h-full w-full rounded-3xl bg-[#36513B] dark:bg-[#16241B] text-white p-6 [transform:rotateY(180deg)] [backface-visibility:hidden] flex flex-col justify-between border border-[#36513B]/40 shadow-2xl overflow-hidden">
+                <div className="absolute inset-0 h-full w-full rounded-3xl bg-[#56735A] p-6 text-white [transform:rotateY(180deg)] [backface-visibility:hidden] flex flex-col justify-between overflow-hidden border border-[#56735A]/45 shadow-2xl dark:bg-[#1B2D20]">
                   
                   {/* Left Punch Holes on Back */}
                   <div className="absolute right-2.5 inset-y-8 w-2 flex flex-col justify-between pointer-events-none z-20 opacity-30">

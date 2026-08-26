@@ -149,18 +149,15 @@ export default function GalleryClient({ initialPhotos = GALLERY_PHOTOS }: { init
       <main className="min-h-[100dvh] bg-transparent text-[var(--foreground)]">
         <section className="px-5 pb-9 pt-28 sm:px-8 lg:px-12 lg:pt-32">
           <div className="mx-auto max-w-6xl">
-            <div className="max-w-3xl">
-              <h1 className="text-4xl font-light tracking-[-0.05em] sm:text-5xl">
-                作品画廊
+            <div className="max-w-3xl border-b border-[var(--border-line-color)] pb-10">
+              <h1 className="inner-page-title">
+                <span className="inner-page-title__lead">作品</span><span className="inner-page-title__rest">画廊</span>
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
                 收录自己的插画、动漫作品与日常灵感，点开作品即可查看大图。
               </p>
             </div>
 
-            <div className="mt-12 border-t border-[var(--border-line-color)] pt-4">
-              <p className="text-xs text-[var(--muted)]">共 {filteredPhotos.length} 幅作品</p>
-            </div>
           </div>
         </section>
 
@@ -177,7 +174,7 @@ export default function GalleryClient({ initialPhotos = GALLERY_PHOTOS }: { init
                       return (
                         <article
                           key={photo.id}
-                          className="gallery-artwork rounded-2xl bg-[var(--surface)]/85 p-2.5 shadow-[0_12px_30px_rgba(51,72,58,0.10)] ring-1 ring-white/70 backdrop-blur-[6px] sm:p-3 dark:ring-[var(--border-line-color)]"
+                          className="gallery-artwork rounded-2xl bg-[var(--surface)]/85 p-2.5 shadow-[0_12px_30px_rgba(51,72,58,0.10)] ring-1 ring-white/70 backdrop-blur-[6px] transition-[transform,box-shadow] duration-300 ease-out motion-safe:hover:-translate-y-1.5 motion-safe:hover:shadow-[0_22px_48px_rgba(51,72,58,0.20)] motion-reduce:transition-none sm:p-3 dark:ring-[var(--border-line-color)]"
                         >
                           <button
                             type="button"
@@ -193,7 +190,7 @@ export default function GalleryClient({ initialPhotos = GALLERY_PHOTOS }: { init
                                 height={photo.height}
                                 sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw"
                                 loading={index < 6 ? "eager" : "lazy"}
-                                className="h-auto w-full object-cover transition-transform duration-500 motion-reduce:transition-none group-hover:scale-[1.025] group-focus-visible:scale-[1.025]"
+                                className="h-auto w-full object-cover transition-transform duration-500 ease-out motion-reduce:transition-none group-hover:scale-[1.06] group-focus-visible:scale-[1.06]"
                               />
                             </div>
                             <div className="px-1 pb-1 pt-4">

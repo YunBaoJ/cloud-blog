@@ -4,7 +4,6 @@ import Link from "next/link";
 import {
   ArrowUpRight,
   BookOpenText,
-  Clock3,
   Gamepad2,
   Images,
 } from "lucide-react";
@@ -44,18 +43,13 @@ export default function NowPage() {
   return (
     <main className="min-h-[100dvh] bg-transparent px-5 pb-24 pt-28 text-[var(--foreground)] sm:px-8 lg:px-12 lg:pb-32 lg:pt-32">
       <div className="mx-auto max-w-6xl">
-        <header className="max-w-3xl">
-          <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">
-            <Clock3 className="size-4" strokeWidth={1.8} />
-            <span>近况</span>
-          </div>
-          <h1 className="text-4xl font-light tracking-[-0.04em] sm:text-5xl">
+        <header className="max-w-3xl border-b border-[var(--border-line-color)] pb-10">
+          <h1 className="inner-page-title">
             近况
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
             看看最近写下的文字、收进图集的画面，以及仍在开放的小游戏。
           </p>
-          <div className="mt-12 border-t border-[var(--border-line-color)]" />
         </header>
 
         <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.55fr)] lg:gap-16">

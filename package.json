@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test src/app/now/activity.test.mts src/data/projects.test.mts src/lib/galleryInteraction.test.mts src/lib/galleryUrl.test.mts src/lib/gameRecords.test.mts src/lib/readingProgress.test.mts scripts/content-health.test.mjs scripts/generate-game-sounds.test.mjs"
+    "test": "node --test src/app/now/activity.test.mts src/data/projects.test.mts src/lib/galleryInteraction.test.mts src/lib/galleryUrl.test.mts src/lib/gameRecords.test.mts scripts/content-health.test.mjs scripts/generate-game-sounds.test.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -23,6 +23,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "agentation": "^3.0.2",
     "eslint": "^9",
     "eslint-config-next": "^16.3.0",
     "tailwindcss": "^4",

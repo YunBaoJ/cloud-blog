@@ -18,16 +18,16 @@
 }
 
 .dark {
-  /* Dark mode tokens — Deep Forest Pine Night Palette */
-  --background: #142219;
-  --foreground: #F0F5F1;
-  --surface: #1B2D22;
-  --surface-2: #23382C;
-  --muted: #9EB3A4;
-  --accent-green: #7CD090;
-  --accent-clay: #E5987D;
+  /* Dark mode tokens — graphite paper with restrained moss highlights */
+  --background: #1C211E;
+  --foreground: #EEF1EA;
+  --surface: #282E2A;
+  --surface-2: #343B36;
+  --muted: #A8B1A9;
+  --accent-green: #A8C79B;
+  --accent-clay: #E3AD8B;
   --border-line-color: rgba(255, 255, 255, 0.09);
-  --nav-bg: rgba(20, 34, 25, 0.82);
+  --nav-bg: rgba(28, 33, 30, 0.84);
   --nav-border: rgba(255, 255, 255, 0.12);
   color-scheme: dark;
 }
@@ -59,7 +59,7 @@ body {
 }
 
 .dark body {
-  background-image: radial-gradient(circle at 50% 0%, rgba(124, 208, 144, 0.04), transparent 50%);
+  background-image: radial-gradient(circle at 50% 0%, rgba(168, 199, 155, 0.025), transparent 50%);
 }
 
 /* Non-home pages share a quiet Spring-inspired green paper surface.
@@ -70,16 +70,82 @@ body {
 }
 
 .dark .subpage-theme {
-  --background: #142219;
-  --foreground: #F0F5F1;
-  --surface: #1B2D22;
-  --surface-2: #23382C;
-  --muted: #9EB3A4;
-  --accent-green: #7CD090;
-  --accent-clay: #E5987D;
+  --background: #1C211E;
+  --foreground: #EEF1EA;
+  --surface: #282E2A;
+  --surface-2: #343B36;
+  --muted: #A8B1A9;
+  --accent-green: #A8C79B;
+  --accent-clay: #E3AD8B;
   --border-line-color: rgba(255, 255, 255, 0.09);
-  --nav-bg: rgba(20, 34, 25, 0.82);
+  --nav-bg: rgba(28, 33, 30, 0.84);
   --nav-border: rgba(255, 255, 255, 0.12);
+}
+
+/* Shared inner-route heading: the first two Chinese characters carry the lead. */
+.inner-page-title {
+  color: var(--foreground);
+  font-family: var(--section-heading-font);
+  font-size: clamp(2.15rem, 4.3vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -0.07em;
+  line-height: 0.98;
+}
+
+.inner-page-title__lead {
+  font-weight: 800;
+}
+
+.inner-page-title__rest {
+  font-weight: 600;
+}
+
+@keyframes cartridge-insert {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -64px);
+  }
+  65% {
+    opacity: 1;
+    transform: translate(-50%, 3px);
+  }
+  85% {
+    transform: translate(-50%, -1px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.animate-cartridge-in {
+  animation: cartridge-insert 680ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Retro Arcade CRT Scanline & Screen Glare */
+.crt-screen-overlay {
+  background: linear-gradient(
+    rgba(18, 24, 38, 0) 50%,
+    rgba(0, 0, 0, 0.22) 50%
+  ),
+  linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.02),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.02)
+  );
+  background-size: 100% 3px, 3px 100%;
+  pointer-events: none;
+}
+
+.screen-glare {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0.015) 35%,
+    transparent 55%
+  );
+  pointer-events: none;
 }
 
 
@@ -98,8 +164,33 @@ body {
   }
 }
 
+@keyframes route-loading-sheet-in {
+  0% {
+    opacity: 0.35;
+    transform: translateY(18px) scale(0.985);
+  }
+  72% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.003);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.route-loading-sheet {
+  animation: route-loading-sheet-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-loading-sheet {
+    animation: none;
+  }
+}
+
 /* ==========================================================================
-   DARK MODE COMPREHENSIVE DESIGN SYSTEM OVERRIDES (DEEP FOREST PINE NIGHT)
+   DARK MODE COMPREHENSIVE DESIGN SYSTEM OVERRIDES (GRAPHITE PAPER NIGHT)
    ========================================================================== */
 
 .dark body,
@@ -123,14 +214,14 @@ body {
 .dark .bg-gradient-to-r,
 .dark .bg-gradient-to-tr,
 .dark [class*="bg-gradient-"] {
-  background-image: linear-gradient(to bottom, rgba(35, 56, 44, 0.45), var(--background)) !important;
+  background-image: linear-gradient(to bottom, rgba(66, 78, 70, 0.38), var(--background)) !important;
 }
 
 .dark [class*="from-[#FAF7F2]"],
 .dark [class*="from-[#E2EBE4]"],
 .dark [class*="from-[#FAF0EA]"],
 .dark [class*="from-[#FDEEE9]"] {
-  --tw-gradient-from: rgba(35, 56, 44, 0.45) !important;
+  --tw-gradient-from: rgba(66, 78, 70, 0.38) !important;
 }
 
 .dark [class*="via-[#F2EDE2]"],
@@ -181,7 +272,7 @@ body {
 
 .dark .bg-\[\#E2EBE4\],
 .dark [class*="bg-[#E2EBE4]"] {
-  background-color: rgba(124, 208, 144, 0.18) !important;
+  background-color: rgba(168, 199, 155, 0.14) !important;
   color: var(--accent-green) !important;
 }
 
@@ -226,6 +317,24 @@ body {
 
 .dark .text-\[\#2B4C6F\] {
   color: #8EBAE3 !important;
+}
+
+/* Keep legacy dark utility values aligned with the shared graphite tokens. */
+.dark [class*="text-[#F0F5F1]"],
+.dark [class*="text-[#E2EBE4]"] {
+  color: var(--foreground) !important;
+}
+
+.dark [class*="text-[#9EB3A4]"] {
+  color: var(--muted) !important;
+}
+
+.dark [class*="text-[#7CD090]"] {
+  color: var(--accent-green) !important;
+}
+
+.dark [class*="text-[#E5987D]"] {
+  color: var(--accent-clay) !important;
 }
 
 /* 6. Borders & Dividers */
@@ -291,7 +400,26 @@ body {
 
 /* 9. Lightbox & Modal Controls */
 .dark .bg-\[\#141715\] {
-  background-color: #0E1812 !important;
+  background-color: #151A17 !important;
+}
+
+/* Map older component-level forest surfaces into the graphite-paper scale. */
+.dark [class*="bg-[#1B2D22]"],
+.dark [class*="bg-[#1C261F]"],
+.dark [class*="bg-[#1B2D20]"],
+.dark [class*="bg-[#16231A]"],
+.dark [class*="bg-[#23382C]"],
+.dark [class*="bg-[#2A3B30]"],
+.dark [class*="bg-[#2F4436]"],
+.dark [class*="bg-[#1E2721]"] {
+  background-color: var(--surface) !important;
+}
+
+.dark [class*="bg-[#16221B]"],
+.dark [class*="bg-[#141C16]"],
+.dark [class*="bg-[#141F18]"],
+.dark [class*="bg-[#121B15]"] {
+  background-color: #1B201D !important;
 }
 
 /* Shared frosted-glass surface */
@@ -306,7 +434,7 @@ body {
 }
 
 .dark .apple-acrylic {
-  background: rgba(20, 34, 25, 0.82) !important;
+  background: rgba(34, 40, 36, 0.84) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   box-shadow: 0 10px 32px -4px rgba(0, 0, 0, 0.45) !important;
 }
@@ -320,7 +448,7 @@ body {
 }
 
 .dark .warm-glass {
-  background: rgba(27, 45, 34, 0.88) !important;
+  background: rgba(40, 46, 42, 0.88) !important;
   border: 1px solid rgba(255, 255, 255, 0.10) !important;
 }
 

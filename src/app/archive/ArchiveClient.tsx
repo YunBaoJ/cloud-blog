@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import Footer from "@/components/Footer";
 import type { NoteItem } from "@/lib/notes";
-import { Archive, Search, Tag, Calendar, ArrowRight } from "lucide-react";
+import { Search, Tag, Calendar, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -71,21 +71,17 @@ export default function ArchiveClient({ initialNotes }: ArchiveClientProps) {
       {/* Header Section */}
       <section className="relative px-5 pb-9 pt-28 sm:px-8 lg:px-12 lg:pt-32">
         <div className="mx-auto max-w-6xl">
-          <div className="max-w-3xl">
-            <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold tracking-wide text-[var(--accent-green)]">
-            <Archive className="size-4" strokeWidth={1.8} />
-            <span>归档</span>
-            </div>
-          <h1 className="text-4xl font-light tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
-            文章归档
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
-            全部 {notesList.length} 篇文章按时间轴与分类脉络梳理，点击卡片直达阅读。
-          </p>
+          <div className="max-w-3xl border-b border-[var(--border-line-color)] pb-10">
+            <h1 className="inner-page-title">
+              <span className="inner-page-title__lead">文章</span><span className="inner-page-title__rest">归档</span>
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
+              全部 {notesList.length} 篇文章按时间轴与分类脉络梳理，点击卡片直达阅读。
+            </p>
           </div>
 
           {/* Search Bar */}
-          <div className="relative mt-12 max-w-lg border-t border-[var(--border-line-color)] pt-4">
+          <div className="relative mt-10 max-w-lg">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted)]" />
             <input
               type="text"
