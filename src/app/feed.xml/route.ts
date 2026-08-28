@@ -1,6 +1,8 @@
 import { getAllNotes } from "@/lib/notes";
 import { SITE_URL } from "@/lib/site";
 
+export const dynamic = "force-static";
+
 function escapeXml(value: string) {
   return value
     .replaceAll("&", "&amp;")
