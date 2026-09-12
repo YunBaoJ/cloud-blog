@@ -34,23 +34,23 @@ featured: true
 
 在传统虚拟机或单体 Docker 运维场景下，企业常面临**服务依赖复杂、弹性伸缩迟缓、环境配置漂移、发布缺乏规范审计**等痛点。本项目通过在底层物理机/虚拟化环境构建多节点高可用 Kubernetes 集群，完成从底层容器引擎到上层声明式交付的全栈云原生平台架构：
 
-```
-┌──────────────────────────────────────────────────────────┐
-│  第 4 层：GitOps 声明式持续交付引擎（ArgoCD v2.10）          │
-│  · 监听私有 Git 仓库，代码推送自动拉取同步，支持自动化故障自愈与一键回滚  │
-├──────────────────────────────────────────────────────────┤
-│  第 3 层：工业级全栈可观测性平台（kube-prometheus-stack）     │
-│  · 宿主机物理采集 (Node-Exporter) + 集群状态 (kube-state-metrics) │
-│  · 动态监控看板 (Grafana) + 智能告警分发 (Alertmanager)        │
-├──────────────────────────────────────────────────────────┤
-│  第 2 层：动态持久化存储体系（NFS StorageClass / CSI）       │
-│  · 基于 nfs-subdir-external-provisioner 实现 PVC 动态秒级绑定 │
-│  · 支撑 Prometheus 时序库、Grafana 大盘配置及数据库持久化存盘  │
-├──────────────────────────────────────────────────────────┤
-│  第 1 层：集群底层骨架（K8s v1.28.2 + Calico v3.26 + Containerd）│
-│  · 纯净 Containerd 运行时替代 Docker-shim，规避调用损耗       │
-│  · Calico BGP/IPIP 容器路由，IPVS 模式四层服务发现          │
-└──────────────────────────────────────────────────────────┘
+```text
++-------------------------------------------------------------------------+
+|  第 4 层：GitOps 声明式持续交付引擎（ArgoCD v2.10）                      |
+|  · 监听私有 Git 仓库，代码推送自动拉取同步，支持自动化故障自愈与一键回滚  |
++-------------------------------------------------------------------------+
+|  第 3 层：工业级全栈可观测性平台（kube-prometheus-stack）               |
+|  · 宿主机物理采集 (Node-Exporter) + 集群状态 (kube-state-metrics)       |
+|  · 动态监控看板 (Grafana) + 智能告警分发 (Alertmanager)                  |
++-------------------------------------------------------------------------+
+|  第 2 层：动态持久化存储体系（NFS StorageClass / CSI）                 |
+|  · 基于 nfs-subdir-external-provisioner 实现 PVC 动态秒级绑定           |
+|  · 支撑 Prometheus 时序库、Grafana 大盘配置及数据库持久化存盘            |
++-------------------------------------------------------------------------+
+|  第 1 层：集群底层骨架（K8s v1.28.2 + Calico v3.26 + Containerd）       |
+|  · 纯净 Containerd 运行时替代 Docker-shim，规避调用损耗                 |
+|  · Calico BGP/IPIP 容器路由，IPVS 模式四层服务发现                    |
++-------------------------------------------------------------------------+
 ```
 
 ---
@@ -63,8 +63,8 @@ featured: true
 | **`k8s-node1`** | Worker Node | `192.168.20.133` | 2核 CPU / 4G 内存 | Kubelet, Containerd, Calico-Node, Node-Exporter |
 | **`k8s-node2`** | Worker Node | `192.168.20.135` | 2核 CPU / 4G 内存 | Kubelet, Containerd, Calico-Node, Node-Exporter |
 
-* **集群 Service CIDR**：`10.96.0.0/12`（用于 Service 虚拟 IP 分配）
-* **集群 Pod CIDR**：`10.244.0.0/16`（用于 Pod 容器网络，**严格规避宿主机 `192.168.20.0/24` 网段**）
+- **集群 Service CIDR**：`10.96.0.0/12`（用于 Service 虚拟 IP 分配）
+- **集群 Pod CIDR**：`10.244.0.0/16`（用于 Pod 容器网络，**严格规避宿主机 `192.168.20.0/24` 网段**）
 
 ---
 
@@ -207,7 +207,8 @@ sudo kubeadm join 192.168.20.134:6443 --token <token> \
 
 ### 3. Calico CNI 部署与网络冲突规避
 
-> ⚠️ **深度排障重点**：Calico 官方 YAML 默认将 Pod IP 池设置为 `192.168.0.0/16`。当宿主机局域网同处于 `192.168.20.0/24` 网段时，若直接部署会导致宿主机与 Pod 网段重叠产生路由死锁。
+> [!WARNING]
+> **深度排障重点**：Calico 官方 YAML 默认将 Pod IP 池设置为 `192.168.0.0/16`。当宿主机局域网同处于 `192.168.20.0/24` 网段时，若直接部署会导致宿主机与 Pod 网段重叠产生路由死锁。
 
 因此，下载 YAML 后必须修改 `CALICO_IPV4POOL_CIDR` 为与初始化一致的 `10.244.0.0/16`：
 
@@ -224,7 +225,7 @@ sed -i 's#docker.io/calico/#m.daocloud.io/docker.io/calico/#g' calico.yaml
 kubectl apply -f calico.yaml
 ```
 
-执行 `kubectl get nodes -o wide`，见证所有节点全部转为 **`Ready`** 状态！
+执行 `kubectl get nodes -o wide`，见证所有节点全部转为 **`Ready`** 状态。
 
 ---
 
@@ -246,7 +247,8 @@ sudo apt install -y nfs-common
 
 ### 2. 部署 NFS 动态存储供给器与 RBAC 权限修复
 
-> 🛠️ **SRE 深度复盘：Leader 选举死锁排障**  
+> [!NOTE]
+> **SRE 深度复盘：Leader 选举死锁排障**  
 > 在部署 `nfs-subdir-external-provisioner` 后，创建测试 PVC 始终处于 `Pending` 状态。通过查看 Provisioner 日志发现报错：  
 > `error retrieving resource lock: endpoints is forbidden: User "system:serviceaccount:storage:nfs-client-provisioner" cannot get resource "endpoints"`  
 > **根因分析**：在新版 Kubernetes 中，分布式存储控制器采用 Leader 选举机制竞选锁，需操作 `endpoints` 与 `coordination.k8s.io/leases` 资源。默认 ClusterRole 权限不足导致控制器死锁。
@@ -331,12 +333,12 @@ prometheus:
 
 安装完成后，在浏览器直接访问 `http://192.168.20.134:30200`，即可进入实时监控大盘：
 
-#### ① 集群计算资源总览大盘 (Kubernetes / Compute Resources / Cluster)
+#### 1. 集群计算资源总览大盘 (Kubernetes / Compute Resources / Cluster)
 实时捕获整个集群的 CPU Utilisation、内存申请水位（Requests vs Limits）及各 Namespace 资源分配比：
 
 ![Grafana 集群监控总览](/projects/k8s-gitops/01-grafana-cluster-dashboard.png)
 
-#### ② 节点物理硬件监控大盘 (Node Exporter / Nodes)
+#### 2. 节点物理硬件监控大盘 (Node Exporter / Nodes)
 精准呈现 3 台物理节点的 CPU 核心负载、内存细化（Used/Cache/Buffers）、网络吞吐与磁盘 I/O 速率：
 
 ![Grafana 节点监控大盘](/projects/k8s-gitops/02-grafana-node-exporter.png)
@@ -361,20 +363,21 @@ kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort", "por
 
 ### 2. 深度排障：Fake-IP 代理劫持与内网私有 GitOps 闭环构建
 
-> 🛠️ **SRE 深度复盘：突破 DNS 污染与 Fake-IP 劫持**  
+> [!IMPORTANT]
+> **SRE 深度复盘：突破 DNS 污染与 Fake-IP 劫持**  
 > 在配置 Application 连接外部 Git 仓库时，ArgoCD 报错：  
 > `read tcp 10.244.36.78 -> 198.18.0.122:9418: connection reset by peer`  
 > **根因分析**：宿主机/网络中运行的科学上网代理客户端（如 Clash TUN 模式）捕获了域名请求并下发了 `198.18.0.0/15` 的 Fake-IP，导致 Git 请求被代理切断。  
-> **生产级破局**：在很多金融/政企私有云中，集群根本不允许直连公网 GitHub。我们在集群内部署轻量级 `local-git-server`，并直接使用其 **Cluster-IP（`10.102.231.128`）** 进行内网穿透通信，彻底粉碎外部代理劫持！
+> **生产级破局**：在很多金融/政企私有云中，集群根本不允许直连公网 GitHub。我们在集群内部署轻量级 `local-git-server`，并直接使用其 **Cluster-IP（`10.102.231.128`）** 进行内网穿透通信，彻底粉碎外部代理劫持。
 
 ### 3. GitOps 自动化微服务拓扑树实况（实机渲染截图）
 
-#### ① ArgoCD 应用控制台状态
+#### 1. ArgoCD 应用控制台状态
 应用状态瞬间变为翠绿色的 **`Healthy`** 与 **`Synced`**，完全自主可控：
 
 ![ArgoCD 应用卡片](/projects/k8s-gitops/03-argocd-applications.png)
 
-#### ② 微服务自动化拓扑架构树 (Service ➔ Deployment ➔ ReplicaSet ➔ Pods)
+#### 2. 微服务自动化拓扑架构树 (Service ➔ Deployment ➔ ReplicaSet ➔ Pods)
 通过声明式 GitOps 自动化流水线，微服务由 Git 仓库声明直接展开映射为立体的 Kubernetes 对象树：
 
 ![ArgoCD 微服务架构树](/projects/k8s-gitops/04-argocd-topology-tree.png)
