@@ -10,6 +10,7 @@ interface ProjectArchiveStackProps {
 
 const CARD_DETAILS: Record<string, { footer: string; title: ReactNode }> = {
   "dormitory-system": { footer: "Vue · Spring Boot", title: <>智慧宿舍管理系统</> },
+  "k8s-gitops": { footer: "K8s · GitOps · Prometheus", title: <>K8s 云原生与<br />GitOps 交付平台</> },
   "portfolio-archive": { footer: "内容组织", title: <>个人作品<br />归档工具</> },
   "linux-practice": { footer: "命令与排障", title: <>Linux<br />运维练习集</> },
   "service-observability": { footer: "可观测性", title: <>小型服务<br />监控面板</> },
@@ -18,6 +19,7 @@ const CARD_DETAILS: Record<string, { footer: string; title: ReactNode }> = {
 
 const COVER_IMAGES: Record<string, { src: string; position?: string }> = {
   "dormitory-system": { src: "/gallery/【搜图壁纸】四格-卡通.png", position: "object-center" },
+  "k8s-gitops": { src: "/projects/k8s-gitops/01-grafana-cluster-dashboard.png", position: "object-center" },
   "portfolio-archive": { src: "/gallery/【哲风壁纸】剪影-壁纸-天空.png", position: "object-center" },
   "linux-practice": { src: "/gallery/【哲风壁纸】二次元-卡通.png", position: "object-center" },
   "service-observability": { src: "/gallery/【用户壁纸】持剑-黑发少女.jpg", position: "object-center" },

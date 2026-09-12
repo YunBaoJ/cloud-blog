@@ -25,8 +25,9 @@ test("宿舍系统案例保持可核对的开发中状态与真实截图", () =>
 test("项目档案仅链接已公开的真实案例", () => {
   assert.equal(PROJECT_ARCHIVE_ITEMS.length, 5);
   assert.equal(PROJECT_ARCHIVE_ITEMS.filter((item) => item.status === "开发中").length, 1);
+  assert.equal(PROJECT_ARCHIVE_ITEMS.filter((item) => item.status === "已完成").length, 1);
   assert.deepEqual(
     PROJECT_ARCHIVE_ITEMS.filter((item) => "href" in item && item.href).map((item) => item.id),
-    ["dormitory-system"],
+    ["dormitory-system", "k8s-gitops"],
   );
 });

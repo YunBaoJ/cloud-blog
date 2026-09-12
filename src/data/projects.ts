@@ -46,7 +46,7 @@ export interface ProjectArchiveItem {
   serial: string;
   title: string;
   summary: string;
-  status: "开发中" | "筹备中" | "留白";
+  status: "开发中" | "已完成" | "筹备中" | "留白";
   kind: "published" | "planning" | "notebook";
   href?: string;
 }
@@ -382,12 +382,13 @@ export const PROJECT_ARCHIVE_ITEMS = [
     href: "/projects/dormitory-system",
   },
   {
-    id: "portfolio-archive",
-    serial: "CASE 02 / PLANNING",
-    title: "个人作品归档工具",
-    summary: "用于整理作品与过程记录的下一项计划。",
-    status: "筹备中",
-    kind: "planning",
+    id: "k8s-gitops",
+    serial: "CASE 02 / PUBLISHED",
+    title: "K8s 云原生与 GitOps 交付平台",
+    summary: "多节点 K8s v1.28 集群、Calico CNI、NFS 存储、Prometheus 监控与 ArgoCD 持续交付闭环。",
+    status: "已完成",
+    kind: "published",
+    href: "/notes/k8s-gitops-handbook",
   },
   {
     id: "linux-practice",
