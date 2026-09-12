@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
-  Battery,
   Coins,
   Gamepad2,
   HelpCircle,

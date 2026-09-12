@@ -338,7 +338,8 @@ export default function PlaygroundClient() {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       if (params.get("start") === "true") {
-        setIsPoweredOn(true);
+        const timer = setTimeout(() => setIsPoweredOn(true), 0);
+        return () => clearTimeout(timer);
       }
     }
   }, []);
