@@ -13,7 +13,6 @@ import {
   ExternalLink,
   Mail,
   MapPin,
-  MessageSquare,
   Phone,
   Printer,
   Share2,
@@ -39,11 +38,6 @@ export default function ResumeClient() {
     copyToClipboard(url, "link");
   };
 
-  const handleCopyBossGreeting = () => {
-    const text = `您好！这是我的在线简历与真实集群实战手册：https://cloud-blog.s2445686870.workers.dev/resume 包含 K8s、GitOps 与 OpenStack 部署排错实录，欢迎审阅！期待能有机会与您进一步沟通交流。`;
-    copyToClipboard(text, "boss");
-  };
-
   const handlePrint = () => {
     if (typeof window !== "undefined") {
       window.print();
@@ -66,25 +60,6 @@ export default function ResumeClient() {
         </Link>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* 复制 Boss 招呼文案 */}
-          <button
-            type="button"
-            onClick={handleCopyBossGreeting}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#36513B] text-white hover:bg-[#2A3F2E] text-xs font-semibold shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98]"
-            title="一键复制专用于 Boss 直聘聊天的自我介绍文案"
-          >
-            {copiedType === "boss" ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-[#7CD090]" />
-                <span>已复制 Boss 沟通语录！</span>
-              </>
-            ) : (
-              <>
-                <MessageSquare className="w-3.5 h-3.5" />
-                <span>复制 Boss 沟通语录</span>
-              </>
-            )}
-          </button>
 
           {/* 复制在线简历链接 */}
           <button
@@ -421,7 +396,6 @@ export default function ResumeClient() {
             {copiedType === "phone" && "电话号码已复制到剪贴板"}
             {copiedType === "email" && "电子邮箱已复制到剪贴板"}
             {copiedType === "link" && "在线简历链接已复制到剪贴板"}
-            {copiedType === "boss" && "Boss 直聘沟通文案已复制到剪贴板！"}
           </span>
         </aside>
       )}
