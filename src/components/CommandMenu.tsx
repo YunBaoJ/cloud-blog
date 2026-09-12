@@ -15,6 +15,7 @@ import {
   Search,
   Sparkles,
   User,
+  FileText,
   X,
 } from "lucide-react";
 import { GALLERY_PHOTOS } from "@/data/siteContent";
@@ -60,6 +61,7 @@ const NAVIGATION_RESULTS = [
   { title: "游乐场", path: "/playground", category: "页面导航", icon: Sparkles },
   { title: "文章归档", path: "/archive", category: "页面导航", icon: Archive },
   { title: "关于小屋", path: "/about", category: "页面导航", icon: User },
+  { title: "个人在线简历", path: "/resume", category: "页面导航", icon: FileText },
 ] satisfies SearchResult[];
 
 function subscribeToRecentSearches(callback: () => void) {

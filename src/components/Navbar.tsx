@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Feather, Sparkles, BookOpen, User, ImageIcon, Archive, Clock3, Layers3, Search, MoreHorizontal } from "lucide-react";
+import { Feather, Sparkles, BookOpen, User, ImageIcon, Archive, Clock3, Layers3, Search, MoreHorizontal, FileText } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
@@ -175,6 +175,20 @@ export default function Navbar() {
             <span className="hidden md:inline">关于</span>
           </Link>
 
+          {/* 9. 在线简历 */}
+          <Link
+            href="/resume"
+            aria-label="在线简历"
+            className={`hidden min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-full px-2 py-1.5 text-xs font-medium transition-all sm:min-h-0 sm:min-w-0 sm:px-3 md:flex ${
+              isActive("/resume")
+                ? "bg-white text-[#2D2B2C] shadow-2xs font-semibold"
+                : "text-[#5A5551] hover:text-[#2D2B2C] hover:bg-white/70"
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5 text-[#36513B] dark:text-[#7CD090]" />
+            <span className="hidden lg:inline">简历</span>
+          </Link>
+
           <button
             ref={moreButtonRef}
             type="button"
@@ -182,7 +196,7 @@ export default function Navbar() {
             aria-label="更多导航"
             aria-expanded={isMoreOpen}
             aria-controls="mobile-more-navigation"
-            className={`flex min-h-10 min-w-10 items-center justify-center rounded-full text-xs transition-colors md:hidden ${isMoreOpen || isActive("/projects") || isActive("/now") || isActive("/archive") || isActive("/about") ? "bg-white text-[#2D2B2C] shadow-2xs" : "text-[#5A5551] hover:bg-white/70"}`}
+            className={`flex min-h-10 min-w-10 items-center justify-center rounded-full text-xs transition-colors md:hidden ${isMoreOpen || isActive("/resume") || isActive("/projects") || isActive("/now") || isActive("/archive") || isActive("/about") ? "bg-white text-[#2D2B2C] shadow-2xs" : "text-[#5A5551] hover:bg-white/70"}`}
           >
             <MoreHorizontal className="size-4" aria-hidden="true" />
           </button>
@@ -195,6 +209,7 @@ export default function Navbar() {
               className="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-44 space-y-1 rounded-2xl border border-[var(--nav-border)] bg-[var(--surface)]/96 p-2 text-[var(--foreground)] shadow-[0_16px_40px_rgba(38,53,42,0.18)] backdrop-blur-2xl md:hidden"
             >
               {[
+                { href: "/resume", label: "在线简历", icon: FileText },
                 { href: "/projects", label: "项目", icon: Layers3 },
                 { href: "/now", label: "近况", icon: Clock3 },
                 { href: "/archive", label: "归档", icon: Archive },

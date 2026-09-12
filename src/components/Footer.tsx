@@ -113,6 +113,9 @@ export default function Footer() {
             <Link href="/about" className="hover:text-[#36513B] transition-colors">
               关于小屋
             </Link>
+            <Link href="/resume" className="hover:text-[#36513B] font-bold text-[#36513B] dark:text-[#7CD090] transition-colors">
+              个人简历
+            </Link>
             <button
               onClick={scrollToTop}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white border border-[#2D2B2C]/10 text-[#2D2B2C] hover:bg-[#36513B] hover:text-white transition-all shadow-2xs hover:scale-105 active:scale-95"
