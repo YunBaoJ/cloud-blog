@@ -3,10 +3,29 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
-import { BookOpen, Gamepad2, ArrowRight } from "lucide-react";
+import { PenLine, Camera, Mail } from "lucide-react";
 import TextType from "@/components/ui/TextType";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+
+function GithubIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 256 256" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M208.31,75.68A59.78,59.78,0,0,0,202.93,28,8,8,0,0,0,196,24a59.75,59.75,0,0,0-48,24H124A59.75,59.75,0,0,0,76,24a8,8,0,0,0-6.93,4,59.78,59.78,0,0,0-5.38,47.68A58.14,58.14,0,0,0,56,104v8a56.06,56.06,0,0,0,48.44,55.47A39.8,39.8,0,0,0,96,192v8H72a24,24,0,0,1-24-24A40,40,0,0,0,8,136a8,8,0,0,0,0,16,24,24,0,0,1,24,24,40,40,0,0,0,40,40H96v16a8,8,0,0,0,16,0V192a24,24,0,0,1,48,0v40a8,8,0,0,0,16,0V192a39.8,39.8,0,0,0-8.44-24.53A56.06,56.06,0,0,0,216,112v-8A58.14,58.14,0,0,0,208.31,75.68ZM200,112a40,40,0,0,1-40,40H112a40,40,0,0,1-40-40v-8a41.74,41.74,0,0,1,6.9-22.48A8,8,0,0,0,80,73.83a43.81,43.81,0,0,1,.79-33.58,43.88,43.88,0,0,1,32.32,20.06A8,8,0,0,0,119.82,64h32.35a8,8,0,0,0,6.74-3.69,43.87,43.87,0,0,1,32.32-20.06A43.81,43.81,0,0,1,192,73.83a8.09,8.09,0,0,0,1,7.65A41.72,41.72,0,0,1,200,104Z" />
+    </svg>
+  );
+}
+
+function BilibiliIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="m8 4.5 2.5 2.5M16 4.5 13.5 7" />
+      <rect x="3" y="7" width="18" height="13.5" rx="3.5" />
+      <circle cx="8.5" cy="13" r="1" fill="currentColor" stroke="none" />
+      <circle cx="15.5" cy="13" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
 
 gsap.registerPlugin(useGSAP);
 
@@ -107,23 +126,56 @@ export default function Hero() {
           </div>
 
           {/* Action Capsule Buttons */}
-          <div className="hero-anim-item flex flex-wrap items-center gap-3.5 pt-2">
+          <div className="hero-anim-item flex flex-wrap items-center gap-3 pt-2">
+            {/* 1. 随笔 */}
             <Link
               href="/notes"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-[#FAF7F2] hover:bg-white text-[#26352A] font-semibold text-xs sm:text-sm transition-all duration-200 shadow-[0_10px_28px_-10px_rgba(0,0,0,0.35)] hover:-translate-y-0.5 active:translate-y-0 group/btn"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-[#FAF7F2] hover:bg-white text-[#26352A] font-semibold text-xs sm:text-sm transition-all duration-300 shadow-[0_18px_42px_-24px_rgba(0,0,0,0.7)] hover:-translate-y-0.5 hover:shadow-[0_24px_48px_-18px_rgba(0,0,0,0.8)] active:translate-y-0"
             >
-              <BookOpen className="w-4 h-4 text-[#506A50]" />
-              <span>随笔笔记</span>
-              <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
+              <PenLine className="w-4 h-4 text-[#26352A]" />
+              <span>随笔</span>
             </Link>
 
+            {/* 2. 相册 */}
             <Link
-              href="/playground"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-white/16 hover:bg-white/25 text-[#FAF7F2] border border-white/35 backdrop-blur-xl font-semibold text-xs sm:text-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 shadow-md group/btn2"
+              href="/gallery"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-white/12 hover:bg-white/20 text-[#FAF7F2]/90 hover:text-white border border-white/24 hover:border-white/40 backdrop-blur-xl font-medium text-xs sm:text-sm transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 shadow-sm"
             >
-              <Gamepad2 className="w-4 h-4 text-[#D79B7B]" />
-              <span>掌机游乐场</span>
+              <Camera className="w-4 h-4" />
+              <span>相册</span>
             </Link>
+
+            {/* 3. 社交外链胶囊 (GitHub, Bilibili, QQ 邮箱) */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full bg-white/12 border border-white/24 backdrop-blur-xl shadow-sm transition-all duration-300 hover:bg-white/20 hover:border-white/40">
+              <a
+                href="https://github.com/YunBaoJ/"
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-full p-1.5 text-[#FAF7F2]/80 hover:text-white hover:bg-white/14 hover:scale-110 transition-all duration-200"
+                aria-label="GitHub 主页"
+                title="GitHub: YunBaoJ"
+              >
+                <GithubIcon className="w-4 h-4" />
+              </a>
+              <a
+                href="https://space.bilibili.com/110698935"
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-full p-1.5 text-[#FAF7F2]/80 hover:text-white hover:bg-white/14 hover:scale-110 transition-all duration-200"
+                aria-label="哔哩哔哩个人空间"
+                title="哔哩哔哩: Kasumi8"
+              >
+                <BilibiliIcon className="w-4 h-4" />
+              </a>
+              <a
+                href="mailto:2445686870@qq.com"
+                className="rounded-full p-1.5 text-[#FAF7F2]/80 hover:text-white hover:bg-white/14 hover:scale-110 transition-all duration-200"
+                aria-label="QQ 邮箱"
+                title="QQ 邮箱: 2445686870@qq.com"
+              >
+                <Mail className="w-4 h-4" />
+              </a>
+            </div>
           </div>
 
         </div>
